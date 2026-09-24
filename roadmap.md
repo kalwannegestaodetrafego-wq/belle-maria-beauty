@@ -11,3 +11,5 @@
 - [x] Atualizar a taxa da carteira para 18%
 - [x] Adicionar Central de Segurança e FAQ expansível
 - [x] Revalidar o checklist completo do MVP no celular
+- [x] Ampliar o checklist obrigatório para infraestrutura, materiais, pets e LGPD/disputas
+- [x] Adicionar abertura de disputa por dano material ou incompatibilidade no atendimento
