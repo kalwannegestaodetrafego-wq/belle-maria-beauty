@@ -128,7 +128,7 @@ function Index() {
 
       <div className="mx-auto max-w-6xl px-4 md:px-8">
         <div className="mt-5 grid grid-cols-3 rounded-lg bg-card/65 p-1 shadow-soft ring-1 ring-border/60">
-          {(["Cliente", "Profissional Beleza", "Empresa & Salão B2B"] as const).map((item) => <button key={item} onClick={() => setView(item)} aria-pressed={view === item} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight transition-all ${view === item ? "bg-foreground text-background shadow-soft ring-1 ring-primary" : "text-muted-foreground"}`}>{item}</button>)}
+          {(["Cliente", "Profissional Beleza", "Empresa & Salão B2B"] as const).map((item) => <button key={item} onClick={() => setView(item)} aria-pressed={view === item} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight transition-all ${view === item ? "bg-primary text-primary-foreground shadow-soft ring-1 ring-foreground" : "text-muted-foreground"}`}>{item}</button>)}
         </div>
 
         {view === "Empresa & Salão B2B" ? <B2BView /> : view === "Profissional Beleza" ? <ProfessionalView selectedDay={selectedDay} selectedTime={selectedTime} status={orderStatus} setStatus={setOrderStatus} /> : <>
