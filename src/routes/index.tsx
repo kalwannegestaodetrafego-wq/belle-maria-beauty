@@ -27,6 +27,8 @@ import {
 } from "lucide-react";
 import { useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 
+import { AuthModal, B2BView, ChairBooking, ChatModal, OnboardingBanner, ReviewModal, TravelTipModal } from "../components/bm/extras";
+import { UserRound, Lightbulb } from "lucide-react";
 import camilaImage from "../assets/camila.jpg";
 import studioImage from "../assets/studio-bella.jpg";
 import julianaImage from "../assets/juliana.jpg";
@@ -58,17 +60,19 @@ type Professional = {
   image: string;
   bio: string;
   atHome: boolean;
+  tags: string[];
+  extras?: { name: string; price: number }[];
 };
 
 type OrderStatus = "new" | "accepted" | "enroute" | "arrived" | "completed";
 
 const professionals: Professional[] = [
-  { id: "camila", name: "Camila Silva", role: "Maquiadora & Hair", rating: "4,9", reviews: 127, distance: "1,8 km", category: "Maquiagem", service: "Maquiagem Social", price: 150, image: camilaImage, atHome: true, bio: "Especialista em beleza natural e produções que valorizam sua identidade. Há 8 anos transformando momentos especiais com técnica, leveza e carinho." },
-  { id: "bella", name: "Studio Bella", role: "Salão Parceiro", rating: "4,8", reviews: 96, distance: "Centro", category: "Unhas", service: "Unha em Gel", price: 90, image: studioImage, atHome: false, bio: "Um espaço autoral no coração de Floripa, criado para transformar o cuidado com as unhas em um ritual de bem-estar." },
-  { id: "juliana", name: "Juliana Costa", role: "Massoterapeuta", rating: "5,0", reviews: 84, distance: "3,2 km", category: "Massagem", service: "Massagem Relaxante", price: 180, image: julianaImage, atHome: true, bio: "Terapeuta corporal com formação em técnicas relaxantes e recuperação muscular. Cada atendimento é pensado para devolver equilíbrio ao seu dia." },
+  { id: "camila", name: "Camila Silva", role: "Maquiadora & Hair", rating: "4,9", reviews: 127, distance: "1,8 km", category: "Maquiagem", service: "Maquiagem Social", price: 150, image: camilaImage, atHome: true, tags: ["Pele Sensível", "Sem Látex", "Vegano"], bio: "Especialista em beleza natural e produções que valorizam sua identidade. Há 8 anos transformando momentos especiais com técnica, leveza e carinho." },
+  { id: "bella", name: "Studio Bella", role: "Salão Parceiro", rating: "4,8", reviews: 96, distance: "Agronômica", category: "Unhas", service: "Unha em Gel", price: 90, image: studioImage, atHome: false, tags: ["Sem Látex", "Esterilização UV"], extras: [{ name: "Escova", price: 70 }], bio: "Um espaço autoral no coração de Floripa, criado para transformar o cuidado com as unhas em um ritual de bem-estar." },
+  { id: "juliana", name: "Juliana Costa", role: "Massoterapeuta", rating: "5,0", reviews: 84, distance: "3,2 km", category: "Massagem", service: "Massagem Relaxante", price: 180, image: julianaImage, atHome: true, tags: ["Pele Sensível", "Óleos hipoalergênicos"], bio: "Terapeuta corporal com formação em técnicas relaxantes e recuperação muscular. Cada atendimento é pensado para devolver equilíbrio ao seu dia." },
 ];
 
-const categories = ["Para você", "Maquiagem", "Cabelo", "Unhas", "Massagem", "Sobrancelhas", "Combos VIP"];
+const categories = ["Para você", "Maquiagem", "Cabelo & Penteado", "Unhas", "Massagem & Estética", "Design de Sobrancelhas & Cílios", "Combos VIP"];
 const days = [{ week: "QUI", day: "24" }, { week: "SEX", day: "25" }, { week: "SÁB", day: "26" }, { week: "DOM", day: "27" }];
 const times = ["09:00", "11:30", "14:00", "16:30"];
 
@@ -78,7 +82,9 @@ function AppButton({ variant = "primary", className = "", children, ...props }: 
 }
 
 function Index() {
-  const [view, setView] = useState<"Cliente" | "Profissional MEI">("Cliente");
+  const [view, setView] = useState<"Cliente" | "Profissional MEI" | "Empresa & Salão B2B">("Cliente");
+  const [authOpen, setAuthOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const [category, setCategory] = useState("Para você");
   const [mode, setMode] = useState<"Em Domicílio" | "No Salão">("Em Domicílio");
   const [favorite, setFavorite] = useState<string[]>([]);
@@ -92,7 +98,7 @@ function Index() {
   const [orderStatus, setOrderStatus] = useState<OrderStatus>("new");
   const [securityOpen, setSecurityOpen] = useState(false);
 
-  const filtered = useMemo(() => professionals.filter((p) => (category === "Para você" || p.category === category || category === "Cabelo" && p.id === "camila") && (mode === "Em Domicílio" ? p.atHome : !p.atHome)), [category, mode]);
+  const filtered = useMemo(() => professionals.filter((p) => (category === "Para você" || category.startsWith(p.category) || category.startsWith("Cabelo") && p.id === "camila") && (mode === "Em Domicílio" ? p.atHome : !p.atHome)), [category, mode]);
 
   const openProfile = (p: Professional) => { setSelected(p); setStep(0); };
   const openAgenda = () => {
@@ -111,21 +117,21 @@ function Index() {
         <div className="mx-auto max-w-6xl px-4 pb-3 pt-3 md:px-8">
           <div className="flex items-center justify-between">
              <div className="brand-mark" aria-label="BM">BM</div>
-             <AppButton variant="icon" onClick={() => setSecurityOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label="Abrir Central de Segurança"><Menu size={19} /></AppButton>
+             <div className="flex gap-2"><AppButton variant="icon" onClick={() => setAuthOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label="Entrar ou cadastrar"><UserRound size={19} /></AppButton><AppButton variant="icon" onClick={() => setSecurityOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label="Abrir Central de Segurança"><Menu size={19} /></AppButton></div>
           </div>
           <div className="mt-3 flex items-center justify-between gap-3">
             <button className="flex min-w-0 items-center gap-2 text-left text-xs font-semibold"><MapPin size={15} className="shrink-0 text-primary" /><span className="truncate">Florianópolis, SC · Centro</span><ChevronRight size={14} /></button>
-            <div className="flex shrink-0 items-center gap-1 text-[10px] font-bold text-success"><ShieldCheck size={14} /> Garantia BM</div>
+            <div className="flex shrink-0 items-center gap-1 text-[10px] font-bold text-success"><ShieldCheck size={14} /> Garantia BM & Verificação MEI</div>
           </div>
         </div>
       </header>
 
       <div className="mx-auto max-w-6xl px-4 md:px-8">
-        <div className="mt-5 grid grid-cols-2 rounded-lg bg-card/65 p-1 shadow-soft ring-1 ring-border/60">
-          {(["Cliente", "Profissional MEI"] as const).map((item) => <button key={item} onClick={() => setView(item)} className={`h-10 rounded-md text-xs font-bold transition-all ${view === item ? "bg-foreground text-background shadow-soft" : "text-muted-foreground"}`}>{item}</button>)}
+        <div className="mt-5 grid grid-cols-3 rounded-lg bg-card/65 p-1 shadow-soft ring-1 ring-border/60">
+          {(["Cliente", "Profissional MEI", "Empresa & Salão B2B"] as const).map((item) => <button key={item} onClick={() => setView(item)} className={`min-h-10 rounded-md px-1 text-[11px] font-bold leading-tight transition-all ${view === item ? "bg-foreground text-background shadow-soft" : "text-muted-foreground"}`}>{item}</button>)}
         </div>
 
-        {view === "Profissional MEI" ? <ProfessionalView selectedDay={selectedDay} selectedTime={selectedTime} status={orderStatus} setStatus={setOrderStatus} /> : <>
+        {view === "Empresa & Salão B2B" ? <B2BView /> : view === "Profissional MEI" ? <ProfessionalView selectedDay={selectedDay} selectedTime={selectedTime} status={orderStatus} setStatus={setOrderStatus} /> : <>
           <section className="py-7 md:py-10">
             <p className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.16em] text-primary"><Sparkles size={14} /> Curadoria em Florianópolis</p>
             <h1 className="max-w-2xl font-display text-4xl leading-[1.05] md:text-6xl">Em apenas um clique, <em className="font-normal text-primary">a beleza até você.</em></h1>
@@ -162,10 +168,12 @@ function Index() {
       </div>
 
       <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-card/95 px-7 py-2 backdrop-blur-xl md:hidden">
-        <div className="mx-auto flex max-w-sm items-center justify-between"><BottomItem icon={<Sparkles size={20} />} label="Explorar" active /><BottomItem icon={<CalendarDays size={20} />} label="Agenda" onClick={openAgenda} /><BottomItem icon={<Heart size={20} />} label="Favoritos" /><BottomItem icon={<MessageCircle size={20} />} label="Mensagens" /></div>
+        <div className="mx-auto flex max-w-sm items-center justify-between"><BottomItem icon={<Sparkles size={20} />} label="Explorar" active /><BottomItem icon={<CalendarDays size={20} />} label="Agenda" onClick={openAgenda} /><BottomItem icon={<Heart size={20} />} label="Favoritos" /><BottomItem icon={<MessageCircle size={20} />} label="Mensagens" onClick={() => setChatOpen(true)} /></div>
       </nav>
 
       {selected && <BookingModal professional={selected} step={step} selectedDay={selectedDay} setSelectedDay={setSelectedDay} selectedTime={selectedTime} setSelectedTime={setSelectedTime} rules={rules} setRules={setRules} payment={payment} setPayment={setPayment} copied={copied} setCopied={setCopied} orderStatus={orderStatus} onNext={next} onBack={back} onClose={close} />}
+      {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
+      {chatOpen && <ChatModal name="Camila Silva" onClose={() => setChatOpen(false)} />}
       {securityOpen && <SecurityCenter onClose={() => setSecurityOpen(false)} />}
     </main>
   );
@@ -176,6 +184,7 @@ function ProfessionalView({ selectedDay, selectedTime, status, setStatus }: { se
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState("");
   const [withdrawn, setWithdrawn] = useState(false);
+  const [tipOpen, setTipOpen] = useState(false);
   const net = 123;
   const statusLabel = { new: "Novo chamado", accepted: "Chamado aceito", enroute: "A caminho", arrived: "No local", completed: "Concluído" }[status];
   const action = status === "new" ? { label: "Aceitar Chamado", next: "accepted" as const } : status === "accepted" ? { label: "A Caminho", next: "enroute" as const } : status === "enroute" ? { label: "Cheguei ao Local", next: "arrived" as const } : null;
@@ -184,6 +193,8 @@ function ProfessionalView({ selectedDay, selectedTime, status, setStatus }: { se
   return <section className="py-7 md:py-10">
     <div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">Painel profissional</p><h1 className="mt-1 font-display text-4xl">Olá, Camila</h1><p className="mt-2 text-sm text-muted-foreground">Acompanhe seus atendimentos e ganhos.</p></div><div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-card shadow-soft"><Bell size={19} /><span className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full bg-success ring-2 ring-background" /></div></div>
 
+    <OnboardingBanner />
+    <button onClick={() => setTipOpen(true)} className="mt-3 flex w-full items-center gap-3 rounded-lg bg-secondary p-3 text-left text-xs font-semibold"><Lightbulb size={17} className="shrink-0 text-primary" /> Dica: como calcular deslocamento sem encarecer o serviço <ChevronRight size={15} className="ml-auto shrink-0" /></button>
     <div className="mt-7 overflow-hidden rounded-lg border border-primary bg-card shadow-card">
       <div className="flex items-center justify-between bg-secondary px-4 py-3"><span className="flex items-center gap-2 text-xs font-bold"><span className="h-2 w-2 rounded-full bg-success" />{statusLabel}</span><span className="text-[10px] font-semibold text-muted-foreground">#BM-0925</span></div>
       <div className="p-4"><div className="flex items-center gap-3"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-background font-display text-lg">AM</div><div><h2 className="font-bold">Ana Martins</h2><p className="text-xs text-muted-foreground">Cliente verificada · 12 atendimentos</p></div></div>
@@ -193,6 +204,8 @@ function ProfessionalView({ selectedDay, selectedTime, status, setStatus }: { se
 
      <div className="mt-6 rounded-lg bg-foreground p-5 text-background shadow-card"><div className="flex items-center justify-between"><div><p className="flex items-center gap-2 text-xs font-semibold text-background/70"><Wallet size={16} /> Carteira BM</p><p className="mt-2 font-display text-4xl">R$ {status === "completed" && !withdrawn ? "123,00" : "0,00"}</p><p className="mt-1 text-[10px] text-background/60">Saldo disponível</p></div><AppButton onClick={() => setWithdrawn(true)} disabled={status !== "completed" || withdrawn} className="bg-background text-foreground shadow-none hover:bg-background/90">{withdrawn ? "Saque solicitado" : "Sacar via PIX"}</AppButton></div><div className="mt-5 grid grid-cols-2 gap-3 border-t border-background/20 pt-4 text-xs"><div><p className="text-background/60">Valor bruto</p><p className="mt-1 font-bold">R$ 150,00</p></div><div><p className="text-background/60">Taxa BM · 18%</p><p className="mt-1 font-bold">− R$ 27,00</p></div></div>{withdrawn && <p className="mt-4 flex items-center gap-2 rounded-md bg-success/20 p-3 text-xs font-semibold"><CheckCircle2 size={16} /> Saque PIX solicitado com sucesso.</p>}</div>
 
+    <ChairBooking />
+    {tipOpen && <TravelTipModal onClose={() => setTipOpen(false)} />}
     {pinOpen && <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/55 p-0 backdrop-blur-sm md:items-center md:p-6" role="dialog" aria-modal="true" aria-label="Validar PIN"><div className="w-full max-w-md rounded-t-2xl bg-background p-5 shadow-modal md:rounded-xl"><div className="flex items-center justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">Liberação segura</p><h2 className="mt-1 font-display text-2xl">Validar PIN da cliente</h2></div><AppButton variant="ghost" onClick={() => setPinOpen(false)} className="h-10 min-h-10 w-10 p-0" aria-label="Fechar"><X size={19} /></AppButton></div><p className="mt-3 text-sm leading-6 text-muted-foreground">Digite o código de 4 dígitos exibido no celular da cliente para concluir e liberar R$ {net.toFixed(2).replace(".", ",")}.</p><input value={pin} onChange={(event) => { const value = event.target.value.replace(/\D/g, "").slice(0, 4); setPin(value); setPinError(""); }} inputMode="numeric" autoComplete="one-time-code" maxLength={4} aria-label="PIN de 4 dígitos" className="pin-input mt-6 w-full rounded-lg border border-border bg-card px-4 py-4 text-center font-display text-3xl" placeholder="••••" />{pinError && <p className="mt-2 text-xs font-semibold text-destructive">{pinError}</p>}<AppButton onClick={validatePin} disabled={pin.length !== 4} className="mt-5 w-full">Concluir serviço e liberar pagamento</AppButton></div></div>}
   </section>;
 }
@@ -201,6 +214,8 @@ const securityTopics = [
   { title: "Termos de Uso", content: "Ao usar a BM, clientes e profissionais concordam em fornecer informações verdadeiras, respeitar os horários confirmados e manter uma conduta segura durante todo o atendimento." },
   { title: "Política de Custódia", content: "O pagamento fica retido na BM durante o atendimento. O valor só é liberado para a profissional após a cliente informar o PIN de segurança e confirmar a conclusão do serviço." },
   { title: "Segurança", content: "A BM verifica a identidade e o MEI das profissionais. Nunca compartilhe o PIN antes do serviço terminar e utilize os canais da plataforma para registrar qualquer imprevisto." },
+  { title: "Reportar Avaria/Dano", content: "Na tela de acompanhamento do pedido, toque em \"Reportar Incidente / Abrir Disputa\". O pagamento permanece retido enquanto a equipe BM media o caso com as duas partes, com resposta em até 48h." },
+  { title: "Suporte por e-mail", content: "Fale com a nossa equipe em suporte@bmbeauty.com.br — atendimento de segunda a sábado, das 8h às 20h." },
   { title: "Privacidade e LGPD", content: "Seus dados são utilizados apenas para viabilizar agendamentos, pagamentos e suporte. Você pode solicitar acesso, correção ou exclusão dos seus dados pessoais conforme a LGPD." },
 ];
 
@@ -237,7 +252,7 @@ function BookingModal(props: BookingProps) {
 
 function ProfileStep({ p, onNext }: { p: Professional; onNext: () => void }) {
   const gallery = [p.image, p.id === "camila" ? studioImage : camilaImage, p.id === "juliana" ? studioImage : julianaImage];
-  return <div className="pb-5"><div className="relative aspect-[16/11] overflow-hidden"><img src={p.image} alt={p.name} width={912} height={1200} className="h-full w-full object-cover" /><span className="absolute bottom-4 left-4 flex items-center gap-1 rounded-full bg-success px-3 py-1.5 text-[10px] font-bold text-success-foreground"><ShieldCheck size={13} /> Identidade & MEI verificados</span></div><div className="px-5 pt-5"><div className="flex justify-between"><div><h2 className="font-display text-3xl">{p.name}</h2><p className="text-sm text-muted-foreground">{p.role} · {p.distance}</p></div><span className="flex h-fit items-center gap-1 text-sm font-bold"><Star size={15} className="fill-primary text-primary" /> {p.rating}</span></div><p className="mt-5 text-sm leading-6 text-muted-foreground">{p.bio}</p><h3 className="mb-3 mt-6 font-display text-xl">Portfólio</h3><div className="grid grid-cols-3 gap-2">{gallery.map((image, i) => <img key={`${image}-${i}`} src={image} alt={`Trabalho ${i + 1} de ${p.name}`} loading="lazy" width={912} height={1200} className="aspect-square w-full rounded-md object-cover" />)}</div><h3 className="mb-3 mt-6 font-display text-xl">Menu de serviços</h3><button className="flex w-full items-center justify-between rounded-lg border border-primary bg-card p-4 text-left"><span><span className="block text-sm font-bold">{p.service}</span><span className="mt-1 block text-xs text-muted-foreground">Duração aproximada · 1h30</span></span><span className="font-display text-lg">R$ {p.price}</span></button><AppButton onClick={onNext} className="mt-5 w-full">Escolher data e horário <ChevronRight size={17} /></AppButton></div></div>;
+  return <div className="pb-5"><div className="relative aspect-[16/11] overflow-hidden"><img src={p.image} alt={p.name} width={912} height={1200} className="h-full w-full object-cover" /><span className="absolute bottom-4 left-4 flex items-center gap-1 rounded-full bg-success px-3 py-1.5 text-[10px] font-bold text-success-foreground"><ShieldCheck size={13} /> Identidade & MEI verificados</span></div><div className="px-5 pt-5"><div className="flex justify-between"><div><h2 className="font-display text-3xl">{p.name}</h2><p className="text-sm text-muted-foreground">{p.role} · {p.distance}</p></div><span className="flex h-fit items-center gap-1 text-sm font-bold"><Star size={15} className="fill-primary text-primary" /> {p.rating}</span></div><p className="mt-5 text-sm leading-6 text-muted-foreground">{p.bio}</p><div className="mt-4 flex flex-wrap gap-2">{p.tags.map((t) => <span key={t} className="rounded-full border border-success/30 bg-success-soft px-3 py-1 text-[11px] font-semibold text-success">{t}</span>)}</div><h3 className="mb-3 mt-6 font-display text-xl">Portfólio</h3><div className="grid grid-cols-3 gap-2">{gallery.map((image, i) => <img key={`${image}-${i}`} src={image} alt={`Trabalho ${i + 1} de ${p.name}`} loading="lazy" width={912} height={1200} className="aspect-square w-full rounded-md object-cover" />)}</div><h3 className="mb-3 mt-6 font-display text-xl">Menu de serviços</h3><button className="flex w-full items-center justify-between rounded-lg border border-primary bg-card p-4 text-left"><span><span className="block text-sm font-bold">{p.service}</span><span className="mt-1 block text-xs text-muted-foreground">Duração aproximada · 1h30</span></span><span className="font-display text-lg">R$ {p.price}</span></button>{p.extras?.map((x) => <div key={x.name} className="mt-2 flex items-center justify-between rounded-lg border border-border bg-card p-4 text-sm"><span className="font-bold">{x.name}</span><span className="font-display text-lg">R$ {x.price}</span></div>)}<h3 className="mb-3 mt-6 font-display text-xl">Avaliações</h3><div className="space-y-2">{[{ n: "Marina L.", t: "Pontual, super cuidadosa e o resultado ficou impecável." }, { n: "Rafaela S.", t: "Material todo higienizado. Já agendei de novo!" }].map((r) => <div key={r.n} className="rounded-lg bg-card p-3 shadow-soft"><p className="flex items-center gap-1 text-xs font-bold">{r.n} <span className="ml-auto flex">{[1,2,3,4,5].map((i) => <Star key={i} size={11} className="fill-primary text-primary" />)}</span></p><p className="mt-1 text-xs text-muted-foreground">{r.t}</p></div>)}</div><AppButton onClick={onNext} className="mt-5 w-full">Escolher data e horário <ChevronRight size={17} /></AppButton></div></div>;
 }
 
 function ScheduleStep(props: BookingProps) { return <div className="p-5"><div className="flex items-center gap-3 rounded-lg bg-card p-3 shadow-soft"><img src={props.professional.image} alt="" width={72} height={72} className="h-14 w-14 rounded-md object-cover" /><div><p className="font-bold">{props.professional.service}</p><p className="text-xs text-muted-foreground">com {props.professional.name}</p><p className="mt-1 text-sm font-bold text-primary">R$ {props.professional.price}</p></div></div><h3 className="mb-3 mt-7 font-display text-xl">Setembro</h3><div className="grid grid-cols-4 gap-2">{days.map((date) => <button key={date.day} onClick={() => props.setSelectedDay(date.day)} className={`rounded-lg border py-3 text-center ${props.selectedDay === date.day ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}><span className="block text-[9px] font-bold">{date.week}</span><span className="mt-1 block font-display text-xl">{date.day}</span></button>)}</div><h3 className="mb-3 mt-7 font-display text-xl">Horários disponíveis</h3><div className="grid grid-cols-2 gap-2">{times.map((time) => <button key={time} onClick={() => props.setSelectedTime(time)} className={`flex h-12 items-center justify-center gap-2 rounded-lg border text-sm font-bold ${props.selectedTime === time ? "border-primary bg-secondary text-foreground" : "border-border bg-card"}`}><Clock3 size={15} />{time}</button>)}</div><div className="mt-8 flex items-center justify-between border-t border-border pt-4"><div><p className="text-xs text-muted-foreground">Total protegido</p><p className="font-display text-2xl">R$ {props.professional.price}</p></div><AppButton onClick={props.onNext}>Continuar <ChevronRight size={17} /></AppButton></div></div>; }
@@ -257,6 +272,8 @@ function TrackingStep({ p, status, onClose }: { p: Professional; status: OrderSt
   const [disputeOpen, setDisputeOpen] = useState(false);
   const [disputeType, setDisputeType] = useState<"Dano a Material" | "Incompatibilidade no Atendimento" | null>(null);
   const [reportedDispute, setReportedDispute] = useState<string | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [reviewOpen, setReviewOpen] = useState(false);
   const moving = ["enroute", "arrived", "completed"].includes(status);
   const done = status === "completed";
   const submitDispute = () => {
@@ -265,7 +282,9 @@ function TrackingStep({ p, status, onClose }: { p: Professional; status: OrderSt
     setDisputeOpen(false);
   };
 
-  return <div className="p-5 text-center"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-success text-success-foreground"><CheckCircle2 size={32} /></div><h2 className="mt-5 font-display text-3xl">{done ? "Atendimento concluído!" : "Agendamento confirmado!"}</h2><p className="mt-2 text-sm text-muted-foreground">Sex, 25 de setembro · 14:00</p><div className="mt-7 rounded-lg border border-primary/35 bg-card p-5"><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">PIN de liberação</p><p className="pin mt-3">8392</p><p className="mx-auto mt-3 max-w-xs text-xs leading-5 text-muted-foreground">{done ? "PIN validado e pagamento liberado com segurança." : "Informe este código somente após concluir e aprovar o atendimento."}</p></div><div className="mt-7 text-left"><div className="flex justify-between text-[10px] font-bold uppercase tracking-[.1em]"><span className="text-success">Confirmado</span><span className={moving ? "text-success" : "text-muted-foreground"}>A caminho</span><span className={done ? "text-success" : "text-muted-foreground"}>Concluído</span></div><div className="mt-3 flex items-center"><span className="h-3 w-3 rounded-full bg-success" /><span className="h-1 flex-1 bg-success" /><span className={`h-3 w-3 rounded-full ${moving ? "bg-success" : "bg-muted"}`} /><span className={`h-1 flex-1 ${done ? "bg-success" : "bg-muted"}`} /><span className={`h-3 w-3 rounded-full ${done ? "bg-success" : "bg-muted"}`} /></div></div><div className="mt-7 flex items-center gap-3 rounded-lg bg-card p-3 text-left shadow-soft"><img src={p.image} alt={p.name} width={72} height={72} className="h-14 w-14 rounded-md object-cover" /><div className="min-w-0 flex-1"><p className="font-bold">{p.name}</p><p className="text-xs text-muted-foreground">{p.service}</p></div><AppButton variant="outline" className="h-10 min-h-10 w-10 p-0" aria-label="Conversar"><MessageCircle size={17} /></AppButton></div>{reportedDispute && <div className="mt-4 flex items-start gap-3 rounded-lg border border-primary/35 bg-secondary p-4 text-left"><ShieldCheck size={19} className="mt-0.5 shrink-0 text-success" /><div><p className="text-sm font-bold">Disputa registrada</p><p className="mt-1 text-xs text-muted-foreground">{reportedDispute} · A equipe BM fará a mediação pelo suporte.</p></div></div>}<AppButton variant="outline" onClick={() => setDisputeOpen(true)} className="mt-5 w-full"><AlertTriangle size={17} /> Reportar Incidente / Abrir Disputa</AppButton><AppButton onClick={onClose} className="mt-3 w-full">Acompanhar pedido</AppButton>
+  return <div className="p-5 text-center"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-success text-success-foreground"><CheckCircle2 size={32} /></div><h2 className="mt-5 font-display text-3xl">{done ? "Atendimento concluído!" : "Agendamento confirmado!"}</h2><p className="mt-2 text-sm text-muted-foreground">Sex, 25 de setembro · 14:00</p><div className="mt-7 rounded-lg border border-primary/35 bg-card p-5"><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">PIN de liberação</p><p className="pin mt-3">8392</p><p className="mx-auto mt-3 max-w-xs text-xs leading-5 text-muted-foreground">{done ? "PIN validado e pagamento liberado com segurança." : "Informe este código somente após concluir e aprovar o atendimento."}</p></div><div className="mt-7 text-left"><div className="flex justify-between text-[10px] font-bold uppercase tracking-[.1em]"><span className="text-success">Confirmado</span><span className={moving ? "text-success" : "text-muted-foreground"}>A caminho</span><span className={done ? "text-success" : "text-muted-foreground"}>Concluído</span></div><div className="mt-3 flex items-center"><span className="h-3 w-3 rounded-full bg-success" /><span className="h-1 flex-1 bg-success" /><span className={`h-3 w-3 rounded-full ${moving ? "bg-success" : "bg-muted"}`} /><span className={`h-1 flex-1 ${done ? "bg-success" : "bg-muted"}`} /><span className={`h-3 w-3 rounded-full ${done ? "bg-success" : "bg-muted"}`} /></div></div><div className="mt-7 flex items-center gap-3 rounded-lg bg-card p-3 text-left shadow-soft"><img src={p.image} alt={p.name} width={72} height={72} className="h-14 w-14 rounded-md object-cover" /><div className="min-w-0 flex-1"><p className="font-bold">{p.name}</p><p className="text-xs text-muted-foreground">{p.service}</p></div><AppButton variant="outline" onClick={() => setChatOpen(true)} className="h-10 min-h-10 w-10 p-0" aria-label="Conversar"><MessageCircle size={17} /></AppButton></div>{reportedDispute && <div className="mt-4 flex items-start gap-3 rounded-lg border border-primary/35 bg-secondary p-4 text-left"><ShieldCheck size={19} className="mt-0.5 shrink-0 text-success" /><div><p className="text-sm font-bold">Disputa registrada</p><p className="mt-1 text-xs text-muted-foreground">{reportedDispute} · A equipe BM fará a mediação pelo suporte.</p></div></div>}<AppButton variant="outline" onClick={() => setDisputeOpen(true)} className="mt-5 w-full"><AlertTriangle size={17} /> Reportar Incidente / Abrir Disputa</AppButton>{done && <AppButton variant="outline" onClick={() => setReviewOpen(true)} className="mt-3 w-full"><Star size={17} /> Avaliar atendimento</AppButton>}<AppButton onClick={onClose} className="mt-3 w-full">Acompanhar pedido</AppButton>
+    {chatOpen && <ChatModal name={p.name} onClose={() => setChatOpen(false)} />}
+    {reviewOpen && <ReviewModal name={p.name} onClose={() => setReviewOpen(false)} />}
     {disputeOpen && <div className="fixed inset-0 z-[60] flex items-end justify-center bg-overlay/55 backdrop-blur-sm md:items-center md:p-6" role="dialog" aria-modal="true" aria-label="Reportar incidente ou abrir disputa"><div className="w-full max-w-md rounded-t-2xl bg-background p-5 text-left shadow-modal md:rounded-xl"><div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">Suporte BM</p><h3 className="mt-1 font-display text-2xl">O que aconteceu?</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">Selecione o motivo para iniciar a mediação do atendimento.</p></div><AppButton variant="ghost" onClick={() => setDisputeOpen(false)} className="h-10 min-h-10 w-10 shrink-0 p-0" aria-label="Fechar disputa"><X size={19} /></AppButton></div><div className="mt-5 space-y-3">{(["Dano a Material", "Incompatibilidade no Atendimento"] as const).map((option) => <button type="button" key={option} onClick={() => setDisputeType(option)} className={`flex min-h-14 w-full items-center gap-3 rounded-lg border p-4 text-left text-sm font-bold ${disputeType === option ? "border-primary bg-secondary" : "border-border bg-card"}`} aria-pressed={disputeType === option}><span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${disputeType === option ? "border-success bg-success text-success-foreground" : "border-input"}`}>{disputeType === option && <Check size={13} />}</span>{option}</button>)}</div><AppButton onClick={submitDispute} disabled={!disputeType} className="mt-6 w-full">Registrar disputa</AppButton></div></div>}
   </div>;
 }
