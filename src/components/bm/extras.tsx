@@ -33,18 +33,20 @@ function UploadBox({ label, done, onClick, icon }: { label: string; done: boolea
 
 /* ---------- Auth ---------- */
 export function AuthModal({ onClose }: { onClose: () => void }) {
-  const tabs = ["Cliente", "Profissional MEI", "Salão Parceiro"] as const;
+  const tabs = ["Cliente", "Profissional Beleza", "Salão Parceiro"] as const;
   const [tab, setTab] = useState<(typeof tabs)[number]>("Cliente");
+  const [professionalType, setProfessionalType] = useState<"cpf" | "cnpj">("cpf");
   const [mode, setMode] = useState<"signup" | "login">("signup");
   const [uploads, setUploads] = useState<Record<string, boolean>>({});
   const [done, setDone] = useState(false);
   const up = (k: string) => setUploads((u) => ({ ...u, [k]: true }));
+  const requiredUploadsComplete = mode === "login" || tab === "Salão Parceiro" ? true : tab === "Cliente" ? !!uploads["client-selfie"] : !!uploads["identity"] && !!uploads["professional-selfie"];
 
   if (done) return <Sheet title="Tudo certo!" eyebrow="Conta BM" onClose={onClose}><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-4 font-display text-2xl">{mode === "login" ? "Bem-vinda de volta" : "Cadastro enviado"}</p><p className="mt-2 text-sm text-muted-foreground">{mode === "login" ? "Você entrou na sua conta." : "Nossa equipe valida seus documentos em até 24h."}</p><button onClick={onClose} className={`${primary} mt-6 w-full`}>Continuar</button></div></Sheet>;
 
   return <Sheet title={mode === "signup" ? "Criar conta" : "Entrar"} eyebrow="Acesso BM" onClose={onClose}>
-    <div className="grid grid-cols-3 rounded-lg bg-card p-1 ring-1 ring-border">{tabs.map((t) => <button key={t} onClick={() => setTab(t)} className={`h-10 rounded-md text-[11px] font-bold ${tab === t ? "bg-foreground text-background" : "text-muted-foreground"}`}>{t}</button>)}</div>
-    <form onSubmit={(e) => { e.preventDefault(); setDone(true); }} className="mt-5 space-y-3">
+    <div className="grid grid-cols-3 rounded-lg bg-card p-1 ring-1 ring-border">{tabs.map((t) => <button type="button" key={t} onClick={() => setTab(t)} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight ${tab === t ? "bg-foreground text-background" : "text-muted-foreground"}`}>{t}</button>)}</div>
+    <form onSubmit={(e) => { e.preventDefault(); if (!requiredUploadsComplete) return; setDone(true); }} className="mt-5 space-y-3">
       {mode === "login" ? <>
         <Field label="E-mail" type="email" required placeholder="voce@email.com" />
         <Field label="Senha" type="password" required placeholder="••••••••" />
@@ -53,14 +55,25 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
         <Field label="CNPJ" required inputMode="numeric" placeholder="00.000.000/0001-00" />
         <Field label="Endereço" required placeholder="Rua, número · Bairro" />
         <UploadBox label="Alvará / Licença sanitária" done={!!uploads["license"]} onClick={() => up("license")} icon={<FileCheck2 size={18} />} />
-      </> : <>
+      </> : tab === "Profissional Beleza" ? <>
+        <div className="grid grid-cols-2 rounded-lg bg-card p-1 ring-1 ring-border" aria-label="Forma de atuação">
+          <button type="button" onClick={() => setProfessionalType("cpf")} className={`min-h-11 rounded-md px-2 text-[11px] font-bold leading-tight ${professionalType === "cpf" ? "bg-foreground text-background" : "text-muted-foreground"}`}>Atuar com CPF<br /><span className="font-normal">Individual</span></button>
+          <button type="button" onClick={() => setProfessionalType("cnpj")} className={`min-h-11 rounded-md px-2 text-[11px] font-bold leading-tight ${professionalType === "cnpj" ? "bg-foreground text-background" : "text-muted-foreground"}`}>Atuar com CNPJ<br /><span className="font-normal">MEI</span></button>
+        </div>
         <Field label="Nome completo" required placeholder="Ana Martins" />
-        <div className="grid grid-cols-2 gap-3"><Field label="CPF" required inputMode="numeric" placeholder="000.000.000-00" /><Field label="Telefone" required inputMode="tel" placeholder="(48) 99999-0000" /></div>
-        {tab === "Profissional MEI" ? <Field label="CNPJ MEI" required inputMode="numeric" placeholder="00.000.000/0001-00" /> : <Field label="Endereço" required placeholder="Rua, número · Bairro" />}
-        <UploadBox label="Selfie de verificação" done={!!uploads["selfie"]} onClick={() => up("selfie")} icon={<Camera size={18} />} />
-        {uploads["selfie"] && <div className="flex items-center gap-3 rounded-lg bg-success-soft p-3 text-xs"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary font-display text-lg">AM</div><span><strong className="block text-success">Rosto identificado</strong>Prévia protegida para segurança das profissionais.</span></div>}
+        {professionalType === "cpf" ? <div className="grid grid-cols-2 gap-3"><Field label="CPF" required inputMode="numeric" maxLength={14} placeholder="000.000.000-00" /><Field label="Telefone" required inputMode="tel" maxLength={20} placeholder="(48) 99999-0000" /></div> : <Field label="CNPJ MEI" required inputMode="numeric" maxLength={18} placeholder="00.000.000/0001-00" />}
+        <UploadBox label="Documento de identidade (RG/CNH)" done={!!uploads["identity"]} onClick={() => up("identity")} icon={<FileCheck2 size={18} />} />
+        <UploadBox label="Selfie de segurança" done={!!uploads["professional-selfie"]} onClick={() => up("professional-selfie")} icon={<Camera size={18} />} />
+        {uploads["professional-selfie"] && <div className="flex items-center gap-3 rounded-lg bg-success-soft p-3 text-xs"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary font-display text-lg">AM</div><span><strong className="block text-success">Rosto identificado</strong>Prévia protegida para verificação de identidade.</span></div>}
+      </> : <>
+        <Field label="Nome completo" required maxLength={100} placeholder="Ana Martins" />
+        <div className="grid grid-cols-2 gap-3"><Field label="CPF" required inputMode="numeric" maxLength={14} placeholder="000.000.000-00" /><Field label="Telefone" required inputMode="tel" maxLength={20} placeholder="(48) 99999-0000" /></div>
+        <Field label="Endereço completo" required maxLength={160} placeholder="Rua, número · Bairro" />
+        <Field label="Detalhes da residência" required maxLength={100} placeholder="Condomínio, bloco, apartamento" />
+        <UploadBox label="Selfie de segurança obrigatória" done={!!uploads["client-selfie"]} onClick={() => up("client-selfie")} icon={<Camera size={18} />} />
+        {uploads["client-selfie"] && <div className="flex items-center gap-3 rounded-lg bg-success-soft p-3 text-xs"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary font-display text-lg">AM</div><span><strong className="block text-success">Rosto identificado</strong>Foto protegida para sua segurança e a da profissional.</span></div>}
       </>}
-      <button type="submit" className={`${primary} w-full`}>{mode === "signup" ? "Cadastrar" : "Entrar"}</button>
+      <button type="submit" disabled={!requiredUploadsComplete} className={`${primary} w-full`}>{mode === "signup" ? "Cadastrar" : "Entrar"}</button>
     </form>
     <button onClick={() => setMode(mode === "signup" ? "login" : "signup")} className="mt-4 w-full text-center text-xs font-semibold text-primary">{mode === "signup" ? "Já tenho conta · Entrar" : "Não tem conta? Cadastre-se"}</button>
   </Sheet>;
@@ -109,11 +122,11 @@ export function ReviewModal({ name, onClose }: { name: string; onClose: () => vo
 /* ---------- Professional extras ---------- */
 export function OnboardingBanner() {
   const [docs, setDocs] = useState<Record<string, boolean>>({});
-  const items = ["CNPJ MEI", "Documento de identidade", "Antecedentes criminais"];
+  const items = ["Documento de identidade (RG/CNH)", "Selfie de segurança"];
   const count = items.filter((i) => docs[i]).length;
   return <div className="mt-6 rounded-lg border border-primary/40 bg-card/85 p-4 shadow-soft backdrop-blur">
-    <div className="flex items-center justify-between"><p className="flex items-center gap-2 text-sm font-bold"><ShieldCheck size={17} className="text-success" /> Verificação de perfil</p><span className="text-xs font-bold text-primary">{count}/3</span></div>
-    <div className="mt-3 h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-success transition-all" style={{ width: `${(count / 3) * 100}%` }} /></div>
+    <div className="flex items-center justify-between"><p className="flex items-center gap-2 text-sm font-bold"><ShieldCheck size={17} className="text-success" /> Verificação de perfil</p><span className="text-xs font-bold text-primary">{count}/{items.length}</span></div>
+    <div className="mt-3 h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-success transition-all" style={{ width: `${(count / items.length) * 100}%` }} /></div>
     <div className="mt-3 space-y-2">{items.map((i) => <UploadBox key={i} label={i} done={!!docs[i]} onClick={() => setDocs((d) => ({ ...d, [i]: true }))} />)}</div>
   </div>;
 }

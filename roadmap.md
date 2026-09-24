@@ -2,7 +2,7 @@
 
 - [x] Atualizar nome e slogan, removendo todas as menções antigas
 - [x] Fazer Agenda abrir diretamente a escolha de data e horário
-- [x] Criar painel Profissional MEI conectado ao pedido do cliente
+- [x] Criar painel Profissional Beleza conectado ao pedido do cliente
 - [x] Implementar progressão Aceitar → A caminho → Cheguei
 - [x] Implementar validação do PIN 8392 e liberação do pagamento
 - [x] Criar carteira com taxa discriminada e saque PIX simulado
@@ -13,3 +13,7 @@
 - [x] Revalidar o checklist completo do MVP no celular
 - [x] Ampliar o checklist obrigatório para infraestrutura, materiais, pets e LGPD/disputas
 - [x] Adicionar abertura de disputa por dano material ou incompatibilidade no atendimento
+- [x] Remover exigência de antecedentes criminais da verificação profissional
+- [x] Tornar o cadastro profissional inclusivo para atuação com CPF ou CNPJ
+- [x] Exigir identificação completa e selfie de segurança no cadastro da cliente
+- [x] Atualizar selos para verificação de identidade e destacar corretamente a visão B2B
