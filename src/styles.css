@@ -30,6 +30,7 @@
   --color-success-foreground: var(--success-foreground);
   --color-success-soft: var(--success-soft);
   --color-overlay: var(--overlay);
+  --color-destructive: var(--destructive);
 }
 
 :root {
@@ -53,6 +54,7 @@
   --success-foreground: oklch(0.98 0 0);
   --success-soft: oklch(0.93 0.035 142);
   --overlay: oklch(0.16 0.01 20);
+  --destructive: oklch(0.55 0.21 27);
   --shadow-soft: 0 5px 20px color-mix(in oklab, var(--foreground) 7%, transparent);
   --shadow-card: 0 14px 45px color-mix(in oklab, var(--foreground) 8%, transparent);
   --shadow-luxe: 0 8px 22px color-mix(in oklab, var(--primary) 32%, transparent);
@@ -92,5 +94,6 @@
 @utility no-scrollbar { scrollbar-width: none; &::-webkit-scrollbar { display: none; } }
 @utility modal-scroll { scrollbar-width: thin; scrollbar-color: var(--color-primary) transparent; }
 @utility pin { font-family: var(--font-display); font-size: 3.6rem; line-height: 1; letter-spacing: .22em; padding-left: .22em; color: var(--color-foreground); }
+@utility pin-input { letter-spacing: .45em; padding-left: .45em; }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; } }
