@@ -63,7 +63,7 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
         <Field label="Nome completo" required placeholder="Ana Martins" />
         {professionalType === "cpf" ? <div className="grid grid-cols-2 gap-3"><Field label="CPF" required inputMode="numeric" maxLength={14} placeholder="000.000.000-00" /><Field label="Telefone" required inputMode="tel" maxLength={20} placeholder="(48) 99999-0000" /></div> : <Field label="CNPJ MEI" required inputMode="numeric" maxLength={18} placeholder="00.000.000/0001-00" />}
         <UploadBox label="Documento de identidade (RG/CNH)" done={!!uploads["identity"]} onClick={() => up("identity")} icon={<FileCheck2 size={18} />} />
-        <UploadBox label="Selfie de segurança" done={!!uploads["professional-selfie"]} onClick={() => up("professional-selfie"])} icon={<Camera size={18} />} />
+        <UploadBox label="Selfie de segurança" done={!!uploads["professional-selfie"]} onClick={() => up("professional-selfie")} icon={<Camera size={18} />} />
         {uploads["professional-selfie"] && <div className="flex items-center gap-3 rounded-lg bg-success-soft p-3 text-xs"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary font-display text-lg">AM</div><span><strong className="block text-success">Rosto identificado</strong>Prévia protegida para verificação de identidade.</span></div>}
       </> : <>
         <Field label="Nome completo" required maxLength={100} placeholder="Ana Martins" />
@@ -125,7 +125,7 @@ export function OnboardingBanner() {
   const items = ["Documento de identidade (RG/CNH)", "Selfie de segurança"];
   const count = items.filter((i) => docs[i]).length;
   return <div className="mt-6 rounded-lg border border-primary/40 bg-card/85 p-4 shadow-soft backdrop-blur">
-    <div className="flex items-center justify-between"><p className="flex items-center gap-2 text-sm font-bold"><ShieldCheck size={17} className="text-success" /> Verificação de perfil</p><span className="text-xs font-bold text-primary">{count}/3</span></div>
+    <div className="flex items-center justify-between"><p className="flex items-center gap-2 text-sm font-bold"><ShieldCheck size={17} className="text-success" /> Verificação de perfil</p><span className="text-xs font-bold text-primary">{count}/{items.length}</span></div>
     <div className="mt-3 h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-success transition-all" style={{ width: `${(count / items.length) * 100}%` }} /></div>
     <div className="mt-3 space-y-2">{items.map((i) => <UploadBox key={i} label={i} done={!!docs[i]} onClick={() => setDocs((d) => ({ ...d, [i]: true }))} />)}</div>
   </div>;
