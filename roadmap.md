@@ -13,3 +13,7 @@
 - [x] Revalidar o checklist completo do MVP no celular
 - [x] Ampliar o checklist obrigatório para infraestrutura, materiais, pets e LGPD/disputas
 - [x] Adicionar abertura de disputa por dano material ou incompatibilidade no atendimento
+- [x] Remover exigência de antecedentes criminais da verificação profissional
+- [x] Tornar o cadastro profissional inclusivo para atuação com CPF ou CNPJ
+- [x] Exigir identificação completa e selfie de segurança no cadastro da cliente
+- [x] Atualizar selos para verificação de identidade e destacar corretamente a visão B2B
