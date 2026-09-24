@@ -1,24 +1,196 @@
 import { createFileRoute } from "@tanstack/react-router";
+import {
+  ArrowLeft,
+  CalendarDays,
+  Check,
+  CheckCircle2,
+  ChevronRight,
+  Clock3,
+  Copy,
+  CreditCard,
+  Heart,
+  Home,
+  MapPin,
+  Menu,
+  MessageCircle,
+  ShieldCheck,
+  Sparkles,
+  Star,
+  Store,
+  X,
+} from "lucide-react";
+import { useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+import camilaImage from "../assets/camila.jpg";
+import studioImage from "../assets/studio-bella.jpg";
+import julianaImage from "../assets/juliana.jpg";
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "BM — Beleza onde você estiver" },
+      { name: "description", content: "Encontre profissionais de beleza e bem-estar verificados em Florianópolis, em casa ou no salão." },
+      { property: "og:title", content: "BM — Alice no País da Beleza" },
+      { property: "og:description", content: "Beleza premium, profissionais verificados e pagamento protegido." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
+type Professional = {
+  id: string;
+  name: string;
+  role: string;
+  rating: string;
+  reviews: number;
+  distance: string;
+  category: string;
+  service: string;
+  price: number;
+  image: string;
+  bio: string;
+  atHome: boolean;
+};
+
+const professionals: Professional[] = [
+  { id: "camila", name: "Camila Silva", role: "Maquiadora & Hair", rating: "4,9", reviews: 127, distance: "1,8 km", category: "Maquiagem", service: "Maquiagem Social", price: 150, image: camilaImage, atHome: true, bio: "Especialista em beleza natural e produções que valorizam sua identidade. Há 8 anos transformando momentos especiais com técnica, leveza e carinho." },
+  { id: "bella", name: "Studio Bella", role: "Salão Parceiro", rating: "4,8", reviews: 96, distance: "Centro", category: "Unhas", service: "Unha em Gel", price: 90, image: studioImage, atHome: false, bio: "Um espaço autoral no coração de Floripa, criado para transformar o cuidado com as unhas em um ritual de bem-estar." },
+  { id: "juliana", name: "Juliana Costa", role: "Massoterapeuta", rating: "5,0", reviews: 84, distance: "3,2 km", category: "Massagem", service: "Massagem Relaxante", price: 180, image: julianaImage, atHome: true, bio: "Terapeuta corporal com formação em técnicas relaxantes e recuperação muscular. Cada atendimento é pensado para devolver equilíbrio ao seu dia." },
+];
+
+const categories = ["Para você", "Maquiagem", "Cabelo", "Unhas", "Massagem", "Sobrancelhas", "Combos VIP"];
+const days = [{ week: "QUI", day: "24" }, { week: "SEX", day: "25" }, { week: "SÁB", day: "26" }, { week: "DOM", day: "27" }];
+const times = ["09:00", "11:30", "14:00", "16:30"];
+
+function AppButton({ variant = "primary", className = "", children, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "ghost" | "outline" | "icon"; children: ReactNode }) {
+  const styles = { primary: "bg-primary text-primary-foreground shadow-luxe hover:bg-primary/90", ghost: "bg-transparent text-foreground hover:bg-accent", outline: "border border-border bg-card text-foreground hover:bg-accent", icon: "bg-card/85 text-foreground shadow-soft hover:bg-accent" };
+  return <button className={`inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-all active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-45 ${styles[variant]} ${className}`} {...props}>{children}</button>;
+}
+
 function Index() {
+  const [view, setView] = useState<"Cliente" | "Profissional MEI">("Cliente");
+  const [category, setCategory] = useState("Para você");
+  const [mode, setMode] = useState<"Em Domicílio" | "No Salão">("Em Domicílio");
+  const [favorite, setFavorite] = useState<string[]>([]);
+  const [selected, setSelected] = useState<Professional | null>(null);
+  const [step, setStep] = useState(0);
+  const [selectedDay, setSelectedDay] = useState("25");
+  const [selectedTime, setSelectedTime] = useState("14:00");
+  const [rules, setRules] = useState([false, false]);
+  const [payment, setPayment] = useState<"pix" | "card">("pix");
+  const [copied, setCopied] = useState(false);
+
+  const filtered = useMemo(() => professionals.filter((p) => (category === "Para você" || p.category === category || category === "Cabelo" && p.id === "camila") && (mode === "Em Domicílio" ? p.atHome : !p.atHome)), [category, mode]);
+
+  const openProfile = (p: Professional) => { setSelected(p); setStep(0); };
+  const close = () => { setSelected(null); setStep(0); setRules([false, false]); };
+  const next = () => setStep((current) => Math.min(current + 1, 4));
+  const back = () => step === 0 ? close() : setStep((current) => current - 1);
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+    <main className="min-h-screen bg-background pb-24 text-foreground">
+      <header className="sticky top-0 z-30 border-b border-border/70 bg-background/88 backdrop-blur-xl">
+        <div className="mx-auto max-w-6xl px-4 pb-3 pt-3 md:px-8">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="brand-mark">BM</div>
+              <div><p className="font-display text-xl leading-none">Belle Maria</p><p className="mt-1 text-[9px] uppercase tracking-[.18em] text-muted-foreground">Alice no País da Beleza</p></div>
+            </div>
+            <AppButton variant="icon" className="h-11 w-11 rounded-full p-0" aria-label="Abrir menu"><Menu size={19} /></AppButton>
+          </div>
+          <div className="mt-3 flex items-center justify-between gap-3">
+            <button className="flex min-w-0 items-center gap-2 text-left text-xs font-semibold"><MapPin size={15} className="shrink-0 text-primary" /><span className="truncate">Florianópolis, SC · Centro</span><ChevronRight size={14} /></button>
+            <div className="flex shrink-0 items-center gap-1 text-[10px] font-bold text-success"><ShieldCheck size={14} /> Garantia BM</div>
+          </div>
+        </div>
+      </header>
+
+      <div className="mx-auto max-w-6xl px-4 md:px-8">
+        <div className="mt-5 grid grid-cols-2 rounded-lg bg-card/65 p-1 shadow-soft ring-1 ring-border/60">
+          {(["Cliente", "Profissional MEI"] as const).map((item) => <button key={item} onClick={() => setView(item)} className={`h-10 rounded-md text-xs font-bold transition-all ${view === item ? "bg-foreground text-background shadow-soft" : "text-muted-foreground"}`}>{item}</button>)}
+        </div>
+
+        {view === "Profissional MEI" ? <ProfessionalView onClient={() => setView("Cliente")} /> : <>
+          <section className="py-7 md:py-10">
+            <p className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.16em] text-primary"><Sparkles size={14} /> Curadoria em Florianópolis</p>
+            <h1 className="max-w-2xl font-display text-4xl leading-[1.05] md:text-6xl">Seu momento de beleza, <em className="font-normal text-primary">onde você estiver.</em></h1>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">Profissionais selecionados, pagamento protegido e experiências feitas para você.</p>
+          </section>
+
+          <section aria-label="Modo de atendimento" className="mb-6 grid grid-cols-2 gap-2">
+            {(["Em Domicílio", "No Salão"] as const).map((item) => <button key={item} onClick={() => setMode(item)} className={`flex h-14 items-center justify-center gap-2 rounded-lg border text-sm font-bold transition-all ${mode === item ? "border-primary bg-card text-foreground shadow-soft" : "border-transparent bg-card/45 text-muted-foreground"}`}>{item === "Em Domicílio" ? <Home size={18} /> : <Store size={18} />}{item}</button>)}
+          </section>
+
+          <section className="-mx-4 mb-7 overflow-hidden">
+            <div className="no-scrollbar flex gap-2 overflow-x-auto px-4 pb-1">
+              {categories.map((item) => <button key={item} onClick={() => setCategory(item)} className={`shrink-0 rounded-full border px-4 py-2 text-xs font-semibold transition ${category === item ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card/70 text-foreground"}`}>{item}</button>)}
+            </div>
+          </section>
+
+          <div className="mb-4 flex items-end justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[.15em] text-primary">Seleção BM</p><h2 className="mt-1 font-display text-3xl">Destaques perto de você</h2></div><span className="text-xs text-muted-foreground">{filtered.length} opções</span></div>
+          <section className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {filtered.map((p) => <article key={p.id} className="group overflow-hidden rounded-lg border border-border/80 bg-card/88 shadow-card backdrop-blur-sm">
+              <div className="relative aspect-[4/3] overflow-hidden">
+                <img src={p.image} alt={p.name} loading="lazy" width={912} height={1200} className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]" />
+                <AppButton variant="icon" onClick={() => setFavorite((f) => f.includes(p.id) ? f.filter((id) => id !== p.id) : [...f, p.id])} className="absolute right-3 top-3 h-10 min-h-10 w-10 rounded-full p-0" aria-label={`Favoritar ${p.name}`}><Heart size={18} className={favorite.includes(p.id) ? "fill-primary text-primary" : ""} /></AppButton>
+                <span className="absolute bottom-3 left-3 flex items-center gap-1 rounded-full bg-success px-2.5 py-1 text-[10px] font-bold text-success-foreground"><ShieldCheck size={12} /> MEI Verificado</span>
+              </div>
+              <div className="p-4">
+                <div className="flex justify-between gap-3"><div><h3 className="font-display text-2xl">{p.name}</h3><p className="mt-0.5 text-xs text-muted-foreground">{p.role}</p></div><div className="flex h-fit items-center gap-1 text-xs font-bold"><Star size={14} className="fill-primary text-primary" />{p.rating}</div></div>
+                <div className="my-4 flex items-center justify-between border-y border-border/70 py-3 text-xs"><span className="flex items-center gap-1 text-muted-foreground"><MapPin size={13} />{p.distance}</span><span>{p.reviews} avaliações</span></div>
+                <div className="flex items-end justify-between gap-3"><div><p className="text-xs text-muted-foreground">A partir de</p><p className="mt-0.5 font-display text-lg">{p.service} · R$ {p.price}</p></div><AppButton onClick={() => openProfile(p)} className="shrink-0 px-3">Ver perfil</AppButton></div>
+              </div>
+            </article>)}
+          </section>
+          {filtered.length === 0 && <div className="rounded-lg border border-border bg-card p-8 text-center"><Sparkles className="mx-auto text-primary" /><h3 className="mt-3 font-display text-2xl">Novos talentos chegando</h3><p className="mt-2 text-sm text-muted-foreground">Tente outra categoria ou forma de atendimento.</p></div>}
+        </>}
+      </div>
+
+      <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-card/95 px-7 py-2 backdrop-blur-xl md:hidden">
+        <div className="mx-auto flex max-w-sm items-center justify-between"><BottomItem icon={<Sparkles size={20} />} label="Explorar" active /><BottomItem icon={<CalendarDays size={20} />} label="Agenda" /><BottomItem icon={<Heart size={20} />} label="Favoritos" /><BottomItem icon={<MessageCircle size={20} />} label="Mensagens" /></div>
+      </nav>
+
+      {selected && <BookingModal professional={selected} step={step} selectedDay={selectedDay} setSelectedDay={setSelectedDay} selectedTime={selectedTime} setSelectedTime={setSelectedTime} rules={rules} setRules={setRules} payment={payment} setPayment={setPayment} copied={copied} setCopied={setCopied} onNext={next} onBack={back} onClose={close} />}
+    </main>
   );
 }
+
+function ProfessionalView({ onClient }: { onClient: () => void }) {
+  return <section className="py-12 text-center"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-secondary text-primary"><Sparkles size={28} /></div><p className="mt-6 text-[10px] font-bold uppercase tracking-[.18em] text-primary">Espaço profissional</p><h1 className="mx-auto mt-2 max-w-xl font-display text-4xl">Sua agenda merece mais brilho.</h1><p className="mx-auto mt-4 max-w-md text-sm leading-6 text-muted-foreground">O painel de profissionais BM está sendo preparado. Enquanto isso, explore a experiência das suas futuras clientes.</p><AppButton onClick={onClient} className="mt-7">Ver como cliente</AppButton></section>;
+}
+
+function BottomItem({ icon, label, active = false }: { icon: ReactNode; label: string; active?: boolean }) { return <button className={`flex min-w-14 flex-col items-center gap-1 py-1 text-[9px] font-semibold ${active ? "text-primary" : "text-muted-foreground"}`}>{icon}{label}</button>; }
+
+type BookingProps = { professional: Professional; step: number; selectedDay: string; setSelectedDay: (v: string) => void; selectedTime: string; setSelectedTime: (v: string) => void; rules: boolean[]; setRules: (v: boolean[]) => void; payment: "pix" | "card"; setPayment: (v: "pix" | "card") => void; copied: boolean; setCopied: (v: boolean) => void; onNext: () => void; onBack: () => void; onClose: () => void };
+
+function BookingModal(props: BookingProps) {
+  const { professional: p, step } = props;
+  const titles = ["Perfil", "Escolha seu horário", "Tudo pronto para receber?", "Pagamento protegido", "Seu ritual está confirmado"];
+  return <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/55 backdrop-blur-sm md:items-center md:p-6" role="dialog" aria-modal="true" aria-label={titles[step]}>
+    <div className="modal-scroll max-h-[94dvh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-background shadow-modal md:max-h-[88vh] md:rounded-xl">
+      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/95 px-4 py-3 backdrop-blur-xl">
+        <AppButton variant="ghost" onClick={props.onBack} className="h-10 min-h-10 w-10 p-0" aria-label="Voltar"><ArrowLeft size={20} /></AppButton><div className="text-center"><p className="text-[9px] font-bold uppercase tracking-[.15em] text-primary">{step === 0 ? "Conheça" : `Etapa ${step} de 4`}</p><p className="font-display text-lg">{titles[step]}</p></div><AppButton variant="ghost" onClick={props.onClose} className="h-10 min-h-10 w-10 p-0" aria-label="Fechar"><X size={20} /></AppButton>
+      </div>
+      {step === 0 && <ProfileStep p={p} onNext={props.onNext} />}
+      {step === 1 && <ScheduleStep {...props} />}
+      {step === 2 && <RulesStep {...props} />}
+      {step === 3 && <PaymentStep {...props} />}
+      {step === 4 && <TrackingStep p={p} onClose={props.onClose} />}
+    </div>
+  </div>;
+}
+
+function ProfileStep({ p, onNext }: { p: Professional; onNext: () => void }) {
+  const gallery = [p.image, p.id === "camila" ? studioImage : camilaImage, p.id === "juliana" ? studioImage : julianaImage];
+  return <div className="pb-5"><div className="relative aspect-[16/11] overflow-hidden"><img src={p.image} alt={p.name} width={912} height={1200} className="h-full w-full object-cover" /><span className="absolute bottom-4 left-4 flex items-center gap-1 rounded-full bg-success px-3 py-1.5 text-[10px] font-bold text-success-foreground"><ShieldCheck size={13} /> Identidade & MEI verificados</span></div><div className="px-5 pt-5"><div className="flex justify-between"><div><h2 className="font-display text-3xl">{p.name}</h2><p className="text-sm text-muted-foreground">{p.role} · {p.distance}</p></div><span className="flex h-fit items-center gap-1 text-sm font-bold"><Star size={15} className="fill-primary text-primary" /> {p.rating}</span></div><p className="mt-5 text-sm leading-6 text-muted-foreground">{p.bio}</p><h3 className="mb-3 mt-6 font-display text-xl">Portfólio</h3><div className="grid grid-cols-3 gap-2">{gallery.map((image, i) => <img key={`${image}-${i}`} src={image} alt={`Trabalho ${i + 1} de ${p.name}`} loading="lazy" width={912} height={1200} className="aspect-square w-full rounded-md object-cover" />)}</div><h3 className="mb-3 mt-6 font-display text-xl">Menu de serviços</h3><button className="flex w-full items-center justify-between rounded-lg border border-primary bg-card p-4 text-left"><span><span className="block text-sm font-bold">{p.service}</span><span className="mt-1 block text-xs text-muted-foreground">Duração aproximada · 1h30</span></span><span className="font-display text-lg">R$ {p.price}</span></button><AppButton onClick={onNext} className="mt-5 w-full">Escolher data e horário <ChevronRight size={17} /></AppButton></div></div>;
+}
+
+function ScheduleStep(props: BookingProps) { return <div className="p-5"><div className="flex items-center gap-3 rounded-lg bg-card p-3 shadow-soft"><img src={props.professional.image} alt="" width={72} height={72} className="h-14 w-14 rounded-md object-cover" /><div><p className="font-bold">{props.professional.service}</p><p className="text-xs text-muted-foreground">com {props.professional.name}</p><p className="mt-1 text-sm font-bold text-primary">R$ {props.professional.price}</p></div></div><h3 className="mb-3 mt-7 font-display text-xl">Setembro</h3><div className="grid grid-cols-4 gap-2">{days.map((date) => <button key={date.day} onClick={() => props.setSelectedDay(date.day)} className={`rounded-lg border py-3 text-center ${props.selectedDay === date.day ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}><span className="block text-[9px] font-bold">{date.week}</span><span className="mt-1 block font-display text-xl">{date.day}</span></button>)}</div><h3 className="mb-3 mt-7 font-display text-xl">Horários disponíveis</h3><div className="grid grid-cols-2 gap-2">{times.map((time) => <button key={time} onClick={() => props.setSelectedTime(time)} className={`flex h-12 items-center justify-center gap-2 rounded-lg border text-sm font-bold ${props.selectedTime === time ? "border-primary bg-secondary text-foreground" : "border-border bg-card"}`}><Clock3 size={15} />{time}</button>)}</div><div className="mt-8 flex items-center justify-between border-t border-border pt-4"><div><p className="text-xs text-muted-foreground">Total protegido</p><p className="font-display text-2xl">R$ {props.professional.price}</p></div><AppButton onClick={props.onNext}>Continuar <ChevronRight size={17} /></AppButton></div></div>; }
+
+function RulesStep(props: BookingProps) { const rulesCopy = ["Tenho tomada e iluminação adequadas no local do atendimento.", "Comprometo-me a respeitar os insumos e materiais da profissional."]; return <div className="p-5"><div className="rounded-lg border border-border bg-card p-4"><ShieldCheck className="text-success" size={26} /><h3 className="mt-3 font-display text-2xl">Acordo de cuidado BM</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">Para uma experiência segura e impecável, confirme as condições do espaço.</p></div><div className="mt-5 space-y-3">{rulesCopy.map((text, i) => <button key={text} onClick={() => props.setRules(props.rules.map((rule, index) => index === i ? !rule : rule))} className="flex w-full items-start gap-3 rounded-lg border border-border bg-card p-4 text-left"><span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border ${props.rules[i] ? "border-success bg-success text-success-foreground" : "border-input"}`}>{props.rules[i] && <Check size={14} />}</span><span className="text-sm leading-5">{text}</span></button>)}</div><div className="mt-6 flex items-start gap-2 text-xs leading-5 text-muted-foreground"><ShieldCheck size={16} className="mt-0.5 shrink-0 text-success" />Este checklist protege você e a profissional em caso de imprevistos.</div><AppButton onClick={props.onNext} disabled={!props.rules.every(Boolean)} className="mt-8 w-full">Confirmar e ir ao pagamento</AppButton></div>; }
+
+function PaymentStep(props: BookingProps) { return <div className="p-5"><div className="rounded-lg border border-success/30 bg-success-soft p-4"><div className="flex gap-3"><ShieldCheck className="shrink-0 text-success" size={24} /><div><h3 className="font-bold text-success">Seu dinheiro fica seguro</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">A BM retém o valor. Ele só é liberado à profissional quando você informar o PIN após o atendimento.</p></div></div></div><h3 className="mb-3 mt-6 font-display text-xl">Forma de pagamento</h3><div className="grid grid-cols-2 gap-2"><button onClick={() => props.setPayment("pix")} className={`rounded-lg border p-4 text-left ${props.payment === "pix" ? "border-primary bg-secondary" : "border-border bg-card"}`}><Sparkles size={19} /><span className="mt-3 block text-sm font-bold">PIX</span><span className="text-[10px] text-muted-foreground">Aprovação imediata</span></button><button onClick={() => props.setPayment("card")} className={`rounded-lg border p-4 text-left ${props.payment === "card" ? "border-primary bg-secondary" : "border-border bg-card"}`}><CreditCard size={19} /><span className="mt-3 block text-sm font-bold">Cartão</span><span className="text-[10px] text-muted-foreground">Crédito à vista</span></button></div>{props.payment === "pix" ? <div className="mt-5 rounded-lg border border-border bg-card p-4"><p className="text-xs font-bold">PIX Copia e Cola</p><div className="mt-3 flex items-center gap-2 rounded-md bg-muted p-3"><code className="min-w-0 flex-1 truncate text-[10px]">00020126580014BR.GOV.BCB.PIX0136BM8392FLORIPA</code><button onClick={() => { props.setCopied(true); navigator.clipboard?.writeText("00020126580014BR.GOV.BCB.PIX0136BM8392FLORIPA"); }} className="shrink-0 text-primary" aria-label="Copiar código PIX">{props.copied ? <Check size={18} /> : <Copy size={18} />}</button></div>{props.copied && <p className="mt-2 text-xs font-semibold text-success">Código copiado!</p>}</div> : <div className="mt-5 rounded-lg border border-border bg-card p-4"><p className="text-xs font-bold">Cartão final 4242</p><p className="mt-1 text-xs text-muted-foreground">Pagamento protegido pela Garantia BM</p></div>}<div className="mt-7 flex items-end justify-between"><div><p className="text-xs text-muted-foreground">Total</p><p className="font-display text-3xl">R$ {props.professional.price}</p></div><AppButton onClick={props.onNext}>Pagar com segurança</AppButton></div></div>; }
+
+function TrackingStep({ p, onClose }: { p: Professional; onClose: () => void }) { return <div className="p-5 text-center"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-success text-success-foreground"><CheckCircle2 size={32} /></div><h2 className="mt-5 font-display text-3xl">Agendamento confirmado!</h2><p className="mt-2 text-sm text-muted-foreground">Sex, 25 de setembro · 14:00</p><div className="mt-7 rounded-lg border border-primary/35 bg-card p-5"><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">PIN de liberação</p><p className="pin mt-3">8392</p><p className="mx-auto mt-3 max-w-xs text-xs leading-5 text-muted-foreground">Informe este código somente após concluir e aprovar o atendimento.</p></div><div className="mt-7 text-left"><div className="flex justify-between text-[10px] font-bold uppercase tracking-[.1em]"><span className="text-success">Confirmado</span><span className="text-muted-foreground">A caminho</span><span className="text-muted-foreground">Concluído</span></div><div className="mt-3 flex items-center"><span className="h-3 w-3 rounded-full bg-success" /><span className="h-1 flex-1 bg-success" /><span className="h-3 w-3 rounded-full bg-muted" /><span className="h-1 flex-1 bg-muted" /><span className="h-3 w-3 rounded-full bg-muted" /></div></div><div className="mt-7 flex items-center gap-3 rounded-lg bg-card p-3 text-left shadow-soft"><img src={p.image} alt={p.name} width={72} height={72} className="h-14 w-14 rounded-md object-cover" /><div className="min-w-0 flex-1"><p className="font-bold">{p.name}</p><p className="text-xs text-muted-foreground">{p.service}</p></div><AppButton variant="outline" className="h-10 min-h-10 w-10 p-0" aria-label="Conversar"><MessageCircle size={17} /></AppButton></div><AppButton onClick={onClose} className="mt-7 w-full">Acompanhar pedido</AppButton></div>; }
