@@ -52,13 +52,13 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
         <Field label="Nome do salão" required placeholder="Studio Bella" />
         <Field label="CNPJ" required inputMode="numeric" placeholder="00.000.000/0001-00" />
         <Field label="Endereço" required placeholder="Rua, número · Bairro" />
-        <UploadBox label="Alvará / Licença sanitária" done={!!uploads.license} onClick={() => up("license")} icon={<FileCheck2 size={18} />} />
+        <UploadBox label="Alvará / Licença sanitária" done={!!uploads["license"]} onClick={() => up("license")} icon={<FileCheck2 size={18} />} />
       </> : <>
         <Field label="Nome completo" required placeholder="Ana Martins" />
         <div className="grid grid-cols-2 gap-3"><Field label="CPF" required inputMode="numeric" placeholder="000.000.000-00" /><Field label="Telefone" required inputMode="tel" placeholder="(48) 99999-0000" /></div>
         {tab === "Profissional MEI" ? <Field label="CNPJ MEI" required inputMode="numeric" placeholder="00.000.000/0001-00" /> : <Field label="Endereço" required placeholder="Rua, número · Bairro" />}
-        <UploadBox label="Selfie de verificação" done={!!uploads.selfie} onClick={() => up("selfie")} icon={<Camera size={18} />} />
-        {uploads.selfie && <div className="flex items-center gap-3 rounded-lg bg-success-soft p-3 text-xs"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary font-display text-lg">AM</div><span><strong className="block text-success">Rosto identificado</strong>Prévia protegida para segurança das profissionais.</span></div>}
+        <UploadBox label="Selfie de verificação" done={!!uploads["selfie"]} onClick={() => up("selfie")} icon={<Camera size={18} />} />
+        {uploads["selfie"] && <div className="flex items-center gap-3 rounded-lg bg-success-soft p-3 text-xs"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary font-display text-lg">AM</div><span><strong className="block text-success">Rosto identificado</strong>Prévia protegida para segurança das profissionais.</span></div>}
       </>}
       <button type="submit" className={`${primary} w-full`}>{mode === "signup" ? "Cadastrar" : "Entrar"}</button>
     </form>
