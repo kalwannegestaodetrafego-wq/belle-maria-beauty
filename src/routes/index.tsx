@@ -5,6 +5,7 @@ import {
   Bell,
   Check,
   CheckCircle2,
+  ChevronDown,
   ChevronRight,
   Clock3,
   Copy,
@@ -88,6 +89,7 @@ function Index() {
   const [payment, setPayment] = useState<"pix" | "card">("pix");
   const [copied, setCopied] = useState(false);
   const [orderStatus, setOrderStatus] = useState<OrderStatus>("new");
+  const [securityOpen, setSecurityOpen] = useState(false);
 
   const filtered = useMemo(() => professionals.filter((p) => (category === "Para você" || p.category === category || category === "Cabelo" && p.id === "camila") && (mode === "Em Domicílio" ? p.atHome : !p.atHome)), [category, mode]);
 
@@ -107,11 +109,8 @@ function Index() {
       <header className="sticky top-0 z-30 border-b border-border/70 bg-background/88 backdrop-blur-xl">
         <div className="mx-auto max-w-6xl px-4 pb-3 pt-3 md:px-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="brand-mark">BM</div>
-              <div><p className="font-display text-2xl leading-none">BM</p><p className="mt-1 text-[9px] font-semibold text-muted-foreground">Em apenas um clique, a beleza até você</p></div>
-            </div>
-            <AppButton variant="icon" className="h-11 w-11 rounded-full p-0" aria-label="Abrir menu"><Menu size={19} /></AppButton>
+             <div className="brand-mark" aria-label="BM">BM</div>
+             <AppButton variant="icon" onClick={() => setSecurityOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label="Abrir Central de Segurança"><Menu size={19} /></AppButton>
           </div>
           <div className="mt-3 flex items-center justify-between gap-3">
             <button className="flex min-w-0 items-center gap-2 text-left text-xs font-semibold"><MapPin size={15} className="shrink-0 text-primary" /><span className="truncate">Florianópolis, SC · Centro</span><ChevronRight size={14} /></button>
@@ -166,6 +165,7 @@ function Index() {
       </nav>
 
       {selected && <BookingModal professional={selected} step={step} selectedDay={selectedDay} setSelectedDay={setSelectedDay} selectedTime={selectedTime} setSelectedTime={setSelectedTime} rules={rules} setRules={setRules} payment={payment} setPayment={setPayment} copied={copied} setCopied={setCopied} orderStatus={orderStatus} onNext={next} onBack={back} onClose={close} />}
+      {securityOpen && <SecurityCenter onClose={() => setSecurityOpen(false)} />}
     </main>
   );
 }
@@ -175,7 +175,7 @@ function ProfessionalView({ selectedDay, selectedTime, status, setStatus }: { se
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState("");
   const [withdrawn, setWithdrawn] = useState(false);
-  const net = 127.5;
+  const net = 123;
   const statusLabel = { new: "Novo chamado", accepted: "Chamado aceito", enroute: "A caminho", arrived: "No local", completed: "Concluído" }[status];
   const action = status === "new" ? { label: "Aceitar Chamado", next: "accepted" as const } : status === "accepted" ? { label: "A Caminho", next: "enroute" as const } : status === "enroute" ? { label: "Cheguei ao Local", next: "arrived" as const } : null;
   const validatePin = () => { if (pin === "8392") { setStatus("completed"); setPinOpen(false); setPinError(""); } else { setPinError("PIN incorreto. Confira com a cliente."); } };
@@ -190,10 +190,27 @@ function ProfessionalView({ selectedDay, selectedTime, status, setStatus }: { se
       <div className="flex items-end justify-between gap-3"><div><p className="text-xs text-muted-foreground">Valor protegido</p><p className="font-display text-2xl">R$ 150,00</p></div>{action && <AppButton onClick={() => setStatus(action.next)}>{action.label}{action.next === "enroute" && <Navigation size={16} />}</AppButton>}{status === "arrived" && <AppButton onClick={() => setPinOpen(true)}><KeyRound size={16} /> Validar PIN</AppButton>}{status === "completed" && <span className="flex items-center gap-1 text-sm font-bold text-success"><CheckCircle2 size={18} /> Finalizado</span>}</div></div>
     </div>
 
-    <div className="mt-6 rounded-lg bg-foreground p-5 text-background shadow-card"><div className="flex items-center justify-between"><div><p className="flex items-center gap-2 text-xs font-semibold text-background/70"><Wallet size={16} /> Carteira BM</p><p className="mt-2 font-display text-4xl">R$ {status === "completed" && !withdrawn ? "127,50" : "0,00"}</p><p className="mt-1 text-[10px] text-background/60">Saldo disponível</p></div><AppButton onClick={() => setWithdrawn(true)} disabled={status !== "completed" || withdrawn} className="bg-background text-foreground shadow-none hover:bg-background/90">{withdrawn ? "Saque solicitado" : "Sacar via PIX"}</AppButton></div><div className="mt-5 grid grid-cols-2 gap-3 border-t border-background/20 pt-4 text-xs"><div><p className="text-background/60">Valor bruto</p><p className="mt-1 font-bold">R$ 150,00</p></div><div><p className="text-background/60">Taxa BM · 15%</p><p className="mt-1 font-bold">− R$ 22,50</p></div></div>{withdrawn && <p className="mt-4 flex items-center gap-2 rounded-md bg-success/20 p-3 text-xs font-semibold"><CheckCircle2 size={16} /> Saque PIX solicitado com sucesso.</p>}</div>
+     <div className="mt-6 rounded-lg bg-foreground p-5 text-background shadow-card"><div className="flex items-center justify-between"><div><p className="flex items-center gap-2 text-xs font-semibold text-background/70"><Wallet size={16} /> Carteira BM</p><p className="mt-2 font-display text-4xl">R$ {status === "completed" && !withdrawn ? "123,00" : "0,00"}</p><p className="mt-1 text-[10px] text-background/60">Saldo disponível</p></div><AppButton onClick={() => setWithdrawn(true)} disabled={status !== "completed" || withdrawn} className="bg-background text-foreground shadow-none hover:bg-background/90">{withdrawn ? "Saque solicitado" : "Sacar via PIX"}</AppButton></div><div className="mt-5 grid grid-cols-2 gap-3 border-t border-background/20 pt-4 text-xs"><div><p className="text-background/60">Valor bruto</p><p className="mt-1 font-bold">R$ 150,00</p></div><div><p className="text-background/60">Taxa BM · 18%</p><p className="mt-1 font-bold">− R$ 27,00</p></div></div>{withdrawn && <p className="mt-4 flex items-center gap-2 rounded-md bg-success/20 p-3 text-xs font-semibold"><CheckCircle2 size={16} /> Saque PIX solicitado com sucesso.</p>}</div>
 
     {pinOpen && <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/55 p-0 backdrop-blur-sm md:items-center md:p-6" role="dialog" aria-modal="true" aria-label="Validar PIN"><div className="w-full max-w-md rounded-t-2xl bg-background p-5 shadow-modal md:rounded-xl"><div className="flex items-center justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">Liberação segura</p><h2 className="mt-1 font-display text-2xl">Validar PIN da cliente</h2></div><AppButton variant="ghost" onClick={() => setPinOpen(false)} className="h-10 min-h-10 w-10 p-0" aria-label="Fechar"><X size={19} /></AppButton></div><p className="mt-3 text-sm leading-6 text-muted-foreground">Digite o código de 4 dígitos exibido no celular da cliente para concluir e liberar R$ {net.toFixed(2).replace(".", ",")}.</p><input value={pin} onChange={(event) => { const value = event.target.value.replace(/\D/g, "").slice(0, 4); setPin(value); setPinError(""); }} inputMode="numeric" autoComplete="one-time-code" maxLength={4} aria-label="PIN de 4 dígitos" className="pin-input mt-6 w-full rounded-lg border border-border bg-card px-4 py-4 text-center font-display text-3xl" placeholder="••••" />{pinError && <p className="mt-2 text-xs font-semibold text-destructive">{pinError}</p>}<AppButton onClick={validatePin} disabled={pin.length !== 4} className="mt-5 w-full">Concluir serviço e liberar pagamento</AppButton></div></div>}
   </section>;
+}
+
+const securityTopics = [
+  { title: "Termos de Uso", content: "Ao usar a BM, clientes e profissionais concordam em fornecer informações verdadeiras, respeitar os horários confirmados e manter uma conduta segura durante todo o atendimento." },
+  { title: "Política de Custódia", content: "O pagamento fica retido na BM durante o atendimento. O valor só é liberado para a profissional após a cliente informar o PIN de segurança e confirmar a conclusão do serviço." },
+  { title: "Segurança", content: "A BM verifica a identidade e o MEI das profissionais. Nunca compartilhe o PIN antes do serviço terminar e utilize os canais da plataforma para registrar qualquer imprevisto." },
+  { title: "Privacidade e LGPD", content: "Seus dados são utilizados apenas para viabilizar agendamentos, pagamentos e suporte. Você pode solicitar acesso, correção ou exclusão dos seus dados pessoais conforme a LGPD." },
+];
+
+function SecurityCenter({ onClose }: { onClose: () => void }) {
+  const [expanded, setExpanded] = useState<string | null>("Política de Custódia");
+  return <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/55 backdrop-blur-sm md:items-center md:p-6" role="dialog" aria-modal="true" aria-label="Central de Segurança e FAQ">
+    <div className="modal-scroll max-h-[92dvh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-background shadow-modal md:rounded-xl">
+      <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/95 px-5 py-4 backdrop-blur-xl"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">Garantia BM</p><h2 className="mt-1 font-display text-2xl">Central de Segurança e FAQ</h2></div><AppButton variant="ghost" onClick={onClose} className="h-10 min-h-10 w-10 p-0" aria-label="Fechar"><X size={19} /></AppButton></div>
+      <div className="p-5"><div className="mb-5 flex items-start gap-3 rounded-lg border border-success/30 bg-success-soft p-4"><ShieldCheck className="mt-0.5 shrink-0 text-success" size={24} /><div><p className="text-sm font-bold text-success">Proteção em cada atendimento</p><p className="mt-1 text-xs leading-5 text-muted-foreground">Consulte as regras que protegem clientes, profissionais e pagamentos.</p></div></div><div className="space-y-2">{securityTopics.map((topic) => { const isOpen = expanded === topic.title; return <div key={topic.title} className="overflow-hidden rounded-lg border border-border bg-card"><button type="button" onClick={() => setExpanded(isOpen ? null : topic.title)} className="flex min-h-14 w-full items-center justify-between gap-4 px-4 py-3 text-left text-sm font-bold" aria-expanded={isOpen}><span>{topic.title}</span><ChevronDown size={18} className={`shrink-0 text-primary transition-transform ${isOpen ? "rotate-180" : ""}`} /></button>{isOpen && <div className="border-t border-border px-4 py-4 text-sm leading-6 text-muted-foreground">{topic.content}</div>}</div>; })}</div><AppButton onClick={onClose} className="mt-6 w-full">Entendi</AppButton></div>
+    </div>
+  </div>;
 }
 
 function BottomItem({ icon, label, active = false, onClick }: { icon: ReactNode; label: string; active?: boolean; onClick?: () => void }) { return <button onClick={onClick} className={`flex min-w-14 flex-col items-center gap-1 py-1 text-[9px] font-semibold ${active ? "text-primary" : "text-muted-foreground"}`}>{icon}{label}</button>; }
