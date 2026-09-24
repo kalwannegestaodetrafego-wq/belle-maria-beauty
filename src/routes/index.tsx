@@ -92,7 +92,12 @@ function Index() {
   const filtered = useMemo(() => professionals.filter((p) => (category === "Para você" || p.category === category || category === "Cabelo" && p.id === "camila") && (mode === "Em Domicílio" ? p.atHome : !p.atHome)), [category, mode]);
 
   const openProfile = (p: Professional) => { setSelected(p); setStep(0); };
-  const openAgenda = () => { setSelected(professionals[0]); setStep(1); };
+  const openAgenda = () => {
+    const firstProfessional = professionals.at(0);
+    if (!firstProfessional) return;
+    setSelected(firstProfessional);
+    setStep(1);
+  };
   const close = () => { setSelected(null); setStep(0); setRules([false, false]); };
   const next = () => setStep((current) => Math.min(current + 1, 4));
   const back = () => step === 0 ? close() : setStep((current) => current - 1);
