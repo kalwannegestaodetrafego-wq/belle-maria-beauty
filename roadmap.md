@@ -10,4 +10,4 @@
 - [x] Simplificar o header para exibir somente BM
 - [x] Atualizar a taxa da carteira para 18%
 - [x] Adicionar Central de Segurança e FAQ expansível
-- [ ] Revalidar o checklist completo do MVP no celular
+- [x] Revalidar o checklist completo do MVP no celular
