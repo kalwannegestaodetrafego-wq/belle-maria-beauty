@@ -77,7 +77,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "BM — Alice no País da Beleza" },
+      { title: "BM — Em apenas um clique, a beleza até você" },
       { name: "description", content: "Marketplace premium de beleza e bem-estar." },
       { name: "author", content: "BM" },
       { property: "og:type", content: "website" },
