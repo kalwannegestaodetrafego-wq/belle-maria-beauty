@@ -46,7 +46,7 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
 
   return <Sheet title={mode === "signup" ? "Criar conta" : "Entrar"} eyebrow="Acesso BM" onClose={onClose}>
     <div className="grid grid-cols-3 rounded-lg bg-card p-1 ring-1 ring-border">{tabs.map((t) => <button type="button" key={t} onClick={() => setTab(t)} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight ${tab === t ? "bg-foreground text-background" : "text-muted-foreground"}`}>{t}</button>)}</div>
-    <form onSubmit={(e) => { e.preventDefault(); setDone(true); }} className="mt-5 space-y-3">
+    <form onSubmit={(e) => { e.preventDefault(); if (!requiredUploadsComplete) return; setDone(true); }} className="mt-5 space-y-3">
       {mode === "login" ? <>
         <Field label="E-mail" type="email" required placeholder="voce@email.com" />
         <Field label="Senha" type="password" required placeholder="••••••••" />
