@@ -25,7 +25,7 @@ export function WelcomeTraining({ onClose }: { onClose: () => void }) {
       <button onClick={onClose} className={`${primary} relative mt-6 w-full`}>Ir para o painel</button>
     </div>
   </Sheet>;
-  const s = steps[i];
+  const s = steps[i] ?? steps[0]!;
   const Icon = s.icon;
   return <Sheet title="Bem-vinda ao Time BM! 🌸" eyebrow="Seus 4 Passos de Ouro" onClose={onClose} z="z-[80]">
     <div className="flex gap-1.5">{steps.map((_, k) => <button key={k} onClick={() => setI(k)} aria-label={`Passo ${k + 1}`} className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${k <= i ? "bg-primary" : "bg-muted"}`} />)}</div>
