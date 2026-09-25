@@ -32,7 +32,7 @@ function UploadBox({ label, done, onClick, icon }: { label: string; done: boolea
 }
 
 /* ---------- Auth ---------- */
-export function AuthModal({ onClose }: { onClose: () => void }) {
+export function AuthModal({ onClose, onProfessionalSignup }: { onClose: () => void; onProfessionalSignup?: () => void }) {
   const tabs = ["Cliente", "Profissional Beleza", "Salão Parceiro"] as const;
   const [tab, setTab] = useState<(typeof tabs)[number]>("Cliente");
   const [professionalType, setProfessionalType] = useState<"cpf" | "cnpj">("cpf");
@@ -42,7 +42,7 @@ export function AuthModal({ onClose }: { onClose: () => void }) {
   const up = (k: string) => setUploads((u) => ({ ...u, [k]: true }));
   const requiredUploadsComplete = mode === "login" || tab === "Salão Parceiro" ? true : tab === "Cliente" ? !!uploads["client-selfie"] : !!uploads["identity"] && !!uploads["professional-selfie"];
 
-  if (done) return <Sheet title="Tudo certo!" eyebrow="Conta BM" onClose={onClose}><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-4 font-display text-2xl">{mode === "login" ? "Bem-vinda de volta" : "Cadastro enviado"}</p><p className="mt-2 text-sm text-muted-foreground">{mode === "login" ? "Você entrou na sua conta." : "Nossa equipe valida seus documentos em até 24h."}</p><button onClick={onClose} className={`${primary} mt-6 w-full`}>Continuar</button></div></Sheet>;
+  if (done) return <Sheet title="Tudo certo!" eyebrow="Conta BM" onClose={onClose}><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-4 font-display text-2xl">{mode === "login" ? "Bem-vinda de volta" : "Cadastro enviado"}</p><p className="mt-2 text-sm text-muted-foreground">{mode === "login" ? "Você entrou na sua conta." : "Nossa equipe valida seus documentos em até 24h."}</p><button onClick={mode === "signup" && tab === "Profissional Beleza" && onProfessionalSignup ? onProfessionalSignup : onClose} className={`${primary} mt-6 w-full`}>{mode === "signup" && tab === "Profissional Beleza" ? "Iniciar minicurso de boas-vindas" : "Continuar"}</button></div></Sheet>;
 
   return <Sheet title={mode === "signup" ? "Criar conta" : "Entrar"} eyebrow="Acesso BM" onClose={onClose}>
     <div className="grid grid-cols-3 rounded-lg bg-card p-1 ring-1 ring-border">{tabs.map((t) => <button type="button" key={t} onClick={() => setTab(t)} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight ${tab === t ? "bg-foreground text-background" : "text-muted-foreground"}`}>{t}</button>)}</div>
