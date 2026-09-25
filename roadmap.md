@@ -17,3 +17,6 @@
 - [x] Tornar o cadastro profissional inclusivo para atuação com CPF ou CNPJ
 - [x] Exigir identificação completa e selfie de segurança no cadastro da cliente
 - [x] Atualizar selos para verificação de identidade e destacar corretamente a visão B2B
+- [x] Carteira financeira, editor de preços, assinatura e FAQ de taxas no B2B
+- [x] Guia da Experiência BM em Casa
+- [x] Pontos & Vantagens BM com campanhas

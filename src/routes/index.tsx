@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 
+import { B2BFinance, ClientHub } from "../components/bm/modules";
 import { AuthModal, B2BView, ChairBooking, ChatModal, OnboardingBanner, ReviewModal, TravelTipModal } from "../components/bm/extras";
 import { UserRound, Lightbulb, BookOpen } from "lucide-react";
 import { HelpRules, OnlineToggle, WelcomeTraining } from "../components/bm/training";
@@ -134,7 +135,7 @@ function Index() {
           {(["Cliente", "Profissional Beleza", "Empresa & Salão B2B"] as const).map((item) => <button key={item} onClick={() => setView(item)} aria-pressed={view === item} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight transition-all ${view === item ? "bg-primary text-primary-foreground shadow-soft ring-1 ring-foreground" : "text-muted-foreground"}`}>{item}</button>)}
         </div>
 
-        {view === "Empresa & Salão B2B" ? <B2BView /> : view === "Profissional Beleza" ? <ProfessionalView selectedDay={selectedDay} selectedTime={selectedTime} status={orderStatus} setStatus={setOrderStatus} /> : <>
+        {view === "Empresa & Salão B2B" ? <><B2BView /><B2BFinance /></> : view === "Profissional Beleza" ? <ProfessionalView selectedDay={selectedDay} selectedTime={selectedTime} status={orderStatus} setStatus={setOrderStatus} /> : <>
           <section className="py-7 md:py-10">
             <p className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.16em] text-primary"><Sparkles size={14} /> Curadoria em Florianópolis</p>
             <h1 className="max-w-2xl font-display text-4xl leading-[1.05] md:text-6xl">Em apenas um clique, <em className="font-normal text-primary">a beleza até você.</em></h1>
@@ -167,6 +168,7 @@ function Index() {
             </article>)}
           </section>
           {filtered.length === 0 && <div className="rounded-lg border border-border bg-card p-8 text-center"><Sparkles className="mx-auto text-primary" /><h3 className="mt-3 font-display text-2xl">Novos talentos chegando</h3><p className="mt-2 text-sm text-muted-foreground">Tente outra categoria ou forma de atendimento.</p></div>}
+          <ClientHub />
         </>}
       </div>
 
