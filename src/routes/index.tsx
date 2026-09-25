@@ -28,7 +28,8 @@ import {
 import { useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 import { AuthModal, B2BView, ChairBooking, ChatModal, OnboardingBanner, ReviewModal, TravelTipModal } from "../components/bm/extras";
-import { UserRound, Lightbulb } from "lucide-react";
+import { UserRound, Lightbulb, BookOpen } from "lucide-react";
+import { HelpRules, OnlineToggle, WelcomeTraining } from "../components/bm/training";
 import camilaImage from "../assets/camila.jpg";
 import studioImage from "../assets/studio-bella.jpg";
 import julianaImage from "../assets/juliana.jpg";
@@ -97,6 +98,8 @@ function Index() {
   const [copied, setCopied] = useState(false);
   const [orderStatus, setOrderStatus] = useState<OrderStatus>("new");
   const [securityOpen, setSecurityOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [trainingOpen, setTrainingOpen] = useState(false);
 
   const filtered = useMemo(() => professionals.filter((p) => (category === "Para você" || category.startsWith(p.category) || category.startsWith("Cabelo") && p.id === "camila") && (mode === "Em Domicílio" ? p.atHome : !p.atHome)), [category, mode]);
 
@@ -117,7 +120,7 @@ function Index() {
         <div className="mx-auto max-w-6xl px-4 pb-3 pt-3 md:px-8">
           <div className="flex items-center justify-between">
              <div className="brand-mark" aria-label="BM">BM</div>
-             <div className="flex gap-2"><AppButton variant="icon" onClick={() => setAuthOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label="Entrar ou cadastrar"><UserRound size={19} /></AppButton><AppButton variant="icon" onClick={() => setSecurityOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label="Abrir Central de Segurança"><Menu size={19} /></AppButton></div>
+             <div className="flex gap-2"><AppButton variant="icon" onClick={() => setAuthOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label="Entrar ou cadastrar"><UserRound size={19} /></AppButton><AppButton variant="icon" onClick={() => setHelpOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label="Ajuda e regras"><BookOpen size={19} /></AppButton><AppButton variant="icon" onClick={() => setSecurityOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label="Abrir Central de Segurança"><Menu size={19} /></AppButton></div>
           </div>
           <div className="mt-3 flex items-center justify-between gap-3">
             <button className="flex min-w-0 items-center gap-2 text-left text-xs font-semibold"><MapPin size={15} className="shrink-0 text-primary" /><span className="truncate">Florianópolis, SC · Centro</span><ChevronRight size={14} /></button>
@@ -172,9 +175,11 @@ function Index() {
       </nav>
 
       {selected && <BookingModal professional={selected} step={step} selectedDay={selectedDay} setSelectedDay={setSelectedDay} selectedTime={selectedTime} setSelectedTime={setSelectedTime} rules={rules} setRules={setRules} payment={payment} setPayment={setPayment} copied={copied} setCopied={setCopied} orderStatus={orderStatus} onNext={next} onBack={back} onClose={close} />}
-      {authOpen && <AuthModal onClose={() => setAuthOpen(false)} />}
+      {authOpen && <AuthModal onClose={() => setAuthOpen(false)} onProfessionalSignup={() => { setAuthOpen(false); setView("Profissional Beleza"); setTrainingOpen(true); }} />}
       {chatOpen && <ChatModal name="Camila Silva" onClose={() => setChatOpen(false)} />}
       {securityOpen && <SecurityCenter onClose={() => setSecurityOpen(false)} />}
+      {helpOpen && <HelpRules onClose={() => setHelpOpen(false)} />}
+      {trainingOpen && <WelcomeTraining onClose={() => setTrainingOpen(false)} />}
     </main>
   );
 }
@@ -193,6 +198,7 @@ function ProfessionalView({ selectedDay, selectedTime, status, setStatus }: { se
   return <section className="py-7 md:py-10">
     <div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">Painel profissional</p><h1 className="mt-1 font-display text-4xl">Olá, Camila</h1><p className="mt-2 text-sm text-muted-foreground">Acompanhe seus atendimentos e ganhos.</p></div><div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-card shadow-soft"><Bell size={19} /><span className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full bg-success ring-2 ring-background" /></div></div>
 
+    <OnlineToggle />
     <OnboardingBanner />
     <button onClick={() => setTipOpen(true)} className="mt-3 flex w-full items-center gap-3 rounded-lg bg-secondary p-3 text-left text-xs font-semibold"><Lightbulb size={17} className="shrink-0 text-primary" /> Dica: como calcular deslocamento sem encarecer o serviço <ChevronRight size={15} className="ml-auto shrink-0" /></button>
     <div className="mt-7 overflow-hidden rounded-lg border border-primary bg-card shadow-card">
