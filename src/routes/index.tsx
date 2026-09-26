@@ -31,6 +31,8 @@ import { B2BFinance, ClientHub } from "../components/bm/modules";
 import { AuthModal, B2BView, ChairBooking, ChatModal, OnboardingBanner, ReviewModal, TravelTipModal } from "../components/bm/extras";
 import { UserRound, Lightbulb, BookOpen } from "lucide-react";
 import { HelpRules, OnlineToggle, WelcomeTraining } from "../components/bm/training";
+import { CategoryShowcase, PortfolioNotice, ServiceMenu } from "../components/bm/discovery";
+import { CheckoutOptions, FlexibleSchedule, bookingIsUrgent, bookingTotal, brazilDays, initialExtras, money, type BookingExtras } from "../components/bm/booking-extras";
 import camilaImage from "../assets/camila.jpg";
 import studioImage from "../assets/studio-bella.jpg";
 import julianaImage from "../assets/juliana.jpg";
@@ -75,8 +77,6 @@ const professionals: Professional[] = [
 ];
 
 const categories = ["Para você", "Maquiagem", "Cabelo & Penteado", "Unhas", "Massagem & Estética", "Design de Sobrancelhas & Cílios", "Combos VIP"];
-const days = [{ week: "QUI", day: "24" }, { week: "SEX", day: "25" }, { week: "SÁB", day: "26" }, { week: "DOM", day: "27" }];
-const times = ["09:00", "11:30", "14:00", "16:30"];
 
 function AppButton({ variant = "primary", className = "", children, ...props }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "ghost" | "outline" | "icon"; children: ReactNode }) {
   const styles = { primary: "bg-primary text-primary-foreground shadow-luxe hover:bg-primary/90", ghost: "bg-transparent text-foreground hover:bg-accent", outline: "border border-border bg-card text-foreground hover:bg-accent", icon: "bg-card/85 text-foreground shadow-soft hover:bg-accent" };
@@ -92,8 +92,9 @@ function Index() {
   const [favorite, setFavorite] = useState<string[]>([]);
   const [selected, setSelected] = useState<Professional | null>(null);
   const [step, setStep] = useState(0);
-  const [selectedDay, setSelectedDay] = useState("25");
-  const [selectedTime, setSelectedTime] = useState("14:00");
+  const [selectedDay, setSelectedDay] = useState(() => brazilDays()[1]?.id ?? "");
+  const [bookingExtras, setBookingExtras] = useState<BookingExtras>(initialExtras);
+  const selectedTime = bookingExtras.slots[0] ?? "—";
   const [rules, setRules] = useState([false, false, false, false]);
   const [payment, setPayment] = useState<"pix" | "card">("pix");
   const [copied, setCopied] = useState(false);
@@ -102,7 +103,7 @@ function Index() {
   const [helpOpen, setHelpOpen] = useState(false);
   const [trainingOpen, setTrainingOpen] = useState(false);
 
-  const filtered = useMemo(() => professionals.filter((p) => (category === "Para você" || category.startsWith(p.category) || category.startsWith("Cabelo") && p.id === "camila") && (mode === "Em Domicílio" ? p.atHome : !p.atHome)), [category, mode]);
+  const filtered = useMemo(() => professionals.filter((p) => (category === "Para você" || category.startsWith(p.category) || category.startsWith("Cabelo") && p.id === "camila" || category === "Casamentos & Noivas" && p.id === "camila" || category === "Eventos" && p.id === "camila" || category === "Combos VIP" || category === "Clube BM" || category === "Vale Presente") && (mode === "Em Domicílio" ? p.atHome : !p.atHome)), [category, mode]);
 
   const openProfile = (p: Professional) => { setSelected(p); setStep(0); };
   const openAgenda = () => {
@@ -142,6 +143,8 @@ function Index() {
             <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">Profissionais selecionados, pagamento protegido e experiências feitas para você.</p>
           </section>
 
+          <CategoryShowcase selected={category} onSelect={(filter) => { setCategory(filter); if (filter === "Unhas") setMode("No Salão"); else if (["Cabelo & Penteado", "Maquiagem", "Casamentos & Noivas", "Eventos"].includes(filter)) setMode("Em Domicílio"); }} />
+
           <section aria-label="Modo de atendimento" className="mb-6 grid grid-cols-2 gap-2">
             {(["Em Domicílio", "No Salão"] as const).map((item) => <button key={item} onClick={() => setMode(item)} className={`flex h-14 items-center justify-center gap-2 rounded-lg border text-sm font-bold transition-all ${mode === item ? "border-primary bg-card text-foreground shadow-soft" : "border-transparent bg-card/45 text-muted-foreground"}`}>{item === "Em Domicílio" ? <Home size={18} /> : <Store size={18} />}{item}</button>)}
           </section>
@@ -163,7 +166,7 @@ function Index() {
               <div className="p-4">
                 <div className="flex justify-between gap-3"><div><h3 className="font-display text-2xl">{p.name}</h3><p className="mt-0.5 text-xs text-muted-foreground">{p.role}</p></div><div className="flex h-fit items-center gap-1 text-xs font-bold"><Star size={14} className="fill-primary text-primary" />{p.rating}</div></div>
                 <div className="my-4 flex items-center justify-between border-y border-border/70 py-3 text-xs"><span className="flex items-center gap-1 text-muted-foreground"><MapPin size={13} />{p.distance}</span><span>{p.reviews} avaliações</span></div>
-                <div className="flex items-end justify-between gap-3"><div><p className="text-xs text-muted-foreground">A partir de</p><p className="mt-0.5 font-display text-lg">{p.service} · R$ {p.price}</p></div><AppButton onClick={() => openProfile(p)} className="shrink-0 px-3">Ver perfil</AppButton></div>
+                 <p className="mb-3 inline-flex rounded-md bg-secondary px-2 py-1 text-[10px] font-bold text-foreground">R$ 20 OFF no primeiro agendamento*</p><div className="flex items-end justify-between gap-3"><div><p className="text-xs text-muted-foreground">A partir de</p><p className="mt-0.5 font-display text-lg">{p.service} · R$ {p.price}</p></div><AppButton onClick={() => openProfile(p)} className="shrink-0 px-3">Ver perfil</AppButton></div><p className="mt-2 text-[10px] text-muted-foreground">*Oferta demonstrativa; não aplicada automaticamente ao checkout.</p>
               </div>
             </article>)}
           </section>
@@ -176,7 +179,7 @@ function Index() {
         <div className="mx-auto flex max-w-sm items-center justify-between"><BottomItem icon={<Sparkles size={20} />} label="Explorar" active /><BottomItem icon={<CalendarDays size={20} />} label="Agenda" onClick={openAgenda} /><BottomItem icon={<Heart size={20} />} label="Favoritos" /><BottomItem icon={<MessageCircle size={20} />} label="Mensagens" onClick={() => setChatOpen(true)} /></div>
       </nav>
 
-      {selected && <BookingModal professional={selected} step={step} selectedDay={selectedDay} setSelectedDay={setSelectedDay} selectedTime={selectedTime} setSelectedTime={setSelectedTime} rules={rules} setRules={setRules} payment={payment} setPayment={setPayment} copied={copied} setCopied={setCopied} orderStatus={orderStatus} onNext={next} onBack={back} onClose={close} />}
+       {selected && <BookingModal professional={selected} step={step} selectedDay={selectedDay} setSelectedDay={setSelectedDay} bookingExtras={bookingExtras} setBookingExtras={setBookingExtras} favorites={professionals.filter((p) => favorite.includes(p.id)).map(({ id, name }) => ({ id, name }))} rules={rules} setRules={setRules} payment={payment} setPayment={setPayment} copied={copied} setCopied={setCopied} orderStatus={orderStatus} onNext={next} onBack={back} onClose={close} />}
       {authOpen && <AuthModal onClose={() => setAuthOpen(false)} onProfessionalSignup={() => { setAuthOpen(false); setView("Profissional Beleza"); setTrainingOpen(true); }} />}
       {chatOpen && <ChatModal name="Camila Silva" onClose={() => setChatOpen(false)} />}
       {securityOpen && <SecurityCenter onClose={() => setSecurityOpen(false)} />}
