@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep BM's B2C discovery data and booking option components client-local; this MVP simulates reservations and has no persistent account, inventory, or payment backend.
+- Never label generated or demonstration photographs as verified authorial professional work; verification requires submitted real portfolio evidence.

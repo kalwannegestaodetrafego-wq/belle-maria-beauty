@@ -20,3 +20,8 @@
 - [x] Carteira financeira, editor de preços, assinatura e FAQ de taxas no B2B
 - [x] Guia da Experiência BM em Casa
 - [x] Pontos & Vantagens BM com campanhas
+- [x] Criar vitrine visual com oito categorias e ofertas promocionais
+- [x] Detalhar serviços e restrições médicas; sinalizar portfólio demonstrativo até receber fotos autorais verificáveis
+- [x] Permitir múltiplos horários alternativos e indicar taxa de urgência
+- [x] Adicionar preferências logísticas, especialista e Vale Presente no checkout
+- [x] Validar a jornada atualizada no celular e em tela ampla
