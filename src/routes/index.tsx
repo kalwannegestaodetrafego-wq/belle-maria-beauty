@@ -36,6 +36,9 @@ import { CheckoutOptions, FlexibleSchedule, bookingIsUrgent, bookingTotal, brazi
 import camilaImage from "../assets/camila.jpg";
 import studioImage from "../assets/studio-bella.jpg";
 import julianaImage from "../assets/juliana.jpg";
+import makeupEditorial from "../assets/category-makeup.jpg";
+import nailsEditorial from "../assets/category-nails.jpg";
+import clubEditorial from "../assets/category-club.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -263,7 +266,7 @@ function BookingModal(props: BookingProps) {
 }
 
 function ProfileStep({ p, onNext }: { p: Professional; onNext: () => void }) {
-  const gallery = [p.image, p.id === "camila" ? studioImage : camilaImage, p.id === "juliana" ? studioImage : julianaImage];
+  const gallery = [p.image, ...(p.id === "camila" ? [makeupEditorial, makeupEditorial] : p.id === "bella" ? [nailsEditorial, nailsEditorial] : [clubEditorial, clubEditorial])];
    return <div className="pb-5"><div className="relative aspect-[16/11] overflow-hidden"><img src={p.image} alt={p.name} width={912} height={1200} className="h-full w-full object-cover" /><span className="absolute bottom-4 left-4 flex items-center gap-1 rounded-full bg-success px-3 py-1.5 text-[10px] font-bold text-success-foreground"><ShieldCheck size={13} /> Identidade verificada</span></div><div className="px-5 pt-5"><div className="flex justify-between"><div><h2 className="font-display text-3xl">{p.name}</h2><p className="text-sm text-muted-foreground">{p.role} · {p.distance}</p></div><span className="flex h-fit items-center gap-1 text-sm font-bold"><Star size={15} className="fill-primary text-primary" /> {p.rating}</span></div><p className="mt-5 text-sm leading-6 text-muted-foreground">{p.bio}</p><div className="mt-4 flex flex-wrap gap-2">{p.tags.map((t) => <span key={t} className="rounded-full border border-success/30 bg-success-soft px-3 py-1 text-[11px] font-semibold text-success">{t}</span>)}</div><h3 className="mb-3 mt-6 font-display text-xl">Portfólio</h3><div className="grid grid-cols-3 gap-2">{gallery.map((image, i) => <img key={`${image}-${i}`} src={image} alt={`Imagem ilustrativa ${i + 1} de ${p.name}`} loading="lazy" width={912} height={1200} className="aspect-square w-full rounded-md object-cover" />)}</div><PortfolioNotice /><h3 className="mb-3 mt-6 font-display text-xl">Menu de serviços</h3><ServiceMenu services={[{ name: p.service, price: p.price }, ...(p.extras ?? [])]} /><h3 className="mb-3 mt-6 font-display text-xl">Avaliações</h3><div className="space-y-2">{[{ n: "Marina L.", t: "Pontual, super cuidadosa e o resultado ficou impecável." }, { n: "Rafaela S.", t: "Material todo higienizado. Já agendei de novo!" }].map((r) => <div key={r.n} className="rounded-lg bg-card p-3 shadow-soft"><p className="flex items-center gap-1 text-xs font-bold">{r.n} <span className="ml-auto flex">{[1,2,3,4,5].map((i) => <Star key={i} size={11} className="fill-primary text-primary" />)}</span></p><p className="mt-1 text-xs text-muted-foreground">{r.t}</p></div>)}</div><AppButton onClick={onNext} className="mt-5 w-full">Escolher data e horário <ChevronRight size={17} /></AppButton></div></div>;
 }
 
