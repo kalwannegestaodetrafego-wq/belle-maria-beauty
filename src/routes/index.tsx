@@ -95,6 +95,7 @@ function Index() {
   const [selectedDay, setSelectedDay] = useState(() => brazilDays()[1]?.id ?? "");
   const [bookingExtras, setBookingExtras] = useState<BookingExtras>(initialExtras);
   const selectedTime = bookingExtras.slots[0] ?? "—";
+  const orderTotal = bookingTotal(selected?.price ?? 150, bookingIsUrgent(selectedDay, bookingExtras.slots), bookingExtras, selected?.service === "Massagem Relaxante");
   const [rules, setRules] = useState([false, false, false, false]);
   const [payment, setPayment] = useState<"pix" | "card">("pix");
   const [copied, setCopied] = useState(false);
@@ -136,7 +137,7 @@ function Index() {
           {(["Cliente", "Profissional Beleza", "Empresa & Salão B2B"] as const).map((item) => <button key={item} onClick={() => setView(item)} aria-pressed={view === item} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight transition-all ${view === item ? "bg-primary text-primary-foreground shadow-soft ring-1 ring-foreground" : "text-muted-foreground"}`}>{item}</button>)}
         </div>
 
-        {view === "Empresa & Salão B2B" ? <><B2BView /><B2BFinance /></> : view === "Profissional Beleza" ? <ProfessionalView selectedDay={selectedDay} selectedTime={selectedTime} status={orderStatus} setStatus={setOrderStatus} /> : <>
+         {view === "Empresa & Salão B2B" ? <><B2BView /><B2BFinance /></> : view === "Profissional Beleza" ? <ProfessionalView selectedDay={selectedDay} selectedTime={selectedTime} orderTotal={orderTotal} status={orderStatus} setStatus={setOrderStatus} /> : <>
           <section className="py-7 md:py-10">
             <p className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.16em] text-primary"><Sparkles size={14} /> Curadoria em Florianópolis</p>
             <h1 className="max-w-2xl font-display text-4xl leading-[1.05] md:text-6xl">Em apenas um clique, <em className="font-normal text-primary">a beleza até você.</em></h1>
@@ -189,13 +190,13 @@ function Index() {
   );
 }
 
-function ProfessionalView({ selectedDay, selectedTime, status, setStatus }: { selectedDay: string; selectedTime: string; status: OrderStatus; setStatus: (status: OrderStatus) => void }) {
+function ProfessionalView({ selectedDay, selectedTime, orderTotal, status, setStatus }: { selectedDay: string; selectedTime: string; orderTotal: number; status: OrderStatus; setStatus: (status: OrderStatus) => void }) {
   const [pinOpen, setPinOpen] = useState(false);
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState("");
   const [withdrawn, setWithdrawn] = useState(false);
   const [tipOpen, setTipOpen] = useState(false);
-  const net = 123;
+  const net = orderTotal * .82;
   const statusLabel = { new: "Novo chamado", accepted: "Chamado aceito", enroute: "A caminho", arrived: "No local", completed: "Concluído" }[status];
   const action = status === "new" ? { label: "Aceitar Chamado", next: "accepted" as const } : status === "accepted" ? { label: "A Caminho", next: "enroute" as const } : status === "enroute" ? { label: "Cheguei ao Local", next: "arrived" as const } : null;
   const validatePin = () => { if (pin === "8392") { setStatus("completed"); setPinOpen(false); setPinError(""); } else { setPinError("PIN incorreto. Confira com a cliente."); } };
@@ -209,11 +210,11 @@ function ProfessionalView({ selectedDay, selectedTime, status, setStatus }: { se
     <div className="mt-7 overflow-hidden rounded-lg border border-primary bg-card shadow-card">
       <div className="flex items-center justify-between bg-secondary px-4 py-3"><span className="flex items-center gap-2 text-xs font-bold"><span className="h-2 w-2 rounded-full bg-success" />{statusLabel}</span><span className="text-[10px] font-semibold text-muted-foreground">#BM-0925</span></div>
        <div className="p-4"><div className="flex items-center gap-3"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-background font-display text-lg">AM</div><div><h2 className="font-bold">Ana Martins</h2><p className="text-xs font-semibold text-success">Cliente Verificada (CPF e Foto Validados)</p><p className="text-[10px] text-muted-foreground">12 atendimentos</p></div></div>
-      <div className="my-5 grid grid-cols-2 gap-3 border-y border-border py-4 text-xs"><div><p className="text-muted-foreground">Serviço</p><p className="mt-1 font-bold">Maquiagem Social</p></div><div><p className="text-muted-foreground">Data e horário</p><p className="mt-1 font-bold">Dia {selectedDay} · {selectedTime}</p></div><div className="col-span-2"><p className="text-muted-foreground">Endereço</p><p className="mt-1 flex items-center gap-1 font-bold"><MapPin size={13} className="text-primary" /> Rua Bocaiúva, 2125 · Centro</p></div></div>
-      <div className="flex items-end justify-between gap-3"><div><p className="text-xs text-muted-foreground">Valor protegido</p><p className="font-display text-2xl">R$ 150,00</p></div>{action && <AppButton onClick={() => setStatus(action.next)}>{action.label}{action.next === "enroute" && <Navigation size={16} />}</AppButton>}{status === "arrived" && <AppButton onClick={() => setPinOpen(true)}><KeyRound size={16} /> Validar PIN</AppButton>}{status === "completed" && <span className="flex items-center gap-1 text-sm font-bold text-success"><CheckCircle2 size={18} /> Finalizado</span>}</div></div>
+       <div className="my-5 grid grid-cols-2 gap-3 border-y border-border py-4 text-xs"><div><p className="text-muted-foreground">Serviço</p><p className="mt-1 font-bold">Maquiagem Social</p></div><div><p className="text-muted-foreground">Data e horário</p><p className="mt-1 font-bold">{selectedDay ? new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", timeZone: "UTC" }).format(new Date(`${selectedDay}T12:00:00Z`)) : "A definir"} · {selectedTime}</p></div><div className="col-span-2"><p className="text-muted-foreground">Endereço</p><p className="mt-1 flex items-center gap-1 font-bold"><MapPin size={13} className="text-primary" /> Rua Bocaiúva, 2125 · Centro</p></div></div>
+       <div className="flex items-end justify-between gap-3"><div><p className="text-xs text-muted-foreground">Valor protegido</p><p className="font-display text-2xl">{money(orderTotal)}</p></div>{action && <AppButton onClick={() => setStatus(action.next)}>{action.label}{action.next === "enroute" && <Navigation size={16} />}</AppButton>}{status === "arrived" && <AppButton onClick={() => setPinOpen(true)}><KeyRound size={16} /> Validar PIN</AppButton>}{status === "completed" && <span className="flex items-center gap-1 text-sm font-bold text-success"><CheckCircle2 size={18} /> Finalizado</span>}</div></div>
     </div>
 
-     <div className="mt-6 rounded-lg bg-foreground p-5 text-background shadow-card"><div className="flex items-center justify-between"><div><p className="flex items-center gap-2 text-xs font-semibold text-background/70"><Wallet size={16} /> Carteira BM</p><p className="mt-2 font-display text-4xl">R$ {status === "completed" && !withdrawn ? "123,00" : "0,00"}</p><p className="mt-1 text-[10px] text-background/60">Saldo disponível</p></div><AppButton onClick={() => setWithdrawn(true)} disabled={status !== "completed" || withdrawn} className="bg-background text-foreground shadow-none hover:bg-background/90">{withdrawn ? "Saque solicitado" : "Sacar via PIX"}</AppButton></div><div className="mt-5 grid grid-cols-2 gap-3 border-t border-background/20 pt-4 text-xs"><div><p className="text-background/60">Valor bruto</p><p className="mt-1 font-bold">R$ 150,00</p></div><div><p className="text-background/60">Taxa BM · 18%</p><p className="mt-1 font-bold">− R$ 27,00</p></div></div>{withdrawn && <p className="mt-4 flex items-center gap-2 rounded-md bg-success/20 p-3 text-xs font-semibold"><CheckCircle2 size={16} /> Saque PIX solicitado com sucesso.</p>}</div>
+      <div className="mt-6 rounded-lg bg-foreground p-5 text-background shadow-card"><div className="flex items-center justify-between"><div><p className="flex items-center gap-2 text-xs font-semibold text-background/70"><Wallet size={16} /> Carteira BM</p><p className="mt-2 font-display text-4xl">{money(status === "completed" && !withdrawn ? net : 0)}</p><p className="mt-1 text-[10px] text-background/60">Saldo disponível</p></div><AppButton onClick={() => setWithdrawn(true)} disabled={status !== "completed" || withdrawn} className="bg-background text-foreground shadow-none hover:bg-background/90">{withdrawn ? "Saque solicitado" : "Sacar via PIX"}</AppButton></div><div className="mt-5 grid grid-cols-2 gap-3 border-t border-background/20 pt-4 text-xs"><div><p className="text-background/60">Valor bruto</p><p className="mt-1 font-bold">{money(orderTotal)}</p></div><div><p className="text-background/60">Taxa BM · 18%</p><p className="mt-1 font-bold">− {money(orderTotal * .18)}</p></div></div>{withdrawn && <p className="mt-4 flex items-center gap-2 rounded-md bg-success/20 p-3 text-xs font-semibold"><CheckCircle2 size={16} /> Saque PIX solicitado com sucesso.</p>}</div>
 
     <ChairBooking />
     {tipOpen && <TravelTipModal onClose={() => setTipOpen(false)} />}
