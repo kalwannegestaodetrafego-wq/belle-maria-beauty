@@ -7,7 +7,7 @@ export const initialExtras: BookingExtras = { slots: [], hasTable: false, forOth
 
 export function brazilDays() {
   const date = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
-  const [year, month, day] = date.split("-").map(Number);
+  const [year = 2026, month = 1, day = 1] = date.split("-").map(Number);
   return Array.from({ length: 7 }, (_, index) => {
     const value = new Date(Date.UTC(year, month - 1, day + index));
     return { id: value.toISOString().slice(0, 10), week: new Intl.DateTimeFormat("pt-BR", { weekday: "short", timeZone: "UTC" }).format(value).replace(".", ""), day: String(value.getUTCDate()), month: new Intl.DateTimeFormat("pt-BR", { month: "long", timeZone: "UTC" }).format(value) };
