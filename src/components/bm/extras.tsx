@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import {
   AlertTriangle, Armchair, Bus, Camera, Check, CheckCircle2, Clock3, FileCheck2, Fuel, Lightbulb, Megaphone, Send, ShieldCheck, Star, Upload, Users, X,
 } from "lucide-react";
+import { IdentityTrustCard } from "./trust-support";
 
 export function Sheet({ title, eyebrow, onClose, children, z = "z-50" }: { title: string; eyebrow?: string; onClose: () => void; children: ReactNode; z?: string }) {
   return <div className={`fixed inset-0 ${z} flex items-end justify-center bg-overlay/55 backdrop-blur-sm md:items-center md:p-6`} role="dialog" aria-modal="true" aria-label={title}>
@@ -45,6 +46,7 @@ export function AuthModal({ onClose, onProfessionalSignup }: { onClose: () => vo
   if (done) return <Sheet title="Tudo certo!" eyebrow="Conta BM" onClose={onClose}><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-4 font-display text-2xl">{mode === "login" ? "Bem-vinda de volta" : "Cadastro enviado"}</p><p className="mt-2 text-sm text-muted-foreground">{mode === "login" ? "Você entrou na sua conta." : "Nossa equipe valida seus documentos em até 24h."}</p><button onClick={mode === "signup" && tab === "Profissional Beleza" && onProfessionalSignup ? onProfessionalSignup : onClose} className={`${primary} mt-6 w-full`}>{mode === "signup" && tab === "Profissional Beleza" ? "Iniciar minicurso de boas-vindas" : "Continuar"}</button></div></Sheet>;
 
   return <Sheet title={mode === "signup" ? "Criar conta" : "Entrar"} eyebrow="Acesso BM" onClose={onClose}>
+    <IdentityTrustCard className="mb-5" />
     <div className="grid grid-cols-3 rounded-lg bg-card p-1 ring-1 ring-border">{tabs.map((t) => <button type="button" key={t} onClick={() => setTab(t)} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight ${tab === t ? "bg-foreground text-background" : "text-muted-foreground"}`}>{t}</button>)}</div>
     <form onSubmit={(e) => { e.preventDefault(); if (!requiredUploadsComplete) return; setDone(true); }} className="mt-5 space-y-3">
       {mode === "login" ? <>

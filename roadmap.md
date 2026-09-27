@@ -25,3 +25,6 @@
 - [x] Permitir múltiplos horários alternativos e indicar taxa de urgência
 - [x] Adicionar preferências logísticas, especialista e Vale Presente no checkout
 - [x] Validar a jornada atualizada no celular e em tela ampla
+- [x] Atualizar o contato oficial de suporte e adicionar ações diretas por e-mail
+- [x] Criar a área Segurança & Privacidade com governança LGPD e protocolo de incidentes
+- [x] Adicionar suporte flutuante, cartão de verificação e slogan institucional
