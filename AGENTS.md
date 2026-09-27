@@ -11,3 +11,4 @@
 
 - Keep BM's B2C discovery data and booking option components client-local; this MVP simulates reservations and has no persistent account, inventory, or payment backend.
 - Never label generated or demonstration photographs as verified authorial professional work; verification requires submitted real portfolio evidence.
+- Keep the official BM support address centralized in the shared trust-support module so every help and incident surface stays consistent.

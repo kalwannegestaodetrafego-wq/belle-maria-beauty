@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, Clock3, KeyRound, PartyPopper, ShieldCheck, Sparkles, Zap } from "lucide-react";
 import { Sheet } from "./extras";
+import { SUPPORT_EMAIL, SupportMailButton } from "./trust-support";
 
 const btn = "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-all active:scale-[.98]";
 const primary = `${btn} bg-primary text-primary-foreground shadow-luxe hover:bg-primary/90`;
@@ -46,7 +47,7 @@ export function WelcomeTraining({ onClose }: { onClose: () => void }) {
 const faq = [
   { q: "Como funciona o cancelamento de um agendamento?", a: "Cancelamento gratuito até 12h antes do horário. Cancelamentos com menos de 2h de antecedência têm retenção de 30% do valor, repassada à profissional pelo tempo de preparo." },
   { q: "Quais as regras de conduta para atendimento em domicílio?", a: "Traje profissional, materiais higienizados, respeito aos limites e espaços da casa e zero comentários invasivos." },
-  { q: "O que fazer em caso de imprevisto no trânsito/atraso?", a: "Há uma tolerância padrão de 15 minutos. Para atrasos acima de 15 minutos, avise o suporte imediatamente por e-mail: suporte@bmbeauty.com.br." },
+  { q: "O que fazer em caso de imprevisto no trânsito/atraso?", a: `Há uma tolerância padrão de 15 minutos. Para atrasos acima de 15 minutos, avise o suporte imediatamente por e-mail: ${SUPPORT_EMAIL}.` },
   { q: "Por que não devo aceitar ou propor pagamentos por fora?", a: "Pagamentos fora do app anulam a Garantia BM, o Seguro de Materiais e os pontos de fidelidade. Toda transação deve passar pela custódia BM." },
 ];
 
@@ -57,7 +58,8 @@ export function HelpRules({ onClose }: { onClose: () => void }) {
       <button onClick={() => setOpen(open === k ? null : k)} aria-expanded={open === k} className="flex w-full items-center justify-between gap-3 p-4 text-left text-sm font-bold">{f.q}<ChevronDown size={17} className={`shrink-0 text-primary transition-transform duration-300 ${open === k ? "rotate-180" : ""}`} /></button>
       <div className={`grid transition-all duration-300 ${open === k ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><p className="overflow-hidden px-4 text-sm leading-6 text-muted-foreground"><span className="block pb-4">{f.a}</span></p></div>
     </div>)}</div>
-    <button onClick={onClose} className={`${primary} mt-5 w-full`}>Entendi</button>
+    <SupportMailButton className="mt-5 w-full" />
+    <button onClick={onClose} className={`${outline} mt-3 w-full`}>Entendi</button>
   </Sheet>;
 }
 
