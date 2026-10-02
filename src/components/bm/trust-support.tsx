@@ -1,4 +1,4 @@
-import { Heart, Mail, MessageCircle, ShieldCheck, X } from "lucide-react";
+import { Heart, Mail, MessageCircle, X } from "lucide-react";
 import { useState } from "react";
 
 export const SUPPORT_EMAIL = "startupbmcomercial@gmail.com";
@@ -27,4 +27,23 @@ export function SupportWidget() {
       <FaqBot />
     </div></div>}
   </>;
+}
+const faq = [
+  { q: "Como funciona o agendamento?", a: ["Escolha a categoria e se prefere em casa ou no salão.", "Abra o perfil, selecione serviço, dia e até 3 horários alternativos.", "Confirme o checklist da casa e pague com segurança.", "Acompanhe a especialista até a chegada e informe seu PIN ao final."] },
+  { q: "Pagamentos, PIX e Pontos BM", a: ["Você paga por PIX, cartão ou Solana/USDC (demonstração).", "O valor fica retido pela BM (custódia) e só é liberado quando você informa o PIN de 4 dígitos.", "A profissional recebe via PIX após a validação do PIN.", "Cada atendimento soma Pontos BM, que viram desconto no próximo agendamento."] },
+  { q: "Segurança e Verificação", a: ["Clientes e profissionais validam CPF, foto de identidade e selfie de segurança.", "O pedido mostra o selo de Cliente Verificada para a profissional.", "Dados são protegidos conforme a LGPD.", "Incidentes podem ser reportados na tela de acompanhamento."] },
+  { q: "Quero cadastrar meu Salão ou Perfil MEI/CPF", a: ["Toque no ícone de perfil no topo.", "Escolha Profissional Beleza (CPF ou CNPJ MEI) ou Salão Parceiro (CNPJ e alvará).", "Envie foto de identidade e selfie de segurança.", "Profissionais fazem um minicurso rápido de boas-vindas."] },
+];
+
+function FaqBot() {
+  const [picked, setPicked] = useState<number[]>([]);
+  return <div className="mt-4 space-y-3">
+    <div className="max-w-[85%] rounded-2xl rounded-tl-sm bg-card p-3 text-sm shadow-soft">Olá! Seja bem-vinda ao Suporte BM. Como podemos te ajudar hoje?</div>
+    {picked.map((i, k) => { const item = faq[i]!; return <div key={k} className="space-y-2 animate-in fade-in slide-in-from-bottom-2">
+      <div className="ml-auto max-w-[85%] rounded-2xl rounded-tr-sm bg-foreground p-3 text-sm text-background">{item.q}</div>
+      <div className="max-w-[90%] rounded-2xl rounded-tl-sm bg-card p-3 text-xs leading-5 shadow-soft"><ol className="list-decimal space-y-1 pl-4">{item.a.map((l) => <li key={l}>{l}</li>)}</ol></div>
+    </div>; })}
+    <div className="flex flex-wrap gap-2 pt-1">{faq.map((f, i) => <button key={f.q} type="button" onClick={() => setPicked((p) => [...p, i])} className="rounded-full border border-primary/50 bg-secondary/60 px-3 py-2 text-left text-xs font-semibold transition-colors hover:bg-secondary">{f.q}</button>)}</div>
+    <a href={supportHref} className="flex items-start gap-2 rounded-lg border border-success/30 bg-success-soft p-3 text-xs font-semibold text-success"><Mail size={16} className="mt-0.5 shrink-0" /><span className="break-all">Não encontrou sua dúvida? Envie um e-mail para {SUPPORT_EMAIL}</span></a>
+  </div>;
 }
