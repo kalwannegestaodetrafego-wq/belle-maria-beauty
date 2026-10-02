@@ -34,6 +34,7 @@ import { UserRound, Lightbulb, BookOpen } from "lucide-react";
 import { HelpRules, OnlineToggle, WelcomeTraining } from "../components/bm/training";
 import { CategoryShowcase, PortfolioNotice, ServiceMenu } from "../components/bm/discovery";
 import { CheckoutOptions, FlexibleSchedule, bookingIsUrgent, bookingTotal, brazilDays, initialExtras, money, type BookingExtras } from "../components/bm/booking-extras";
+import { LocationPanel, SolanaCheckout, SolanaPointsHub } from "../components/bm/web3-geo";
 import { IdentityTrustCard, SUPPORT_EMAIL, SupportMailButton, SupportWidget } from "../components/bm/trust-support";
 import camilaImage from "../assets/camila.jpg";
 import studioImage from "../assets/studio-bella.jpg";
@@ -47,7 +48,7 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "BM — Beleza onde você estiver" },
       { name: "description", content: "Encontre profissionais de beleza e bem-estar verificados em Florianópolis, em casa ou no salão." },
-      { property: "og:title", content: "BM — Em apenas um clique, a beleza até você" },
+      { property: "og:title", content: "BM — Sua melhor versão, no seu tempo e no seu espaço" },
       { property: "og:description", content: "Beleza premium, profissionais verificados e pagamento protegido." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -102,7 +103,7 @@ function Index() {
   const selectedTime = bookingExtras.slots[0] ?? "—";
   const orderTotal = bookingTotal(selected?.price ?? 150, bookingIsUrgent(selectedDay, bookingExtras.slots), bookingExtras, selected?.service === "Massagem Relaxante");
   const [rules, setRules] = useState([false, false, false, false]);
-  const [payment, setPayment] = useState<"pix" | "card">("pix");
+  const [payment, setPayment] = useState<"pix" | "card" | "solana">("pix");
   const [copied, setCopied] = useState(false);
   const [orderStatus, setOrderStatus] = useState<OrderStatus>("new");
   const [securityOpen, setSecurityOpen] = useState(false);
@@ -148,8 +149,8 @@ function Index() {
          {view === "Empresa & Salão B2B" ? <><B2BView /><B2BFinance /></> : view === "Profissional Beleza" ? <ProfessionalView selectedDay={selectedDay} selectedTime={selectedTime} orderTotal={orderTotal} status={orderStatus} setStatus={setOrderStatus} /> : <>
           <section className="py-7 md:py-10">
             <p className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.16em] text-primary"><Sparkles size={14} /> Curadoria em Florianópolis</p>
-            <h1 className="max-w-2xl font-display text-4xl leading-[1.05] md:text-6xl">Em apenas um clique, <em className="font-normal text-primary">a beleza até você.</em></h1>
-            <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">Profissionais selecionados, pagamento protegido e experiências feitas para você.</p>
+            <h1 className="max-w-2xl font-display text-4xl leading-[1.05] md:text-6xl">Sua melhor versão, <span className="text-primary">no seu tempo e no seu espaço.</span></h1>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">A experiência dos melhores salões, no conforto do seu lar.</p>
           </section>
 
           <CategoryShowcase selected={category} onSelect={(filter) => { setCategory(filter); if (filter === "Unhas") setMode("No Salão"); else if (["Cabelo & Penteado", "Maquiagem", "Casamentos & Noivas", "Eventos"].includes(filter)) setMode("Em Domicílio"); }} />
@@ -181,6 +182,8 @@ function Index() {
           </section>
           {filtered.length === 0 && <div className="rounded-lg border border-border bg-card p-8 text-center"><Sparkles className="mx-auto text-primary" /><h3 className="mt-3 font-display text-2xl">Novos talentos chegando</h3><p className="mt-2 text-sm text-muted-foreground">Tente outra categoria ou forma de atendimento.</p></div>}
           <ClientHub />
+          <SolanaPointsHub />
+          <LocationPanel />
         </>}
       </div>
 
@@ -254,7 +257,7 @@ function SecurityCenter({ onClose }: { onClose: () => void }) {
 
 function BottomItem({ icon, label, active = false, onClick }: { icon: ReactNode; label: string; active?: boolean; onClick?: () => void }) { return <button onClick={onClick} className={`flex min-w-14 flex-col items-center gap-1 py-1 text-[9px] font-semibold ${active ? "text-primary" : "text-muted-foreground"}`}>{icon}{label}</button>; }
 
-type BookingProps = { professional: Professional; step: number; selectedDay: string; setSelectedDay: (v: string) => void; bookingExtras: BookingExtras; setBookingExtras: (v: BookingExtras) => void; favorites: { id: string; name: string }[]; rules: boolean[]; setRules: (v: boolean[]) => void; payment: "pix" | "card"; setPayment: (v: "pix" | "card") => void; copied: boolean; setCopied: (v: boolean) => void; orderStatus: OrderStatus; onNext: () => void; onBack: () => void; onClose: () => void };
+type BookingProps = { professional: Professional; step: number; selectedDay: string; setSelectedDay: (v: string) => void; bookingExtras: BookingExtras; setBookingExtras: (v: BookingExtras) => void; favorites: { id: string; name: string }[]; rules: boolean[]; setRules: (v: boolean[]) => void; payment: "pix" | "card" | "solana"; setPayment: (v: "pix" | "card" | "solana") => void; copied: boolean; setCopied: (v: boolean) => void; orderStatus: OrderStatus; onNext: () => void; onBack: () => void; onClose: () => void };
 
 function BookingModal(props: BookingProps) {
   const { professional: p, step } = props;
@@ -296,8 +299,8 @@ function PaymentStep(props: BookingProps) {
   const total = bookingTotal(p.price, urgent, extras, massage);
   return <div className="p-5"><div className="rounded-lg border border-success/30 bg-success-soft p-4"><div className="flex gap-3"><ShieldCheck className="shrink-0 text-success" size={24} /><div><h3 className="font-bold text-success">Seu dinheiro fica seguro</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">A BM retém o valor. Ele só é liberado à profissional quando você informar o PIN após o atendimento.</p></div></div></div>
     <CheckoutOptions extras={extras} setExtras={props.setBookingExtras} isMassage={massage} favorites={props.favorites} selectedProfessional={p.id} />
-    <h3 className="mb-3 mt-6 font-display text-xl">Forma de pagamento</h3><div className="grid grid-cols-2 gap-2"><AppButton variant="outline" onClick={() => props.setPayment("pix")} className={`h-auto min-h-20 flex-col items-start p-4 text-left ${props.payment === "pix" ? "border-primary bg-secondary" : ""}`}><Sparkles size={19} /><span className="text-sm font-bold">PIX</span></AppButton><AppButton variant="outline" onClick={() => props.setPayment("card")} className={`h-auto min-h-20 flex-col items-start p-4 text-left ${props.payment === "card" ? "border-primary bg-secondary" : ""}`}><CreditCard size={19} /><span className="text-sm font-bold">Cartão</span></AppButton></div>
-    {props.payment === "pix" ? <div className="mt-5 rounded-lg border border-border bg-card p-4"><p className="text-xs font-bold">PIX Copia e Cola · simulação</p><div className="mt-3 flex items-center gap-2 rounded-md bg-muted p-3"><code className="min-w-0 flex-1 truncate text-[10px]">00020126580014BR.GOV.BCB.PIX0136BM8392FLORIPA</code><AppButton variant="ghost" onClick={() => { props.setCopied(true); navigator.clipboard?.writeText("00020126580014BR.GOV.BCB.PIX0136BM8392FLORIPA"); }} className="h-9 min-h-9 w-9 p-0 text-primary" aria-label="Copiar código PIX">{props.copied ? <Check size={18} /> : <Copy size={18} />}</AppButton></div>{props.copied && <p className="mt-2 text-xs font-semibold text-success">Código copiado!</p>}</div> : <div className="mt-5 rounded-lg border border-border bg-card p-4"><p className="text-xs font-bold">Cartão final 4242 · simulação</p><p className="mt-1 text-xs text-muted-foreground">Pagamento protegido pela Garantia BM</p></div>}
+    <h3 className="mb-3 mt-6 font-display text-xl">Forma de pagamento</h3><div className="grid grid-cols-3 gap-2"><AppButton variant="outline" onClick={() => props.setPayment("pix")} className={`h-auto min-h-20 flex-col items-start p-4 text-left ${props.payment === "pix" ? "border-primary bg-secondary" : ""}`}><Sparkles size={19} /><span className="text-sm font-bold">PIX</span></AppButton><AppButton variant="outline" onClick={() => props.setPayment("card")} className={`h-auto min-h-20 flex-col items-start p-4 text-left ${props.payment === "card" ? "border-primary bg-secondary" : ""}`}><CreditCard size={19} /><span className="text-sm font-bold">Cartão</span></AppButton><AppButton variant="outline" onClick={() => props.setPayment("solana")} className={`h-auto min-h-20 flex-col items-start p-4 text-left ${props.payment === "solana" ? "border-primary bg-secondary" : ""}`}><Wallet size={19} /><span className="text-sm font-bold">Solana / USDC</span></AppButton></div>
+    {props.payment === "solana" ? <SolanaCheckout total={total} /> : props.payment === "pix" ? <div className="mt-5 rounded-lg border border-border bg-card p-4"><p className="text-xs font-bold">PIX Copia e Cola · simulação</p><div className="mt-3 flex items-center gap-2 rounded-md bg-muted p-3"><code className="min-w-0 flex-1 truncate text-[10px]">00020126580014BR.GOV.BCB.PIX0136BM8392FLORIPA</code><AppButton variant="ghost" onClick={() => { props.setCopied(true); navigator.clipboard?.writeText("00020126580014BR.GOV.BCB.PIX0136BM8392FLORIPA"); }} className="h-9 min-h-9 w-9 p-0 text-primary" aria-label="Copiar código PIX">{props.copied ? <Check size={18} /> : <Copy size={18} />}</AppButton></div>{props.copied && <p className="mt-2 text-xs font-semibold text-success">Código copiado!</p>}</div> : <div className="mt-5 rounded-lg border border-border bg-card p-4"><p className="text-xs font-bold">Cartão final 4242 · simulação</p><p className="mt-1 text-xs text-muted-foreground">Pagamento protegido pela Garantia BM</p></div>}
     <div className="mt-6 space-y-1 border-t border-border pt-4 text-xs"><div className="flex justify-between"><span>Serviço</span><span>{money(p.price)}</span></div>{urgent && <div className="flex justify-between"><span>Adicional de Urgência (&lt;12h)</span><span>+ R$ 15,00</span></div>}{massage && extras.hasTable && <div className="flex justify-between text-success"><span>Maca no local</span><span>− R$ 10,00</span></div>}{extras.useCredit && <div className="flex justify-between text-success"><span>Vale Presente / crédito BM</span><span>− R$ 20,00</span></div>}</div>
     <div className="mt-5 flex items-end justify-between gap-3"><div><p className="text-xs text-muted-foreground">Total protegido</p><p className="font-display text-3xl">{money(total)}</p></div><AppButton onClick={props.onNext} disabled={extras.forOther && !extras.recipient.trim()}>Pagar com segurança</AppButton></div>
   </div>;
