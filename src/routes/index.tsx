@@ -48,7 +48,7 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "BM — Beleza onde você estiver" },
       { name: "description", content: "Encontre profissionais de beleza e bem-estar verificados em Florianópolis, em casa ou no salão." },
-      { property: "og:title", content: "BM — Sua melhor versão, no seu tempo e no seu espaço" },
+      { property: "og:title", content: "BM — A experiência dos melhores salões, no conforto do seu lar" },
       { property: "og:description", content: "Beleza premium, profissionais verificados e pagamento protegido." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -132,7 +132,7 @@ function Index() {
              <div className="flex gap-2"><AppButton variant="icon" onClick={() => setAuthOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label="Entrar ou cadastrar"><UserRound size={19} /></AppButton><AppButton variant="icon" onClick={() => setHelpOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label="Ajuda e regras"><BookOpen size={19} /></AppButton><AppButton variant="icon" onClick={() => setSecurityOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label="Abrir Central de Segurança"><Menu size={19} /></AppButton></div>
           </div>
            <button type="button" onClick={() => setSecurityOpen(true)} className="mt-3 flex w-full items-center justify-between gap-3 rounded-lg border border-primary/30 bg-card/70 px-3 py-2 text-left shadow-soft backdrop-blur-xl transition-colors hover:bg-card">
-             <span className="text-xs font-bold leading-5">Beleza com Segurança Absoluta. Não arrisque sua casa, escolha BM.</span><ShieldCheck size={18} className="shrink-0 text-success" />
+             <span className="text-xs font-bold leading-5">A experiência dos melhores salões, no conforto do seu lar.</span><ShieldCheck size={18} className="shrink-0 text-success" />
            </button>
           <div className="mt-3 flex items-center justify-between gap-3">
             <button className="flex min-w-0 items-center gap-2 text-left text-xs font-semibold"><MapPin size={15} className="shrink-0 text-primary" /><span className="truncate">Florianópolis, SC · Centro</span><ChevronRight size={14} /></button>
@@ -149,8 +149,8 @@ function Index() {
          {view === "Empresa & Salão B2B" ? <><B2BView /><B2BFinance /></> : view === "Profissional Beleza" ? <ProfessionalView selectedDay={selectedDay} selectedTime={selectedTime} orderTotal={orderTotal} status={orderStatus} setStatus={setOrderStatus} /> : <>
           <section className="py-7 md:py-10">
             <p className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.16em] text-primary"><Sparkles size={14} /> Curadoria em Florianópolis</p>
-            <h1 className="max-w-2xl font-display text-4xl leading-[1.05] md:text-6xl">Sua melhor versão, <span className="text-primary">no seu tempo e no seu espaço.</span></h1>
-            <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">A experiência dos melhores salões, no conforto do seu lar.</p>
+            <h1 className="max-w-2xl font-display text-4xl leading-[1.05] md:text-6xl">A experiência dos melhores salões, <span className="text-primary">no conforto do seu lar.</span></h1>
+            <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">Especialistas verificadas, pagamento retido na BM até o fim do atendimento e agenda no seu tempo.</p>
           </section>
 
           <CategoryShowcase selected={category} onSelect={(filter) => { setCategory(filter); if (filter === "Unhas") setMode("No Salão"); else if (["Cabelo & Penteado", "Maquiagem", "Casamentos & Noivas", "Eventos"].includes(filter)) setMode("Em Domicílio"); }} />
@@ -188,7 +188,7 @@ function Index() {
       </div>
 
       <footer className="mx-auto mt-10 max-w-6xl border-t border-border px-4 py-8 md:px-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><p className="font-display text-xl">BM</p><p className="mt-1 text-xs text-muted-foreground">Beleza com Segurança Absoluta. Não arrisque sua casa, escolha BM.</p></div><button type="button" onClick={() => setSecurityOpen(true)} className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-bold text-foreground transition-colors hover:text-primary"><ShieldCheck size={18} className="text-success" /> Segurança & Privacidade <ChevronRight size={16} /></button></div>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><p className="font-display text-xl">BM</p><p className="mt-1 text-xs text-muted-foreground">A experiência dos melhores salões, no conforto do seu lar.</p></div><button type="button" onClick={() => setSecurityOpen(true)} className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-bold text-foreground transition-colors hover:text-primary"><ShieldCheck size={18} className="text-success" /> Segurança & Privacidade <ChevronRight size={16} /></button></div>
       </footer>
 
       <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-card/95 px-7 py-2 backdrop-blur-xl md:hidden">
