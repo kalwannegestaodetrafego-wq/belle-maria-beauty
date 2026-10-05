@@ -10,12 +10,12 @@ export type ProfileFields = Partial<{
 const clean = (v: unknown, max = 160) => (typeof v === "string" ? v.trim().slice(0, max) : undefined) || undefined;
 
 export function pickProfile(meta: Record<string, unknown>): ProfileFields {
-  const t = meta.account_type;
+  const t = meta["account_type"];
   return {
     account_type: t === "profissional" || t === "salao" ? t : "cliente",
-    full_name: clean(meta.full_name, 100), cpf: clean(meta.cpf, 14), cnpj: clean(meta.cnpj, 18),
-    phone: clean(meta.phone, 20), address: clean(meta.address), residence_details: clean(meta.residence_details, 100),
-    salon_name: clean(meta.salon_name, 100),
+    full_name: clean(meta["full_name"], 100), cpf: clean(meta["cpf"], 14), cnpj: clean(meta["cnpj"], 18),
+    phone: clean(meta["phone"], 20), address: clean(meta["address"]), residence_details: clean(meta["residence_details"], 100),
+    salon_name: clean(meta["salon_name"], 100),
   };
 }
 

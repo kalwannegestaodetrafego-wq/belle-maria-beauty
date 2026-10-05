@@ -34,7 +34,7 @@ function UploadBox({ label, done, onClick, icon }: { label: string; done: boolea
   </button>;
 }
 
-function FileBox({ label, file, onFile, icon }: { label: string; file?: File; onFile: (f: File) => void; icon?: ReactNode }) {
+function FileBox({ label, file, onFile, icon }: { label: string; file?: File | undefined; onFile: (f: File) => void; icon?: ReactNode }) {
   return <label className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border border-dashed p-4 text-left text-sm ${file ? "border-success bg-success-soft" : "border-primary/50 bg-card"}`}>
     <input type="file" accept="image/*,application/pdf" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); }} />
     <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${file ? "bg-success text-success-foreground" : "bg-secondary text-primary"}`}>{file ? <Check size={18} /> : icon ?? <Upload size={18} />}</span>
@@ -75,7 +75,7 @@ export function AuthModal({ onClose, onProfessionalSignup }: { onClose: () => vo
       if (mode === "login") {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        const t = (data.user?.user_metadata?.account_type as AccountType) || "cliente";
+        const t = (data.user?.user_metadata?.["account_type"] as AccountType) || "cliente";
         await finishSync(requiredDocs(t));
       } else {
         const meta: Record<string, string> = { account_type: accountType };
