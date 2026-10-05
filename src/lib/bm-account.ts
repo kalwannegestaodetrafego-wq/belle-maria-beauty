@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type AccountType = "cliente" | "profissional" | "salao";
 export type DocKind = "selfie" | "identity";
-export type ProfileFields = Partial<{
+export type ProfileFields = Record<string, string | undefined> & Partial<{
   account_type: AccountType; full_name: string; cpf: string; cnpj: string; phone: string;
   address: string; residence_details: string; salon_name: string;
 }>;
@@ -34,11 +34,11 @@ export async function syncProfile(files: Partial<Record<DocKind, File>>, require
   if (!user) throw new Error("Sessão não encontrada.");
   const { data: existing } = await supabase.from("profiles").select("selfie_path, identity_doc_path").eq("id", user.id).maybeSingle();
   const row: Record<string, unknown> = { id: user.id, ...(existing ? {} : pickProfile(user.user_metadata ?? {})) };
-  if (files.selfie) row.selfie_path = await upload(user.id, "selfie", files.selfie);
-  if (files.identity) row.identity_doc_path = await upload(user.id, "identity", files.identity);
+  if (files.selfie) row["selfie_path"] = await upload(user.id, "selfie", files.selfie);
+  if (files.identity) row["identity_doc_path"] = await upload(user.id, "identity", files.identity);
   const { error } = await supabase.from("profiles").upsert(row as never);
   if (error) throw error;
-  const have = { selfie: (row.selfie_path ?? existing?.selfie_path) as string | null, identity: (row.identity_doc_path ?? existing?.identity_doc_path) as string | null };
+  const have = { selfie: (row["selfie_path"] ?? existing?.selfie_path) as string | null, identity: (row["identity_doc_path"] ?? existing?.identity_doc_path) as string | null };
   return required.filter((k) => !have[k]);
 }
 
