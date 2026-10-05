@@ -9,6 +9,6 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Keep BM's B2C discovery data and booking option components client-local; this MVP simulates reservations and has no persistent account, inventory, or payment backend.
+- Persist accounts, profiles, portfolio items and verification files in Lovable Cloud (profiles/portfolio_items tables, private selfies/portfolio buckets with per-user folders); bookings, inventory and payments remain client-local simulation.
 - Never label generated or demonstration photographs as verified authorial professional work; verification requires submitted real portfolio evidence.
 - Keep the official BM support address centralized in the shared trust-support module so every help and incident surface stays consistent.
