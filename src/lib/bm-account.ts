@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export type AccountType = "cliente" | "profissional" | "salao";
 export type DocKind = "selfie" | "identity";
-export type ProfileFields = Record<string, string | undefined> & Partial<{
+export type ProfileFields = Record<string, string | undefined>;
   account_type: AccountType; full_name: string; cpf: string; cnpj: string; phone: string;
   address: string; residence_details: string; salon_name: string;
 }>;
