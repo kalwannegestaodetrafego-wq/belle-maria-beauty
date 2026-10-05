@@ -3,6 +3,8 @@ import {
   AlertTriangle, Armchair, Bus, Camera, Check, CheckCircle2, Clock3, FileCheck2, Fuel, Lightbulb, Megaphone, Send, ShieldCheck, Star, Upload, Users, X,
 } from "lucide-react";
 import { IdentityTrustCard } from "./trust-support";
+import { supabase } from "@/integrations/supabase/client";
+import { requiredDocs, syncProfile, type AccountType, type DocKind } from "@/lib/bm-account";
 
 export function Sheet({ title, eyebrow, onClose, children, z = "z-50" }: { title: string; eyebrow?: string; onClose: () => void; children: ReactNode; z?: string }) {
   return <div className={`fixed inset-0 ${z} flex items-end justify-center bg-overlay/55 backdrop-blur-sm md:items-center md:p-6`} role="dialog" aria-modal="true" aria-label={title}>
@@ -32,52 +34,101 @@ function UploadBox({ label, done, onClick, icon }: { label: string; done: boolea
   </button>;
 }
 
+function FileBox({ label, file, onFile, icon }: { label: string; file?: File | undefined; onFile: (f: File) => void; icon?: ReactNode }) {
+  return <label className={`flex w-full cursor-pointer items-center gap-3 rounded-lg border border-dashed p-4 text-left text-sm ${file ? "border-success bg-success-soft" : "border-primary/50 bg-card"}`}>
+    <input type="file" accept="image/*,application/pdf" className="sr-only" onChange={(e) => { const f = e.target.files?.[0]; if (f) onFile(f); }} />
+    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${file ? "bg-success text-success-foreground" : "bg-secondary text-primary"}`}>{file ? <Check size={18} /> : icon ?? <Upload size={18} />}</span>
+    <span className="min-w-0"><strong className="block">{label}</strong><span className="block truncate text-xs text-muted-foreground">{file ? file.name : "Toque para escolher o arquivo (até 10 MB)"}</span></span>
+  </label>;
+}
+
+const docLabel: Record<DocKind, string> = { selfie: "Selfie de segurança", identity: "Documento de identidade (RG/CNH) ou alvará" };
+
 /* ---------- Auth ---------- */
 export function AuthModal({ onClose, onProfessionalSignup }: { onClose: () => void; onProfessionalSignup?: () => void }) {
   const tabs = ["Cliente", "Profissional Beleza", "Salão Parceiro"] as const;
   const [tab, setTab] = useState<(typeof tabs)[number]>("Cliente");
   const [professionalType, setProfessionalType] = useState<"cpf" | "cnpj">("cpf");
   const [mode, setMode] = useState<"signup" | "login">("signup");
-  const [uploads, setUploads] = useState<Record<string, boolean>>({});
-  const [done, setDone] = useState(false);
-  const up = (k: string) => setUploads((u) => ({ ...u, [k]: true }));
-  const requiredUploadsComplete = mode === "login" || tab === "Salão Parceiro" ? true : tab === "Cliente" ? !!uploads["client-selfie"] : !!uploads["identity"] && !!uploads["professional-selfie"];
+  const [files, setFiles] = useState<Partial<Record<DocKind, File>>>({});
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [result, setResult] = useState<null | "confirm" | "ok" | "docs">(null);
+  const [missing, setMissing] = useState<DocKind[]>([]);
+  const accountType: AccountType = tab === "Cliente" ? "cliente" : tab === "Profissional Beleza" ? "profissional" : "salao";
+  const setFile = (k: DocKind) => (f: File) => setFiles((u) => ({ ...u, [k]: f }));
+  const needed = requiredDocs(accountType);
+  const requiredUploadsComplete = mode === "login" || needed.every((k) => files[k]);
 
-  if (done) return <Sheet title="Tudo certo!" eyebrow="Conta BM" onClose={onClose}><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-4 font-display text-2xl">{mode === "login" ? "Bem-vinda de volta" : "Cadastro enviado"}</p><p className="mt-2 text-sm text-muted-foreground">{mode === "login" ? "Você entrou na sua conta." : "Nossa equipe valida seus documentos em até 24h."}</p><button onClick={mode === "signup" && tab === "Profissional Beleza" && onProfessionalSignup ? onProfessionalSignup : onClose} className={`${primary} mt-6 w-full`}>{mode === "signup" && tab === "Profissional Beleza" ? "Iniciar minicurso de boas-vindas" : "Continuar"}</button></div></Sheet>;
+  const finishSync = async (req: DocKind[]) => {
+    const left = await syncProfile(files, req);
+    setMissing(left);
+    setResult(left.length ? "docs" : "ok");
+  };
+
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); if (!requiredUploadsComplete || busy) return;
+    const fd = new FormData(e.currentTarget);
+    const email = String(fd.get("email") || "").trim(); const password = String(fd.get("password") || "");
+    setBusy(true); setError("");
+    try {
+      if (mode === "login") {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        const t = (data.user?.user_metadata?.["account_type"] as AccountType) || "cliente";
+        await finishSync(requiredDocs(t));
+      } else {
+        const meta: Record<string, string> = { account_type: accountType };
+        ["full_name", "cpf", "cnpj", "phone", "address", "residence_details", "salon_name"].forEach((k) => { const v = fd.get(k); if (v) meta[k] = String(v); });
+        const { data, error } = await supabase.auth.signUp({ email, password, options: { emailRedirectTo: window.location.origin, data: meta } });
+        if (error) throw error;
+        if (data.session) await finishSync(needed); else setResult("confirm");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Não foi possível concluir. Tente novamente.");
+    } finally { setBusy(false); }
+  };
+
+  if (result === "docs") return <Sheet title="Envie seus documentos" eyebrow="Verificação BM" onClose={onClose}>
+    <p className="text-sm text-muted-foreground">Para concluir a verificação, envie os arquivos abaixo. Eles ficam em área privada, acessível só por você.</p>
+    <div className="mt-4 space-y-3">{missing.map((k) => <FileBox key={k} label={docLabel[k]} file={files[k]} onFile={setFile(k)} icon={k === "selfie" ? <Camera size={18} /> : <FileCheck2 size={18} />} />)}</div>
+    {error && <p className="mt-3 text-xs font-semibold text-destructive">{error}</p>}
+    <button disabled={busy || !missing.every((k) => files[k])} onClick={async () => { setBusy(true); setError(""); try { await finishSync(missing); } catch (err) { setError(err instanceof Error ? err.message : "Falha no envio."); } finally { setBusy(false); } }} className={`${primary} mt-5 w-full`}>{busy ? "Enviando…" : "Enviar documentos"}</button>
+  </Sheet>;
+
+  if (result) return <Sheet title="Tudo certo!" eyebrow="Conta BM" onClose={onClose}><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-4 font-display text-2xl">{result === "confirm" ? "Confirme seu e-mail" : mode === "login" ? "Bem-vinda de volta" : "Cadastro enviado"}</p><p className="mt-2 text-sm text-muted-foreground">{result === "confirm" ? "Enviamos um link de confirmação. Depois de confirmar, entre na sua conta para enviar a selfie e os documentos." : "Seu perfil e documentos foram salvos. Nossa equipe valida em até 24h."}</p><button onClick={mode === "signup" && tab === "Profissional Beleza" && onProfessionalSignup ? onProfessionalSignup : onClose} className={`${primary} mt-6 w-full`}>{mode === "signup" && tab === "Profissional Beleza" ? "Iniciar minicurso de boas-vindas" : "Continuar"}</button></div></Sheet>;
 
   return <Sheet title={mode === "signup" ? "Criar conta" : "Entrar"} eyebrow="Acesso BM" onClose={onClose}>
     <IdentityTrustCard className="mb-5" />
-    <div className="grid grid-cols-3 rounded-lg bg-card p-1 ring-1 ring-border">{tabs.map((t) => <button type="button" key={t} onClick={() => setTab(t)} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight ${tab === t ? "bg-foreground text-background" : "text-muted-foreground"}`}>{t}</button>)}</div>
-    <form onSubmit={(e) => { e.preventDefault(); if (!requiredUploadsComplete) return; setDone(true); }} className="mt-5 space-y-3">
-      {mode === "login" ? <>
-        <Field label="E-mail" type="email" required placeholder="voce@email.com" />
-        <Field label="Senha" type="password" required placeholder="••••••••" />
-      </> : tab === "Salão Parceiro" ? <>
-        <Field label="Nome do salão" required placeholder="Studio Bella" />
-        <Field label="CNPJ" required inputMode="numeric" placeholder="00.000.000/0001-00" />
-        <Field label="Endereço" required placeholder="Rua, número · Bairro" />
-        <UploadBox label="Alvará / Licença sanitária" done={!!uploads["license"]} onClick={() => up("license")} icon={<FileCheck2 size={18} />} />
+    {mode === "signup" && <div className="grid grid-cols-3 rounded-lg bg-card p-1 ring-1 ring-border">{tabs.map((t) => <button type="button" key={t} onClick={() => setTab(t)} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight ${tab === t ? "bg-foreground text-background" : "text-muted-foreground"}`}>{t}</button>)}</div>}
+    <form onSubmit={submit} className="mt-5 space-y-3">
+      <Field label="E-mail" name="email" type="email" required maxLength={255} placeholder="voce@email.com" />
+      <Field label="Senha" name="password" type="password" required minLength={6} maxLength={72} placeholder="••••••••" />
+      {mode === "login" ? null : tab === "Salão Parceiro" ? <>
+        <Field label="Nome do salão" name="salon_name" required maxLength={100} placeholder="Studio Bella" />
+        <Field label="CNPJ" name="cnpj" required inputMode="numeric" maxLength={18} placeholder="00.000.000/0001-00" />
+        <Field label="Endereço" name="address" required maxLength={160} placeholder="Rua, número · Bairro" />
+        <FileBox label="Alvará / Licença sanitária" file={files.identity} onFile={setFile("identity")} icon={<FileCheck2 size={18} />} />
       </> : tab === "Profissional Beleza" ? <>
         <div className="grid grid-cols-2 rounded-lg bg-card p-1 ring-1 ring-border" aria-label="Forma de atuação">
           <button type="button" onClick={() => setProfessionalType("cpf")} className={`min-h-11 rounded-md px-2 text-[11px] font-bold leading-tight ${professionalType === "cpf" ? "bg-foreground text-background" : "text-muted-foreground"}`}>Atuar com CPF<br /><span className="font-normal">Individual</span></button>
           <button type="button" onClick={() => setProfessionalType("cnpj")} className={`min-h-11 rounded-md px-2 text-[11px] font-bold leading-tight ${professionalType === "cnpj" ? "bg-foreground text-background" : "text-muted-foreground"}`}>Atuar com CNPJ<br /><span className="font-normal">MEI</span></button>
         </div>
-        <Field label="Nome completo" required placeholder="Ana Martins" />
-        {professionalType === "cpf" ? <div className="grid grid-cols-2 gap-3"><Field label="CPF" required inputMode="numeric" maxLength={14} placeholder="000.000.000-00" /><Field label="Telefone" required inputMode="tel" maxLength={20} placeholder="(48) 99999-0000" /></div> : <Field label="CNPJ MEI" required inputMode="numeric" maxLength={18} placeholder="00.000.000/0001-00" />}
-        <UploadBox label="Documento de identidade (RG/CNH)" done={!!uploads["identity"]} onClick={() => up("identity")} icon={<FileCheck2 size={18} />} />
-        <UploadBox label="Selfie de segurança" done={!!uploads["professional-selfie"]} onClick={() => up("professional-selfie")} icon={<Camera size={18} />} />
-        {uploads["professional-selfie"] && <div className="flex items-center gap-3 rounded-lg bg-success-soft p-3 text-xs"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary font-display text-lg">AM</div><span><strong className="block text-success">Rosto identificado</strong>Prévia protegida para verificação de identidade.</span></div>}
+        <Field label="Nome completo" name="full_name" required maxLength={100} placeholder="Ana Martins" />
+        {professionalType === "cpf" ? <div className="grid grid-cols-2 gap-3"><Field label="CPF" name="cpf" required inputMode="numeric" maxLength={14} placeholder="000.000.000-00" /><Field label="Telefone" name="phone" required inputMode="tel" maxLength={20} placeholder="(48) 99999-0000" /></div> : <Field label="CNPJ MEI" name="cnpj" required inputMode="numeric" maxLength={18} placeholder="00.000.000/0001-00" />}
+        <FileBox label="Documento de identidade (RG/CNH)" file={files.identity} onFile={setFile("identity")} icon={<FileCheck2 size={18} />} />
+        <FileBox label="Selfie de segurança" file={files.selfie} onFile={setFile("selfie")} icon={<Camera size={18} />} />
       </> : <>
-        <Field label="Nome completo" required maxLength={100} placeholder="Ana Martins" />
-        <div className="grid grid-cols-2 gap-3"><Field label="CPF" required inputMode="numeric" maxLength={14} placeholder="000.000.000-00" /><Field label="Telefone" required inputMode="tel" maxLength={20} placeholder="(48) 99999-0000" /></div>
-        <Field label="Endereço completo" required maxLength={160} placeholder="Rua, número · Bairro" />
-        <Field label="Detalhes da residência" required maxLength={100} placeholder="Condomínio, bloco, apartamento" />
-        <UploadBox label="Selfie de segurança obrigatória" done={!!uploads["client-selfie"]} onClick={() => up("client-selfie")} icon={<Camera size={18} />} />
-        {uploads["client-selfie"] && <div className="flex items-center gap-3 rounded-lg bg-success-soft p-3 text-xs"><div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary font-display text-lg">AM</div><span><strong className="block text-success">Rosto identificado</strong>Foto protegida para sua segurança e a da profissional.</span></div>}
+        <Field label="Nome completo" name="full_name" required maxLength={100} placeholder="Ana Martins" />
+        <div className="grid grid-cols-2 gap-3"><Field label="CPF" name="cpf" required inputMode="numeric" maxLength={14} placeholder="000.000.000-00" /><Field label="Telefone" name="phone" required inputMode="tel" maxLength={20} placeholder="(48) 99999-0000" /></div>
+        <Field label="Endereço completo" name="address" required maxLength={160} placeholder="Rua, número · Bairro" />
+        <Field label="Detalhes da residência" name="residence_details" required maxLength={100} placeholder="Condomínio, bloco, apartamento" />
+        <FileBox label="Selfie de segurança obrigatória" file={files.selfie} onFile={setFile("selfie")} icon={<Camera size={18} />} />
       </>}
-      <button type="submit" disabled={!requiredUploadsComplete} className={`${primary} w-full`}>{mode === "signup" ? "Cadastrar" : "Entrar"}</button>
+      {error && <p className="text-xs font-semibold text-destructive">{error}</p>}
+      <button type="submit" disabled={!requiredUploadsComplete || busy} className={`${primary} w-full`}>{busy ? "Aguarde…" : mode === "signup" ? "Cadastrar" : "Entrar"}</button>
     </form>
-    <button onClick={() => setMode(mode === "signup" ? "login" : "signup")} className="mt-4 w-full text-center text-xs font-semibold text-primary">{mode === "signup" ? "Já tenho conta · Entrar" : "Não tem conta? Cadastre-se"}</button>
+    <button onClick={() => { setMode(mode === "signup" ? "login" : "signup"); setError(""); }} className="mt-4 w-full text-center text-xs font-semibold text-primary">{mode === "signup" ? "Já tenho conta · Entrar" : "Não tem conta? Cadastre-se"}</button>
   </Sheet>;
 }
 
