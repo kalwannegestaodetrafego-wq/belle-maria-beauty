@@ -3,9 +3,6 @@ import { supabase } from "@/integrations/supabase/client";
 export type AccountType = "cliente" | "profissional" | "salao";
 export type DocKind = "selfie" | "identity";
 export type ProfileFields = Record<string, string | undefined>;
-  account_type: AccountType; full_name: string; cpf: string; cnpj: string; phone: string;
-  address: string; residence_details: string; salon_name: string;
-}>;
 
 const clean = (v: unknown, max = 160) => (typeof v === "string" ? v.trim().slice(0, max) : undefined) || undefined;
 
