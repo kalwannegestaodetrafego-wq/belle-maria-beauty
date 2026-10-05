@@ -77,7 +77,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "BM — Sua melhor versão, no seu tempo e no seu espaço" },
+      { title: "BM — A experiência dos melhores salões, no conforto do seu lar" },
       { name: "description", content: "Marketplace premium de beleza e bem-estar." },
       { name: "author", content: "BM" },
       { property: "og:type", content: "website" },
