@@ -99,7 +99,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body>
-        {translateUi(children, language)}
+        <LanguageProvider>{children}</LanguageProvider>
         <Scripts />
       </body>
     </html>
