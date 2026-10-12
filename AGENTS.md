@@ -12,3 +12,4 @@
 - Persist accounts, profiles, portfolio items and verification files in Lovable Cloud (profiles/portfolio_items tables, private selfies/portfolio buckets with per-user folders); bookings, inventory and payments remain client-local simulation.
 - Never label generated or demonstration photographs as verified authorial professional work; verification requires submitted real portfolio evidence.
 - Keep the official BM support address centralized in the shared trust-support module so every help and incident surface stays consistent.
+- Localize BM presentation through the shared language context and translation dictionary, never translating stored identifiers or user-entered content; this preserves existing filters, bookings and account behavior across languages.
