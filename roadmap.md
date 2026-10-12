@@ -2,6 +2,7 @@
 
 - [ ] Criar projeto independente de pitch em remotion/ com cinco cenas, 90 segundos e renderização local
 - [ ] Validar duração, transições, composição e imagens das cinco cenas
+- [ ] Integrar os dois áudios TTSMaker em remotion/public/audio/ e conferir sincronização da narração
 
 - [x] Add EN/PT/ES navbar selection with English default and translate all BM screens
 - [x] Verify language switching preserves the booking and professional workflows
