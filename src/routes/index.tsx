@@ -223,7 +223,7 @@ function ProfessionalView({ selectedDay, selectedTime, orderTotal, status, setSt
   const validatePin = () => { if (pin === "8392") { setStatus("completed"); setPinOpen(false); setPinError(""); } else { setPinError("PIN incorreto. Confira com a cliente."); } };
 
   return <section className="py-7 md:py-10">
-    <div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">{translateUi("Painel profissional", language)}</p><h1 className="mt-1 font-display text-4xl">{translateUi("Olá, Camila", language)}</h1><p className="mt-2 text-sm text-muted-foreground">{translateUi("Acompanhe seus atendimentos e ganhos.", language)}</p></div><div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-card shadow-soft"><Bell size={19} /><span className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full bg-success ring-2 ring-background" /></div></div>
+    <div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">{translateUi("Painel da Criadora", language)}</p><h1 className="mt-1 font-display text-4xl">{translateUi("Olá, Camila", language)}</h1><p className="mt-2 text-sm text-muted-foreground">{translateUi("Acompanhe seus atendimentos e ganhos.", language)}</p></div><div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-card shadow-soft"><Bell size={19} /><span className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full bg-success ring-2 ring-background" /></div></div>
 
     <OnlineToggle />
     <OnboardingBanner />

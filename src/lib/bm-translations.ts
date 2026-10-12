@@ -291,7 +291,7 @@ export const translations: Record<string, readonly [string, string]> = {
     "Incorrect PIN. Check with the client.",
     "PIN incorrecto. Confírmalo con la clienta."
   ],
-  "Painel profissional": [
+  "Painel da Criadora": [
     "Creator Dashboard",
     "Panel de Creadora"
   ],

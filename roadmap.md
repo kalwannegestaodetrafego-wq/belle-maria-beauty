@@ -1,7 +1,7 @@
 # Roadmap BM
 
-- [ ] Add EN/PT/ES navbar selection with English default and translate all BM screens
-- [ ] Verify language switching preserves the booking and professional workflows
+- [x] Add EN/PT/ES navbar selection with English default and translate all BM screens
+- [x] Verify language switching preserves the booking and professional workflows
 
 - [x] Atualizar nome e slogan, removendo todas as menções antigas
 - [x] Fazer Agenda abrir diretamente a escolha de data e horário

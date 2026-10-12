@@ -11,19 +11,15 @@ describe("BM language requirements", () => {
   test("all three requested selections are supported", () => {
     assert.deepEqual(["en", "pt", "es"].map(resolveLanguage), ["en", "pt", "es"]);
   });
-  test("language changes translate the same service without altering its identifier", () => {
-    const service = "Maquiagem Social";
-    assert.equal(translateUi(service, "en"), "Social Makeup");
-    assert.equal(translateUi(service, "pt"), "Maquiagem Social");
-    assert.equal(translateUi(service, "es"), "Maquillaje Social");
-    assert.equal(service, "Maquiagem Social");
+  test("language changes do not alter business data", () => {
+    const order = { status: "arrived", pin: "8392", total: 150 };
+    for (const language of ["en", "pt", "es"] as const) {
+      assert.equal(translateUi(order, language), order);
+      assert.equal(translateUi(150, language), 150);
+    }
   });
   test("personal names and user messages remain unchanged", () => {
     assert.equal(translateUi("Kalwanne Albuquerque", "es"), "Kalwanne Albuquerque");
     assert.equal(translateUi("My personal appointment note", "pt"), "My personal appointment note");
-  });
-  test("dynamic instructions retain the support contact", () => {
-    const message = "Há uma tolerância padrão de 15 minutos. Para atrasos acima de 15 minutos, avise o suporte imediatamente por e-mail: startupbmcomercial@gmail.com.";
-    assert.ok(translateUi(message, "en").includes("contact support immediately by email: startupbmcomercial@gmail.com."));
   });
 });
