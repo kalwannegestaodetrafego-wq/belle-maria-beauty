@@ -1,3 +1,4 @@
+import { translateUi, useLanguage } from "../../lib/bm-i18n";
 import { useState } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight, Clock3, KeyRound, PartyPopper, ShieldCheck, Sparkles, Zap } from "lucide-react";
 import { Sheet } from "./extras";
@@ -15,31 +16,33 @@ const steps = [
 ];
 
 export function WelcomeTraining({ onClose }: { onClose: () => void }) {
+  const { language, locale } = useLanguage();
   const [i, setI] = useState(0);
   const [done, setDone] = useState(false);
-  if (done) return <Sheet title="Treinamento concluído" eyebrow="Time BM" onClose={onClose} z="z-[80]">
+  if (done) return <Sheet title={translateUi("Treinamento concluído", language)} eyebrow={translateUi("Time BM", language)} onClose={onClose} z="z-[80]">
     <div className="relative overflow-hidden py-6 text-center">
-      {Array.from({ length: 14 }).map((_, k) => <Sparkles key={k} size={14} className="absolute animate-ping text-primary" style={{ left: `${(k * 37) % 100}%`, top: `${(k * 53) % 90}%`, animationDelay: `${k * 90}ms`, animationDuration: "1.4s" }} />)}
+      {translateUi(Array.from({ length: 14 }).map((_, k) => <Sparkles key={k} size={14} className="absolute animate-ping text-primary" style={{ left: `${(k * 37) % 100}%`, top: `${(k * 53) % 90}%`, animationDelay: `${k * 90}ms`, animationDuration: "1.4s" }} />), language)}
       <PartyPopper className="mx-auto animate-scale-in text-primary" size={56} />
-      <p className="mt-4 font-display text-3xl">Parabéns! 🌸</p>
-      <p className="mt-2 text-sm text-muted-foreground">Você está pronta para seus primeiros atendimentos BM.</p>
-      <button onClick={onClose} className={`${primary} relative mt-6 w-full`}>Ir para o painel</button>
+      <p className="mt-4 font-display text-3xl">{translateUi("Parabéns! 🌸", language)}</p>
+      <p className="mt-2 text-sm text-muted-foreground">{translateUi("Você está pronta para seus primeiros atendimentos BM.", language)}</p>
+      <button onClick={onClose} className={`${primary} relative mt-6 w-full`}>{translateUi("Ir para o painel", language)}</button>
     </div>
   </Sheet>;
-  const s = steps[i] ?? steps[0]!;
+  const s = steps[i] ?? steps.at(0);
+  if (!s) return null;
   const Icon = s.icon;
-  return <Sheet title="Bem-vinda ao Time BM! 🌸" eyebrow="Seus 4 Passos de Ouro" onClose={onClose} z="z-[80]">
-    <div className="flex gap-1.5">{steps.map((_, k) => <button key={k} onClick={() => setI(k)} aria-label={`Passo ${k + 1}`} className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${k <= i ? "bg-primary" : "bg-muted"}`} />)}</div>
+  return <Sheet title={translateUi("Bem-vinda ao Time BM! 🌸", language)} eyebrow={translateUi("Seus 4 Passos de Ouro", language)} onClose={onClose} z="z-[80]">
+    <div className="flex gap-1.5">{translateUi(steps.map((_, k) => <button key={k} onClick={() => setI(k)} aria-label={translateUi(`Passo ${k + 1}`, language)} className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${k <= i ? "bg-primary" : "bg-muted"}`} />), language)}</div>
     <div key={i} className="mt-5 animate-fade-in rounded-xl border border-primary/40 bg-card p-6 text-center shadow-soft">
       <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-secondary text-primary"><Icon size={28} /></span>
-      <p className="mt-4 text-[10px] font-bold uppercase tracking-[.16em] text-primary">Passo {i + 1} de 4</p>
-      <h3 className="mt-1 font-display text-2xl">{s.title}</h3>
-      <p className="mt-3 text-sm leading-6 text-muted-foreground">{s.text}</p>
+      <p className="mt-4 text-[10px] font-bold uppercase tracking-[.16em] text-primary">{translateUi("Passo ", language)}{translateUi(i + 1, language)}{translateUi(" de 4", language)}</p>
+      <h3 className="mt-1 font-display text-2xl">{translateUi(s.title, language)}</h3>
+      <p className="mt-3 text-sm leading-6 text-muted-foreground">{translateUi(s.text, language)}</p>
     </div>
     <div className="mt-5 flex gap-2">
-      {i > 0 && <button onClick={() => setI(i - 1)} className={`${outline} px-3`} aria-label="Voltar"><ChevronLeft size={18} /></button>}
-      {i < 3 ? <button onClick={() => setI(i + 1)} className={`${primary} flex-1`}>Próximo <ChevronRight size={17} /></button>
-        : <button onClick={() => setDone(true)} className={`${primary} flex-1`}><PartyPopper size={17} /> Concluir Treinamento & Acessar Painel</button>}
+      {translateUi(i > 0 && <button onClick={() => setI(i - 1)} className={`${outline} px-3`} aria-label={translateUi("Voltar", language)}><ChevronLeft size={18} /></button>, language)}
+      {translateUi(i < 3 ? <button onClick={() => setI(i + 1)} className={`${primary} flex-1`}>{translateUi("Próximo ", language)}<ChevronRight size={17} /></button>
+        : <button onClick={() => setDone(true)} className={`${primary} flex-1`}><PartyPopper size={17} />{translateUi(" Concluir Treinamento & Acessar Painel", language)}</button>, language)}
     </div>
   </Sheet>;
 }
@@ -52,24 +55,26 @@ const faq = [
 ];
 
 export function HelpRules({ onClose }: { onClose: () => void }) {
+  const { language, locale } = useLanguage();
   const [open, setOpen] = useState<number | null>(0);
-  return <Sheet title="Ajuda & Regras" eyebrow="Cancelamento e conduta" onClose={onClose}>
-    <div className="space-y-2">{faq.map((f, k) => <div key={k} className="overflow-hidden rounded-lg border border-border bg-card">
-      <button onClick={() => setOpen(open === k ? null : k)} aria-expanded={open === k} className="flex w-full items-center justify-between gap-3 p-4 text-left text-sm font-bold">{f.q}<ChevronDown size={17} className={`shrink-0 text-primary transition-transform duration-300 ${open === k ? "rotate-180" : ""}`} /></button>
-      <div className={`grid transition-all duration-300 ${open === k ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><p className="overflow-hidden px-4 text-sm leading-6 text-muted-foreground"><span className="block pb-4">{f.a}</span></p></div>
-    </div>)}</div>
+  return <Sheet title={translateUi("Ajuda & Regras", language)} eyebrow={translateUi("Cancelamento e conduta", language)} onClose={onClose}>
+    <div className="space-y-2">{translateUi(faq.map((f, k) => <div key={k} className="overflow-hidden rounded-lg border border-border bg-card">
+      <button onClick={() => setOpen(open === k ? null : k)} aria-expanded={open === k} className="flex w-full items-center justify-between gap-3 p-4 text-left text-sm font-bold">{translateUi(f.q, language)}<ChevronDown size={17} className={`shrink-0 text-primary transition-transform duration-300 ${open === k ? "rotate-180" : ""}`} /></button>
+      <div className={`grid transition-all duration-300 ${open === k ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><p className="overflow-hidden px-4 text-sm leading-6 text-muted-foreground"><span className="block pb-4">{translateUi(f.a, language)}</span></p></div>
+    </div>), language)}</div>
     <SupportMailButton className="mt-5 w-full" />
-    <button onClick={onClose} className={`${outline} mt-3 w-full`}>Entendi</button>
+    <button onClick={onClose} className={`${outline} mt-3 w-full`}>{translateUi("Entendi", language)}</button>
   </Sheet>;
 }
 
 export function OnlineToggle() {
+  const { language, locale } = useLanguage();
   const [online, setOnline] = useState(true);
   return <div className={`mt-6 flex items-center justify-between gap-3 rounded-lg border p-4 shadow-soft transition-colors ${online ? "border-success bg-success-soft" : "border-border bg-card"}`}>
     <div className="flex items-center gap-3">
-      <span className="relative flex h-3 w-3">{online && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />}<span className={`relative inline-flex h-3 w-3 rounded-full ${online ? "bg-success" : "bg-muted-foreground"}`} /></span>
-      <div><p className="text-xs font-bold tracking-wide">{online ? "STATUS: ONLINE / DISPONÍVEL JÁ" : "STATUS: OFFLINE"}</p><p className="text-[11px] text-muted-foreground">{online ? "Recebendo chamados urgentes em tempo real" : "Você não receberá chamados urgentes"}</p></div>
+      <span className="relative flex h-3 w-3">{translateUi(online && <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-75" />, language)}<span className={`relative inline-flex h-3 w-3 rounded-full ${online ? "bg-success" : "bg-muted-foreground"}`} /></span>
+      <div><p className="text-xs font-bold tracking-wide">{translateUi(online ? "STATUS: ONLINE / DISPONÍVEL JÁ" : "STATUS: OFFLINE", language)}</p><p className="text-[11px] text-muted-foreground">{translateUi(online ? "Recebendo chamados urgentes em tempo real" : "Você não receberá chamados urgentes", language)}</p></div>
     </div>
-    <button role="switch" aria-checked={online} aria-label="Status online" onClick={() => setOnline(!online)} className={`relative h-6 w-11 shrink-0 rounded-full transition ${online ? "bg-success" : "bg-muted"}`}><span className={`absolute top-0.5 h-5 w-5 rounded-full bg-card shadow transition-all ${online ? "left-[22px]" : "left-0.5"}`} /></button>
+    <button role="switch" aria-checked={online} aria-label={translateUi("Status online", language)} onClick={() => setOnline(!online)} className={`relative h-6 w-11 shrink-0 rounded-full transition ${online ? "bg-success" : "bg-muted"}`}><span className={`absolute top-0.5 h-5 w-5 rounded-full bg-card shadow transition-all ${online ? "left-[22px]" : "left-0.5"}`} /></button>
   </div>;
 }
