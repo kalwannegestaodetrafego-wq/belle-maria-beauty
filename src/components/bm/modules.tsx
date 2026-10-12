@@ -1,3 +1,4 @@
+import { translateUi, useLanguage } from "../../lib/bm-i18n";
 import { useState, type ReactNode } from "react";
 import { Armchair, Banknote, BookOpen, CheckCircle2, ChevronDown, Clock3, Crown, Gift, Lock, PawPrint, Pencil, Sparkles, Sun, Timer, Wallet, Zap } from "lucide-react";
 
@@ -9,21 +10,24 @@ const card = "mt-6 rounded-lg border border-primary/40 bg-card/85 p-4 shadow-car
 const brl = (n: number) => `R$ ${n.toFixed(2).replace(".", ",")}`;
 
 function Accordion({ items, icon }: { items: { title: string; body: ReactNode; icon?: ReactNode }[]; icon?: ReactNode }) {
+  const { language, locale } = useLanguage();
   const [open, setOpen] = useState<number | null>(0);
-  return <div className="mt-4 space-y-2">{items.map((it, i) => <div key={it.title} className="overflow-hidden rounded-lg border border-border bg-background">
+  return <div className="mt-4 space-y-2">{translateUi(items.map((it, i) => <div key={it.title} className="overflow-hidden rounded-lg border border-border bg-background">
     <button type="button" aria-expanded={open === i} onClick={() => setOpen(open === i ? null : i)} className="flex min-h-12 w-full items-center gap-3 px-3 text-left text-sm font-bold">
-      <span className="text-primary">{it.icon ?? icon}</span><span className="flex-1">{it.title}</span><ChevronDown size={17} className={`transition-transform duration-300 ${open === i ? "rotate-180" : ""}`} />
+      <span className="text-primary">{translateUi(it.icon ?? icon, language)}</span><span className="flex-1">{translateUi(it.title, language)}</span><ChevronDown size={17} className={`transition-transform duration-300 ${open === i ? "rotate-180" : ""}`} />
     </button>
-    <div className={`grid transition-all duration-300 ${open === i ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><div className="px-3 pb-3 text-xs leading-5 text-muted-foreground">{it.body}</div></div></div>
-  </div>)}</div>;
+    <div className={`grid transition-all duration-300 ${open === i ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}><div className="overflow-hidden"><div className="px-3 pb-3 text-xs leading-5 text-muted-foreground">{translateUi(it.body, language)}</div></div></div>
+  </div>), language)}</div>;
 }
 
 function Switch({ on, onClick, label, disabled }: { on: boolean; onClick: () => void; label: string; disabled?: boolean }) {
-  return <button role="switch" aria-checked={on} aria-label={label} disabled={disabled} onClick={onClick} className={`relative h-6 w-11 shrink-0 rounded-full transition disabled:opacity-40 ${on ? "bg-success" : "bg-muted"}`}><span className={`absolute top-0.5 h-5 w-5 rounded-full bg-card shadow transition-all ${on ? "left-[22px]" : "left-0.5"}`} /></button>;
+  const { language, locale } = useLanguage();
+  return <button role="switch" aria-checked={on} aria-label={translateUi(label, language)} disabled={disabled} onClick={onClick} className={`relative h-6 w-11 shrink-0 rounded-full transition disabled:opacity-40 ${on ? "bg-success" : "bg-muted"}`}><span className={`absolute top-0.5 h-5 w-5 rounded-full bg-card shadow transition-all ${on ? "left-[22px]" : "left-0.5"}`} /></button>;
 }
 
 /* ---------- B2B Financial ---------- */
 export function B2BFinance() {
+  const { language, locale } = useLanguage();
   const [balance, setBalance] = useState(1284.6);
   const [pending] = useState([{ who: "Camila Silva", what: "Cadeira de maquiagem · 4h", v: 140 }, { who: "Bianca Rocha", what: "Bancada de unhas · 1 dia", v: 140 }]);
   const [withdrawn, setWithdrawn] = useState<number | null>(null);
@@ -43,40 +47,40 @@ export function B2BFinance() {
 
   return <>
     <div className={card}>
-      <h2 className="flex items-center gap-2 font-display text-2xl"><Wallet size={20} className="text-primary" /> Carteira & Gestão Financeira</h2>
+      <h2 className="flex items-center gap-2 font-display text-2xl"><Wallet size={20} className="text-primary" />{translateUi(" Carteira & Gestão Financeira", language)}</h2>
       <div className="mt-4 grid grid-cols-2 gap-3">
-        <div className="rounded-lg bg-background p-3"><p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Saldo total</p><p className="mt-1 font-display text-2xl">{brl(balance)}</p></div>
-        <div className="rounded-lg bg-background p-3"><p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Locações pendentes</p><p className="mt-1 font-display text-2xl">{brl(pendingTotal)}</p><p className="text-[10px] text-muted-foreground">{pending.length} reservas</p></div>
+        <div className="rounded-lg bg-background p-3"><p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{translateUi("Saldo total", language)}</p><p className="mt-1 font-display text-2xl">{translateUi(brl(balance), language)}</p></div>
+        <div className="rounded-lg bg-background p-3"><p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{translateUi("Locações pendentes", language)}</p><p className="mt-1 font-display text-2xl">{translateUi(brl(pendingTotal), language)}</p><p className="text-[10px] text-muted-foreground">{translateUi(pending.length, language)}{translateUi(" reservas", language)}</p></div>
       </div>
-      <div className="mt-3 space-y-1.5">{pending.map((p) => <div key={p.who} className="flex items-center justify-between rounded-lg bg-background/70 px-3 py-2 text-xs"><span><strong className="block">{p.who}</strong><span className="text-muted-foreground">{p.what}</span></span><span className="flex items-center gap-1 font-bold text-primary"><Clock3 size={13} />{brl(p.v)}</span></div>)}</div>
-      {withdrawn !== null ? <div className="mt-3 flex items-center gap-2 rounded-lg bg-success-soft p-3 text-xs"><CheckCircle2 size={17} className="text-success" /><span><strong className="block text-success">Saque de {brl(withdrawn)} enviado</strong>PIX instantâneo para a chave CNPJ cadastrada.</span></div>
-        : <button disabled={balance <= 0} onClick={() => { setWithdrawn(balance); setBalance(0); }} className={`${primary} mt-3 w-full`}><Banknote size={17} /> Sacar via PIX</button>}
+      <div className="mt-3 space-y-1.5">{translateUi(pending.map((p) => <div key={p.who} className="flex items-center justify-between rounded-lg bg-background/70 px-3 py-2 text-xs"><span><strong className="block">{translateUi(p.who, language)}</strong><span className="text-muted-foreground">{translateUi(p.what, language)}</span></span><span className="flex items-center gap-1 font-bold text-primary"><Clock3 size={13} />{translateUi(brl(p.v), language)}</span></div>), language)}</div>
+      {translateUi(withdrawn !== null ? <div className="mt-3 flex items-center gap-2 rounded-lg bg-success-soft p-3 text-xs"><CheckCircle2 size={17} className="text-success" /><span><strong className="block text-success">{translateUi("Saque de ", language)}{translateUi(brl(withdrawn), language)}{translateUi(" enviado", language)}</strong>{translateUi("PIX instantâneo para a chave CNPJ cadastrada.", language)}</span></div>
+        : <button disabled={balance <= 0} onClick={() => { setWithdrawn(balance); setBalance(0); }} className={`${primary} mt-3 w-full`}><Banknote size={17} />{translateUi(" Sacar via PIX", language)}</button>, language)}
     </div>
 
     <div className={card}>
-      <h2 className="flex items-center gap-2 font-display text-2xl"><Armchair size={20} className="text-primary" /> Preços das Estações</h2>
-      <div className="mt-4 space-y-2">{stations.map((s) => <div key={s.id} className="rounded-lg bg-background p-3">
-        <div className="flex items-center justify-between gap-2"><div className="min-w-0"><p className="truncate text-sm font-bold">{s.name}</p><p className="text-xs font-bold text-primary">R$ {s.hour}/h · R$ {s.day}/dia</p></div>
-          {editing !== s.id && <button onClick={() => { setEditing(s.id); setDraft({ hour: String(s.hour), day: String(s.day) }); }} className={`${outline} min-h-9 px-3 text-xs`}><Pencil size={13} /> Editar</button>}</div>
-        {editing === s.id && <div className="mt-3 grid grid-cols-[1fr_1fr_auto] items-end gap-2">
-          <label className="text-[10px] font-bold">R$/hora<input value={draft.hour} inputMode="numeric" onChange={(e) => setDraft({ ...draft, hour: e.target.value.replace(/\D/g, "").slice(0, 3) })} className={`${input} mt-1`} /></label>
-          <label className="text-[10px] font-bold">R$/dia<input value={draft.day} inputMode="numeric" onChange={(e) => setDraft({ ...draft, day: e.target.value.replace(/\D/g, "").slice(0, 4) })} className={`${input} mt-1`} /></label>
-          <button onClick={() => save(s.id)} className={`${primary} min-h-10 px-3 text-xs`}>Salvar</button>
-        </div>}
-      </div>)}</div>
+      <h2 className="flex items-center gap-2 font-display text-2xl"><Armchair size={20} className="text-primary" />{translateUi(" Preços das Estações", language)}</h2>
+      <div className="mt-4 space-y-2">{translateUi(stations.map((s) => <div key={s.id} className="rounded-lg bg-background p-3">
+        <div className="flex items-center justify-between gap-2"><div className="min-w-0"><p className="truncate text-sm font-bold">{translateUi(s.name, language)}</p><p className="text-xs font-bold text-primary">{translateUi("R$ ", language)}{translateUi(s.hour, language)}{translateUi("/h · R$ ", language)}{translateUi(s.day, language)}{translateUi("/dia", language)}</p></div>
+          {translateUi(editing !== s.id && <button onClick={() => { setEditing(s.id); setDraft({ hour: String(s.hour), day: String(s.day) }); }} className={`${outline} min-h-9 px-3 text-xs`}><Pencil size={13} />{translateUi(" Editar", language)}</button>, language)}</div>
+        {translateUi(editing === s.id && <div className="mt-3 grid grid-cols-[1fr_1fr_auto] items-end gap-2">
+          <label className="text-[10px] font-bold">{translateUi("R$/hora", language)}<input value={draft.hour} inputMode="numeric" onChange={(e) => setDraft({ ...draft, hour: e.target.value.replace(/\D/g, "").slice(0, 3) })} className={`${input} mt-1`} /></label>
+          <label className="text-[10px] font-bold">{translateUi("R$/dia", language)}<input value={draft.day} inputMode="numeric" onChange={(e) => setDraft({ ...draft, day: e.target.value.replace(/\D/g, "").slice(0, 4) })} className={`${input} mt-1`} /></label>
+          <button onClick={() => save(s.id)} className={`${primary} min-h-10 px-3 text-xs`}>{translateUi("Salvar", language)}</button>
+        </div>, language)}
+      </div>), language)}</div>
     </div>
 
     <div className={card}>
-      <h2 className="flex items-center gap-2 font-display text-2xl"><Crown size={20} className="text-primary" /> Assinatura B2B</h2>
-      <div className="mt-4 flex items-center justify-between rounded-lg bg-background p-3"><span className="text-sm">Status: <strong className={membership === "ACTIVE" ? "text-success" : "text-destructive"}>{membership}</strong></span>
-        <button onClick={() => { const next = membership === "ACTIVE" ? "INACTIVE" : "ACTIVE"; setMembership(next); if (next === "INACTIVE") setInstant(false); }} className={`${outline} min-h-9 px-3 text-xs`}>{membership === "ACTIVE" ? "Pausar plano" : "Ativar plano · R$ 89/mês"}</button></div>
-      <div className="mt-2 flex items-center justify-between gap-3 rounded-lg bg-background p-3"><span className="flex items-center gap-2 text-sm font-bold"><Zap size={16} className="text-primary" /> Aberto para Atendimento Imediato no Salão</span><Switch on={instant} disabled={membership !== "ACTIVE"} onClick={() => setInstant(!instant)} label="Atendimento imediato" /></div>
-      {membership !== "ACTIVE" && <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground"><Lock size={13} /> Disponível apenas com assinatura B2B ativa.</p>}
-      {instant && <p className="mt-2 flex items-center gap-1.5 text-xs font-bold text-success"><CheckCircle2 size={13} /> Seu salão aparece agora para clientes próximas.</p>}
+      <h2 className="flex items-center gap-2 font-display text-2xl"><Crown size={20} className="text-primary" />{translateUi(" Assinatura B2B", language)}</h2>
+      <div className="mt-4 flex items-center justify-between rounded-lg bg-background p-3"><span className="text-sm">{translateUi("Status: ", language)}<strong className={membership === "ACTIVE" ? "text-success" : "text-destructive"}>{translateUi(membership, language)}</strong></span>
+        <button onClick={() => { const next = membership === "ACTIVE" ? "INACTIVE" : "ACTIVE"; setMembership(next); if (next === "INACTIVE") setInstant(false); }} className={`${outline} min-h-9 px-3 text-xs`}>{translateUi(membership === "ACTIVE" ? "Pausar plano" : "Ativar plano · R$ 89/mês", language)}</button></div>
+      <div className="mt-2 flex items-center justify-between gap-3 rounded-lg bg-background p-3"><span className="flex items-center gap-2 text-sm font-bold"><Zap size={16} className="text-primary" />{translateUi(" Aberto para Atendimento Imediato no Salão", language)}</span><Switch on={instant} disabled={membership !== "ACTIVE"} onClick={() => setInstant(!instant)} label={translateUi("Atendimento imediato", language)} /></div>
+      {translateUi(membership !== "ACTIVE" && <p className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground"><Lock size={13} />{translateUi(" Disponível apenas com assinatura B2B ativa.", language)}</p>, language)}
+      {translateUi(instant && <p className="mt-2 flex items-center gap-1.5 text-xs font-bold text-success"><CheckCircle2 size={13} />{translateUi(" Seu salão aparece agora para clientes próximas.", language)}</p>, language)}
     </div>
 
     <div className={card}>
-      <h2 className="flex items-center gap-2 font-display text-2xl"><BookOpen size={20} className="text-primary" /> Taxas B2B · Perguntas frequentes</h2>
+      <h2 className="flex items-center gap-2 font-display text-2xl"><BookOpen size={20} className="text-primary" />{translateUi(" Taxas B2B · Perguntas frequentes", language)}</h2>
       <Accordion icon={<Sparkles size={16} />} items={[
         { title: "Quanto a BM retém nas locações?", body: "A BM retém 12% sobre cada locação de cadeira ou bancada. Os 88% restantes vão para a carteira do salão." },
         { title: "Quando recebo o valor da locação?", body: "O valor fica pendente até o fim do período reservado e é liberado na carteira em até 24h. Saques via PIX são instantâneos." },
@@ -89,6 +93,7 @@ export function B2BFinance() {
 
 /* ---------- Client Guide + Loyalty ---------- */
 export function ClientHub() {
+  const { language, locale } = useLanguage();
   const [points, setPoints] = useState(480);
   const [redeemed, setRedeemed] = useState(false);
   const [joined, setJoined] = useState<string[]>([]);
@@ -99,22 +104,22 @@ export function ClientHub() {
   ];
   return <section className="mt-10 space-y-2">
     <div className={card}>
-      <h2 className="flex items-center gap-2 font-display text-2xl"><Gift size={20} className="text-primary" /> Pontos & Vantagens BM</h2>
-      <div className="mt-4 rounded-lg bg-foreground p-4 text-background"><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">Seu saldo</p><p className="mt-1 font-display text-3xl">{points} Pontos Acumulados</p><p className="text-sm opacity-80">= {brl(points / 10)} em descontos</p></div>
-      {redeemed ? <p className="mt-3 flex items-center gap-2 text-xs font-bold text-success"><CheckCircle2 size={15} /> Desconto aplicado no seu próximo agendamento.</p>
-        : <button disabled={points === 0} onClick={() => { setRedeemed(true); setPoints(0); }} className={`${outline} mt-3 w-full`}>Usar pontos no próximo agendamento</button>}
-      <div className="mt-4"><div className="flex justify-between text-xs font-bold"><span>Campanha do mês · Unhas</span><span className="text-primary">{nailsDone}/{nailsGoal}</span></div>
+      <h2 className="flex items-center gap-2 font-display text-2xl"><Gift size={20} className="text-primary" />{translateUi(" Pontos & Vantagens BM", language)}</h2>
+      <div className="mt-4 rounded-lg bg-foreground p-4 text-background"><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">{translateUi("Seu saldo", language)}</p><p className="mt-1 font-display text-3xl">{translateUi(points, language)}{translateUi(" Pontos Acumulados", language)}</p><p className="text-sm opacity-80">{translateUi("= ", language)}{translateUi(brl(points / 10), language)}{translateUi(" em descontos", language)}</p></div>
+      {translateUi(redeemed ? <p className="mt-3 flex items-center gap-2 text-xs font-bold text-success"><CheckCircle2 size={15} />{translateUi(" Desconto aplicado no seu próximo agendamento.", language)}</p>
+        : <button disabled={points === 0} onClick={() => { setRedeemed(true); setPoints(0); }} className={`${outline} mt-3 w-full`}>{translateUi("Usar pontos no próximo agendamento", language)}</button>, language)}
+      <div className="mt-4"><div className="flex justify-between text-xs font-bold"><span>{translateUi("Campanha do mês · Unhas", language)}</span><span className="text-primary">{translateUi(nailsDone, language)}{translateUi("/", language)}{translateUi(nailsGoal, language)}</span></div>
         <div className="mt-2 h-2 rounded-full bg-muted"><div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: `${(nailsDone / nailsGoal) * 100}%` }} /></div>
-        <p className="mt-2 text-xs text-muted-foreground">Falta 1 atendimento de Unha para desbloquear seu Cupom VIP.</p></div>
-      <div className="mt-4 space-y-3">{campaigns.map((c) => <div key={c.id} className="rounded-lg border border-primary/40 bg-secondary/60 p-3">
-        <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{c.tag}</span>
-        <p className="mt-2 font-display text-lg">{c.title}</p><p className="text-xs">{c.text}</p><p className="mt-1 text-[10px] text-muted-foreground">Termos: {c.terms}</p>
-        {joined.includes(c.id) ? <p className="mt-2 flex items-center gap-1 text-xs font-bold text-success"><CheckCircle2 size={14} /> Participando</p> : <button onClick={() => setJoined((j) => [...j, c.id])} className={`${primary} mt-2 min-h-9 px-3 text-xs`}>Participar</button>}
-      </div>)}</div>
+        <p className="mt-2 text-xs text-muted-foreground">{translateUi("Falta 1 atendimento de Unha para desbloquear seu Cupom VIP.", language)}</p></div>
+      <div className="mt-4 space-y-3">{translateUi(campaigns.map((c) => <div key={c.id} className="rounded-lg border border-primary/40 bg-secondary/60 p-3">
+        <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">{translateUi(c.tag, language)}</span>
+        <p className="mt-2 font-display text-lg">{translateUi(c.title, language)}</p><p className="text-xs">{translateUi(c.text, language)}</p><p className="mt-1 text-[10px] text-muted-foreground">{translateUi("Termos: ", language)}{translateUi(c.terms, language)}</p>
+        {translateUi(joined.includes(c.id) ? <p className="mt-2 flex items-center gap-1 text-xs font-bold text-success"><CheckCircle2 size={14} />{translateUi(" Participando", language)}</p> : <button onClick={() => setJoined((j) => [...j, c.id])} className={`${primary} mt-2 min-h-9 px-3 text-xs`}>{translateUi("Participar", language)}</button>, language)}
+      </div>), language)}</div>
     </div>
 
     <div className={card}>
-      <h2 className="flex items-center gap-2 font-display text-2xl"><Sparkles size={20} className="text-primary" /> Guia da Experiência BM em Casa</h2>
+      <h2 className="flex items-center gap-2 font-display text-2xl"><Sparkles size={20} className="text-primary" />{translateUi(" Guia da Experiência BM em Casa", language)}</h2>
       <Accordion items={[
         { icon: <Sun size={16} />, title: "Preparo do Ambiente", body: "Escolha um local bem iluminado (luz natural ou branca), com uma mesa livre de ~60 cm para os materiais e uma tomada a até 2 m da cadeira." },
         { icon: <Armchair size={16} />, title: "Espaço para Macas", body: "Massagens exigem área livre de pelo menos 2,5 m × 1,8 m, piso plano e espaço para a profissional circular pelos dois lados da maca." },
