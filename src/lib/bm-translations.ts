@@ -557,7 +557,7 @@ export const translations: Record<string, readonly [string, string]> = {
   ],
   "Confirmar e ir ao pagamento": [
     "Confirm and proceed to payment",
-    "Confirmar e ir al pago"
+    "Confirmar y ir al pago"
   ],
   "Seu dinheiro fica seguro": [
     "Your money stays safe",
