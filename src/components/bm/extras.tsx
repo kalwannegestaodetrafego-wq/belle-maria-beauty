@@ -143,21 +143,21 @@ const quickReplies = ["Estou na portaria", "Onde posso estacionar?", "Ponto de r
 export function ChatModal({ name, onClose }: { name: string; onClose: () => void }) {
   const { language, locale } = useLanguage();
   const [messages, setMessages] = useState([
-    { me: false, text: `Oi! Aqui é a ${name}. Confirmado para o seu horário ✨` },
-    { me: true, text: "Perfeito, estarei te esperando!" },
+    { me: false, automatic: true, text: `Oi! Aqui é a ${name}. Confirmado para o seu horário ✨` },
+    { me: true, automatic: true, text: "Perfeito, estarei te esperando!" },
   ]);
   const [text, setText] = useState("");
-  const send = (t: string) => {
+  const send = (t: string, automatic = false) => {
     const v = t.trim().slice(0, 500);
     if (!v) return;
-    setMessages((m) => [...m, { me: true, text: v }]);
+    setMessages((m) => [...m, { me: true, automatic, text: v }]);
     setText("");
-    setTimeout(() => setMessages((m) => [...m, { me: false, text: "Recebido! Obrigada 💛" }]), 900);
+    setTimeout(() => setMessages((m) => [...m, { me: false, automatic: true, text: "Recebido! Obrigada 💛" }]), 900);
   };
   return <Sheet title={translateUi(name, language)} eyebrow={translateUi("Chat BM", language)} onClose={onClose} z="z-[70]">
     <div className="flex items-start gap-2 rounded-lg border border-primary/40 bg-secondary p-3 text-[11px] leading-5"><AlertTriangle size={16} className="mt-0.5 shrink-0 text-primary" /><p><strong>{translateUi("Aviso de Segurança BM:", language)}</strong>{translateUi(" Nunca compartilhe telefone ou faça pagamentos por fora. Transações fora do app perdem a Garantia BM e Seguro de Materiais.", language)}</p></div>
-    <div className="mt-4 flex min-h-56 flex-col gap-2">{translateUi(messages.map((m, i) => <p key={i} className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${m.me ? "self-end rounded-br-sm bg-primary text-primary-foreground" : "self-start rounded-bl-sm bg-card shadow-soft"}`}>{translateUi(m.text, language)}</p>), language)}</div>
-    <div className="no-scrollbar -mx-5 mt-4 flex gap-2 overflow-x-auto px-5">{translateUi(quickReplies.map((q) => <button key={q} onClick={() => send(q)} className="shrink-0 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold">{translateUi(q, language)}</button>), language)}</div>
+    <div className="mt-4 flex min-h-56 flex-col gap-2">{translateUi(messages.map((m, i) => <p key={i} className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${m.me ? "self-end rounded-br-sm bg-primary text-primary-foreground" : "self-start rounded-bl-sm bg-card shadow-soft"}`}>{m.automatic ? translateUi(m.text, language) : m.text}</p>), language)}</div>
+    <div className="no-scrollbar -mx-5 mt-4 flex gap-2 overflow-x-auto px-5">{translateUi(quickReplies.map((q) => <button key={q} onClick={() => send(q, true)} className="shrink-0 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold">{translateUi(q, language)}</button>), language)}</div>
     <form onSubmit={(e) => { e.preventDefault(); send(text); }} className="mt-3 flex gap-2"><input value={text} onChange={(e) => setText(e.target.value)} maxLength={500} placeholder={translateUi("Escreva uma mensagem", language)} aria-label={translateUi("Mensagem", language)} className={input} /><button type="submit" className={`${primary} w-11 shrink-0 px-0`} aria-label={translateUi("Enviar", language)}><Send size={17} /></button></form>
   </Sheet>;
 }
