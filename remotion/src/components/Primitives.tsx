@@ -1,9 +1,13 @@
 import type { CSSProperties, ReactNode } from 'react';
 import { AbsoluteFill, interpolate, spring, useCurrentFrame, useVideoConfig } from 'remotion';
-import { contentFrame } from '../timing';
+import { contentFrame, TRANSITION_FRAMES } from '../timing';
 import { theme } from '../theme';
 
-export const useSceneFrame = (index: number) => contentFrame(useCurrentFrame(), index);
+export const useSceneFrame = (index: number) => {
+  const localFrame = useCurrentFrame();
+  // Let entrances develop during the crossfade instead of fading into an empty scene.
+  return index === 0 ? contentFrame(localFrame, index) : contentFrame(localFrame + TRANSITION_FRAMES, index);
+};
 export const entrance = (frame: number, delay = 0) => spring({ frame: frame - delay, fps: 30, config: { damping: 22, stiffness: 100, mass: 1 } });
 export const Reveal = ({ children, frame, delay = 0, style }: { children: ReactNode; frame: number; delay?: number; style?: CSSProperties }) => {
   const progress = entrance(frame, delay);
