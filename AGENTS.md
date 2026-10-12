@@ -13,3 +13,5 @@
 - Never label generated or demonstration photographs as verified authorial professional work; verification requires submitted real portfolio evidence.
 - Keep the official BM support address centralized in the shared trust-support module so every help and incident surface stays consistent.
 - Localize BM presentation through the shared language context and translation dictionary, never translating stored identifiers or user-entered content; this preserves existing filters, bookings and account behavior across languages.
+- Keep the pitch source in an independent remotion/ package, outside the TanStack app graph; local Node rendering must not enter the Worker bundle.
+- Pitch scenes must distinguish simulated payments, token rewards and demo profiles from deployed capabilities; animation does not establish identity verification or on-chain settlement.

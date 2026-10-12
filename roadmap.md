@@ -1,5 +1,8 @@
 # Roadmap BM
 
+- [ ] Criar projeto independente de pitch em remotion/ com cinco cenas, 90 segundos e renderização local
+- [ ] Validar duração, transições, composição e imagens das cinco cenas
+
 - [x] Add EN/PT/ES navbar selection with English default and translate all BM screens
 - [x] Verify language switching preserves the booking and professional workflows
 
