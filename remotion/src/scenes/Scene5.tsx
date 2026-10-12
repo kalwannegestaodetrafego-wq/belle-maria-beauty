@@ -1,0 +1,11 @@
+import { interpolate } from 'remotion';
+import { theme } from '../theme';
+import { Copy, Counter, Eyebrow, Panel, Pill, Reveal, Scene, Title, useSceneFrame } from '../components/Primitives';
+
+export const Scene5 = () => {
+  const f = useSceneFrame(4);
+  const benefitsOpacity = interpolate(f, [270, 300], [1, 0], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  return <Scene><div style={{ opacity: benefitsOpacity }}><Reveal frame={f}><Eyebrow>RECOMPENSAS & ECOSSISTEMA</Eyebrow><Title style={{ fontSize: 68 }}>Mais valor a cada encontro.</Title></Reveal><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 40, marginTop: 48 }}><Reveal frame={f} delay={35}><Panel><Pill>BMPTS • VISÃO SPL TOKENS</Pill><div style={{ color: theme.teal, fontSize: 84, margin: '26px 0' }}><Counter frame={f} from={45} to={120} end={480} /> <span style={{ fontSize: 28 }}>pontos</span></div><Copy>Recompensas e benefícios de fidelidade.<br />Tokenização proposta; pontos ilustrativos.</Copy></Panel></Reveal><Reveal frame={f} delay={100}><Panel><Eyebrow color={theme.rose}>B2B PARA QUEM EMPREENDE</Eyebrow><div style={{ fontSize: 34, marginBottom: 28 }}>Salões + profissionais</div><Copy>Cadeiras disponíveis.<br />Reforço de equipe.<br />Gestão e oportunidades conectadas.</Copy><Copy style={{ fontSize: 20, marginTop: 20 }}>Operações B2B simuladas no protótipo.</Copy></Panel></Reveal></div></div>
+    <div style={{ position: 'absolute', inset: '180px 110px 130px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', opacity: interpolate(f, [292, 327], [0, 1], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }) }}><Eyebrow>CONHEÇA O PROTÓTIPO</Eyebrow><Title style={{ fontSize: 92 }}>Belle Maria Beauty</Title><Copy>A experiência dos melhores salões, no conforto do seu lar.</Copy><div style={{ height: 3, width: 100, background: theme.rose, margin: '46px 0' }} /><div style={{ color: theme.teal, fontSize: 38 }}>https://belle-beauty-booking.lovable.app</div><Copy style={{ fontSize: 21, marginTop: 42 }}>Pagamentos Web3, escrow on-chain e tokens SPL: visão de integração.</Copy></div>
+  </Scene>;
+};

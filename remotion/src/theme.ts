@@ -1,0 +1,16 @@
+export const theme = {
+  background: '#0B0E17',
+  teal: '#14F195',
+  purple: '#9945FF',
+  rose: '#B76E79',
+  text: '#F7F8FC',
+  muted: '#A4ADBF',
+  panel: '#121827',
+  border: '#2A3246',
+  warning: '#F0B46D',
+  grid: 'rgba(164,173,191,0.08)',
+  tealLight: 'rgba(20,241,149,0.10)',
+  purpleLight: 'rgba(153,69,255,0.10)',
+  shadow: '0 30px 90px rgba(0,0,0,0.3)',
+  font: '"Arial", "Helvetica Neue", sans-serif',
+} as const;
