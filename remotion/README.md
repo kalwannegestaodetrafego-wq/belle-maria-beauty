@@ -43,7 +43,7 @@ As durações de contêiner dos originais são 57,128s e 33,200s (90,328s, inclu
 | A Inovação | 00:54–01:12 | 1620–2159 | Escrow proposto, PIN presencial de quatro dígitos (8392) |
 | Recompensas & CTA | 01:12–01:30 | 2160–2699 | BMPTS/SPL propostos, B2B e endereço do protótipo |
 
-`TransitionSeries` faz quatro crossfades de 24 frames (0,8s), terminando em 540, 1080, 1620 e 2160. Para não reduzir o total a 2604 frames, cada cena após a primeira inclui um lead-in de 24 frames: durações de sequência **540, 564, 564, 564, 564**, menos **4 × 24 = 96** frames de sobreposição, totalizando **2700**. O conteúdo das cenas recebidas fica no frame zero durante o lead-in; `contentFrame()` mantém os capítulos alinhados. O CTA permanece estável nos últimos sete segundos.
+`TransitionSeries` faz quatro crossfades de 24 frames (0,8s), terminando em 540, 1080, 1620 e 2160. Para não reduzir o total a 2604 frames, cada cena após a primeira inclui um lead-in de 24 frames: durações de sequência **540, 564, 564, 564, 564**, menos **4 × 24 = 96** frames de sobreposição, totalizando **2700**. As entradas animadas começam durante o lead-in para evitar uma cena vazia ao final do crossfade. O CTA permanece estável nos últimos sete segundos.
 
 ## Arquitetura
 
@@ -70,4 +70,4 @@ bun run test
 bun run typecheck
 ```
 
-Os testes validam os valores solicitados e a matemática das transições. Para validar quadros localmente: `bunx remotion still src/index.ts main out/scene3.png --frame=1350`. Revise todos os capítulos e as transições no Studio antes de uma publicação; o render completo de 90 segundos deve ser executado localmente.
+Os testes validam os valores solicitados e a matemática das transições. Para validar quadros localmente: `bunx remotion still src/index.ts main out/scene3.png --frame=1350`. Foram conferidos 14 quadros das cinco cenas/transições e uma exportação completa H.264 1920×1080/30fps com áudio AAC: vídeo com 90,000s, contêiner com 90,048s devido ao padding AAC. O áudio fonte decodificado possui exatamente 4.320.000 amostras a 48kHz (90s). Revise a compatibilidade editorial da narração antes de publicar.

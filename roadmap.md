@@ -1,8 +1,9 @@
 # Roadmap BM
 
-- [ ] Criar projeto independente de pitch em remotion/ com cinco cenas, 90 segundos e renderização local
-- [ ] Validar duração, transições, composição e imagens das cinco cenas
-- [ ] Integrar os dois áudios TTSMaker em remotion/public/audio/ e conferir sincronização da narração
+- [x] Criar projeto independente de pitch em remotion/ com cinco cenas, 90 segundos e renderização local
+- [x] Validar duração, transições, composição e imagens das cinco cenas
+- [x] Integrar os dois áudios TTSMaker em remotion/public/audio/ e validar narração contínua na exportação
+- [ ] Alinhar frase a frase os cinco capítulos — depende de autorização para redistribuir cenas ou de narração revisada, pois o áudio fornecido não segue cinco blocos de 18s
 
 - [x] Add EN/PT/ES navbar selection with English default and translate all BM screens
 - [x] Verify language switching preserves the booking and professional workflows
