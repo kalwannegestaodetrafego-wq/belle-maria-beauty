@@ -1,0 +1,30 @@
+{
+  "name": "belle-maria-beauty-pitch",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "node scripts/render.mjs",
+    "test": "bun test src/timing.test.ts",
+    "typecheck": "tsgo --noEmit"
+  },
+  "dependencies": {
+    "remotion": "4.0.520",
+    "@remotion/cli": "4.0.520",
+    "@remotion/renderer": "4.0.520",
+    "@remotion/bundler": "4.0.520",
+    "@remotion/transitions": "4.0.520",
+    "@remotion/google-fonts": "4.0.520",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "@types/node": "^22.16.5",
+    "@typescript/native-preview": "^7.0.0-dev.20261012.1",
+    "typescript": "^5.8.3"
+  },
+  "engines": { "node": ">=22" }
+}

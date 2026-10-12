@@ -1,0 +1,12 @@
+import { interpolate } from 'remotion';
+import { theme } from '../theme';
+import { Copy, Eyebrow, Panel, Pill, Reveal, Scene, Title, useSceneFrame } from '../components/Primitives';
+
+export const Scene4 = () => {
+  const f = useSceneFrame(3);
+  const confirmed = f >= 345;
+  const progress = interpolate(f, [105, 340], [0, 100], { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  return <Scene><div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 90 }}><Reveal frame={f}><Eyebrow>A INOVAÇÃO</Eyebrow><Title style={{ fontSize: 72 }}>Confiança até<br />o último passo.</Title><Copy>Smart Contract Escrow na Solana:<br />uma visão de custódia programável.</Copy><div style={{ marginTop: 40 }}><Pill color={theme.purple}>ARQUITETURA PROPOSTA</Pill></div><Copy style={{ fontSize: 23, marginTop: 32 }}>No protótipo, retenção e liberação<br />são simuladas localmente.<br /><br />O PIN de 4 dígitos conecta a conclusão<br />presencial à confirmação do cliente.</Copy></Reveal>
+      <Reveal frame={f} delay={65}><Panel style={{ padding: 42 }}><div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 20, color: theme.muted }}><span>CUSTÓDIA • USDC</span><span>SOLANA / CONCEITO</span></div><div style={{ fontSize: 44, margin: '40px 0 14px' }}>{confirmed ? 'Liberação autorizada' : 'Pagamento retido'}</div><Copy style={{ fontSize: 23 }}>Atendimento → confirmação presencial</Copy><div style={{ height: 6, background: theme.border, margin: '34px 0 40px' }}><div style={{ height: '100%', width: `${progress}%`, background: theme.teal }} /></div><div style={{ fontSize: 19, color: theme.muted, marginBottom: 20 }}>PIN DO CLIENTE • EXEMPLO</div><div style={{ display: 'flex', gap: 16 }}>{['8', '3', '9', '2'].map((digit, i) => <Reveal key={i} frame={f} delay={150 + i * 45}><div style={{ width: 90, height: 100, display: 'grid', placeItems: 'center', border: `1px solid ${confirmed ? theme.teal : theme.border}`, borderRadius: 8, fontSize: 46 }}>{digit}</div></Reveal>)}</div><Reveal frame={f} delay={350}><div style={{ color: theme.teal, fontSize: 26, marginTop: 36 }}>✓ Serviço confirmado</div><Copy style={{ fontSize: 19, marginTop: 12 }}>Demonstração; não representa custódia real.</Copy></Reveal></Panel></Reveal>
+    </div></Scene>;
+};
