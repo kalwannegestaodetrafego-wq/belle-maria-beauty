@@ -20,7 +20,7 @@ try {
     outputLocation, overwrite: true,
     onProgress: ({ progress }) => process.stdout.write(`\rRenderização: ${Math.round(progress * 100)}%`),
   });
-  console.log(`\nMP4 salvo em: ${outputLocation}\nVídeo sem áudio: nenhuma narração ou trilha foi fornecida.`);
+  console.log(`\nMP4 salvo em: ${outputLocation}\nNarração TTSMaker incorporada. Sem trilha adicional.`);
 } catch (error) {
   console.error('\nFalha na renderização:', error instanceof Error ? error.message : error);
   process.exitCode = 1;

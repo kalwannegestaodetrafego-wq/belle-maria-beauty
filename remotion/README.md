@@ -23,7 +23,15 @@ bun run render
 npm run render
 ```
 
-Saída: **`remotion/out/belle-maria-beauty-pitch.mp4`**. H.264, CRF 18, pixel format yuv420p, 1080p, 30fps. A saída é ignorada pelo controle de versão. O script resolve todos os caminhos a partir de sua própria localização, verifica o formato e informa erros com código de saída não-zero. **Sem áudio:** não foi fornecida narração ou trilha; este projeto não sintetiza nem licencia áudio. Não contém um MP4 pré-renderizado.
+Saída: **`remotion/out/belle-maria-beauty-pitch.mp4`**. H.264, CRF 18, pixel format yuv420p, 1080p, 30fps, com narração TTSMaker e sem trilha adicional. A saída é ignorada pelo controle de versão. O script resolve todos os caminhos a partir de sua própria localização, verifica o formato e informa erros com código de saída não-zero. Não contém um MP4 pré-renderizado.
+
+## Narração anexada
+
+Os dois arquivos originais estão em `public/audio/part-1.mp3` e `part-2.mp3`. `voiceover.mp3` é a faixa contínua utilizada por `<Audio src={staticFile('audio/voiceover.mp3')} />` fora do `TransitionSeries`: começa no frame zero e não reinicia nem sofre crossfade nas trocas de cena. O áudio está em inglês, como fornecido; os textos visuais permanecem em português.
+
+As durações de contêiner dos originais são 57,128s e 33,200s (90,328s, incluindo padding MP3). A faixa contínua foi ajustada de forma uniforme para 90s de amostras decodificadas com `atempo`, preservando altura da voz, sem cortar palavras. O encoder MP3 pode indicar duração de contêiner ligeiramente maior devido a padding, mas a composição e o áudio decodificado terminam em 90s. Os originais são preservados para revisão.
+
+**Limitação editorial:** a narração não segue cinco blocos de 18s: aborda escrow/PIN antes do capítulo visual de inovação e validação de campo no capítulo final. As cenas conservam os intervalos explicitamente solicitados; a faixa está sincronizada com a linha do tempo, mas a correspondência frase a frase exige aprovação para redistribuir capítulos ou trocar o roteiro de voz. A narração fornecida afirma métricas (80%, US$120, 10 criadores, 15 testes DevNet), taxa 90/10 e operação on-chain; esses dados não foram verificados e não descrevem o estado comprovado do aplicativo, cuja taxa simulada é 18%. Nenhuma dessas afirmações foi acrescentada como fato aos textos visuais. Revise as alegações e a compatibilidade do roteiro antes de usar o pitch externamente.
 
 ## Roteiro e tempos
 
