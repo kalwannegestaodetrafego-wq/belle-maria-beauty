@@ -3,6 +3,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { Check, CheckCircle2, Copy, Lock, Receipt, ShieldCheck, Timer, Wallet, Zap } from "lucide-react";
 import { translateUi, useLanguage } from "../../lib/bm-i18n";
 import { money } from "./booking-extras";
+import { createPixCharge, getPixStatus } from "../../lib/asaas.functions";
 
 export type HybridMethod = "pix" | "solana";
 const PIX_SECONDS = 15 * 60;
@@ -34,12 +35,25 @@ export function EscrowSeal() {
   </div>;
 }
 
-export function HybridCheckout({ total, method, setMethod, txid, onWalletChange }: { total: number; method: HybridMethod; setMethod: (m: HybridMethod) => void; txid: string; onWalletChange: (wallet: string | null) => void }) {
+export function HybridCheckout({ total, method, setMethod, txid, onWalletChange, onAutoPaid }: { onAutoPaid?: () => void; total: number; method: HybridMethod; setMethod: (m: HybridMethod) => void; txid: string; onWalletChange: (wallet: string | null) => void }) {
   const { language } = useLanguage();
   const [left, setLeft] = useState(PIX_SECONDS);
   const [copied, setCopied] = useState(false);
   const [wallet, setWallet] = useState<string | null>(null);
-  const pix = buildPixCode(total, txid);
+  const [charge, setCharge] = useState<{ id: string; payload: string; image: string } | null>(null);
+  const pix = charge?.payload ?? buildPixCode(total, txid);
+  // Ask the server for an Asaas dynamic Pix; it returns "static" when ASAAS_API_KEY is not configured.
+  useEffect(() => {
+    if (method !== "pix") return;
+    let alive = true;
+    createPixCharge({ data: { value: total, description: "Reserva BM", reference: txid } }).then((r) => { if (alive) setCharge(r.mode === "asaas" ? r : null); }).catch(() => alive && setCharge(null));
+    return () => { alive = false; };
+  }, [method, total, txid]);
+  useEffect(() => {
+    if (!charge || !onAutoPaid) return;
+    const id = setInterval(() => { getPixStatus({ data: { id: charge.id } }).then((r) => r.paid && onAutoPaid()).catch(() => {}); }, 5000);
+    return () => clearInterval(id);
+  }, [charge, onAutoPaid]);
   const usdc = (total / USDC_RATE).toFixed(2);
   const solanaUrl = `solana:BMEscrow7xKXdemoBM92?amount=${usdc}&spl-token=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v&label=BM&message=${encodeURIComponent("Reserva BM " + txid)}`;
 
@@ -60,8 +74,9 @@ export function HybridCheckout({ total, method, setMethod, txid, onWalletChange 
     </div>
 
     {method === "pix" ? <div role="tabpanel" className="mt-4 rounded-lg border border-border bg-card p-4">
-      <div className="flex items-center justify-between"><p className="text-xs font-bold">{translateUi("Pix Copia e Cola · simulação", language)}</p><span className={`flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-bold ${left > 0 ? "bg-secondary text-foreground" : "bg-destructive/15 text-destructive"}`}><Timer size={13} />{left > 0 ? `${mm}:${ss}` : translateUi("Expirado", language)}</span></div>
-      <div className="mx-auto mt-4 w-fit rounded-lg border border-primary/30 bg-background p-3"><QRCodeSVG value={pix} size={168} bgColor="transparent" fgColor="currentColor" className={`text-foreground ${left === 0 ? "opacity-20" : ""}`} aria-label={translateUi("QR Code Pix", language)} /></div>
+      <div className="flex items-center justify-between"><p className="text-xs font-bold">{translateUi(charge ? "Pix dinâmico · Asaas" : "Pix Copia e Cola · simulação", language)}</p><span className={`flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-bold ${left > 0 ? "bg-secondary text-foreground" : "bg-destructive/15 text-destructive"}`}><Timer size={13} />{left > 0 ? `${mm}:${ss}` : translateUi("Expirado", language)}</span></div>
+      <div className="mx-auto mt-4 w-fit rounded-lg border border-primary/30 bg-background p-3">{charge ? <img src={`data:image/png;base64,${charge.image}`} alt={translateUi("QR Code Pix", language)} width={168} height={168} /> : <QRCodeSVG value={pix} size={168} bgColor="transparent" fgColor="currentColor" className={`text-foreground ${left === 0 ? "opacity-20" : ""}`} aria-label={translateUi("QR Code Pix", language)} />}</div>
+      {charge && <p className="mt-2 text-center text-[11px] font-semibold text-success">{translateUi("Confirmação automática ativada: aguardando pagamento…", language)}</p>}
       <p className="mt-2 text-center font-display text-2xl">{money(total)}</p>
       <div className="mt-3 rounded-md bg-muted p-3"><code className="block break-all text-[10px] leading-4">{pix}</code></div>
       <button type="button" disabled={left === 0} onClick={() => { navigator.clipboard?.writeText(pix); setCopied(true); }} className="mt-3 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-primary bg-secondary text-sm font-bold disabled:opacity-45">{copied ? <Check size={16} /> : <Copy size={16} />}{translateUi(copied ? "Chave copiada!" : "Copiar Chave Pix", language)}</button>
