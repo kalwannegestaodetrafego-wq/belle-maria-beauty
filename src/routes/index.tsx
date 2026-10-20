@@ -37,6 +37,7 @@ import { HelpRules, OnlineToggle, WelcomeTraining } from "../components/bm/train
 import { CategoryShowcase, PortfolioNotice, ServiceMenu } from "../components/bm/discovery";
 import { CheckoutOptions, FlexibleSchedule, bookingIsUrgent, bookingTotal, brazilDays, initialExtras, money, type BookingExtras } from "../components/bm/booking-extras";
 import { LocationPanel, SolanaCheckout, SolanaPointsHub } from "../components/bm/web3-geo";
+import { HybridCheckout, PaymentReceipt, type HybridMethod } from "../components/bm/hybrid-checkout";
 import { IdentityTrustCard, SUPPORT_EMAIL, SupportMailButton, SupportWidget } from "../components/bm/trust-support";
 import camilaImage from "../assets/camila.jpg";
 import studioImage from "../assets/studio-bella.jpg";
@@ -319,7 +320,7 @@ function PaymentStep(props: BookingProps) {
     <h3 className="mb-3 mt-6 font-display text-xl">{translateUi("Forma de pagamento", language)}</h3>
     <HybridCheckout total={total} method={method} setMethod={props.setPayment} txid={txid} onWalletChange={setWallet} />
     <div className="mt-6 space-y-1 border-t border-border pt-4 text-xs"><div className="flex justify-between"><span>{translateUi("Serviço", language)}</span><span>{translateUi(money(p.price), language)}</span></div>{translateUi(urgent && <div className="flex justify-between"><span>{translateUi("Adicional de Urgência (&lt;12h)", language)}</span><span>{translateUi("+ R$ 15,00", language)}</span></div>, language)}{translateUi(massage && extras.hasTable && <div className="flex justify-between text-success"><span>{translateUi("Maca no local", language)}</span><span>{translateUi("− R$ 10,00", language)}</span></div>, language)}{translateUi(extras.useCredit && <div className="flex justify-between text-success"><span>{translateUi("Vale Presente / crédito BM", language)}</span><span>{translateUi("− R$ 20,00", language)}</span></div>, language)}</div>
-    <div className="mt-5 flex items-end justify-between gap-3"><div><p className="text-xs text-muted-foreground">{translateUi("Total protegido", language)}</p><p className="font-display text-3xl">{translateUi(money(total), language)}</p></div><AppButton onClick={props.onNext} disabled={extras.forOther && !extras.recipient.trim()}>{translateUi("Pagar com segurança", language)}</AppButton></div>
+    <div className="mt-5 flex items-end justify-between gap-3"><div><p className="text-xs text-muted-foreground">{translateUi("Total protegido", language)}</p><p className="font-display text-3xl">{translateUi(money(total), language)}</p></div><AppButton onClick={() => setPaid(true)} disabled={(extras.forOther && !extras.recipient.trim()) || (method === "solana" && !wallet)}>{translateUi(method === "solana" && !wallet ? "Conecte a carteira" : "Pagar com segurança", language)}</AppButton></div>
   </div>;
 }
 

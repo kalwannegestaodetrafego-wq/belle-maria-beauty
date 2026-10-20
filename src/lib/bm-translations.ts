@@ -1982,5 +1982,29 @@ export const translations: Record<string, readonly [string, string]> = {
   "dia": [
     "day",
     "día"
-  ]
+  ],
+  "Garantia BM:": ["BM Guarantee:", "Garantía BM:"],
+  "O valor do pagamento fica retido em caução de proteção (escrow) e só é liberado para o profissional após a realização do serviço.": ["The payment is held in a protective escrow and is only released to the professional after the service is completed.", "El pago queda retenido en una garantía de protección (escrow) y solo se libera al profesional tras realizar el servicio."],
+  "Pix Instantâneo (R$)": ["Instant Pix (R$)", "Pix Instantáneo (R$)"],
+  "Pix Copia e Cola · simulação": ["Pix Copy & Paste · simulation", "Pix Copiar y Pegar · simulación"],
+  "Expirado": ["Expired", "Expirado"],
+  "Chave copiada!": ["Key copied!", "¡Clave copiada!"],
+  "Copiar Chave Pix": ["Copy Pix Key", "Copiar Clave Pix"],
+  "Gerar nova chave": ["Generate new key", "Generar nueva clave"],
+  "Solana Pay · demonstração": ["Solana Pay · demo", "Solana Pay · demostración"],
+  "Escaneie com a carteira ou conecte-a para pagar.": ["Scan with your wallet or connect it to pay.", "Escanea con tu billetera o conéctala para pagar."],
+  "Conecte a carteira": ["Connect wallet", "Conecta la billetera"],
+  "Pagamento confirmado!": ["Payment confirmed!", "¡Pago confirmado!"],
+  "Sua reserva está garantida. Confira o recibo digital.": ["Your booking is secured. Check your digital receipt.", "Tu reserva está garantizada. Revisa el recibo digital."],
+  "Recibo digital": ["Digital receipt", "Recibo digital"],
+  "Nº do recibo": ["Receipt no.", "N.º de recibo"],
+  "Profissional": ["Professional", "Profesional"],
+  "Local": ["Location", "Lugar"],
+  "Valor": ["Amount", "Importe"],
+  "Status": ["Status", "Estado"],
+  "Retido em escrow": ["Held in escrow", "Retenido en escrow"],
+  "Pagamento simulado para demonstração. Nenhuma cobrança real foi realizada.": ["Simulated payment for demonstration. No real charge was made.", "Pago simulado para demostración. No se realizó ningún cargo real."],
+  "Acompanhar atendimento": ["Track appointment", "Seguir la cita"],
+  "QR Code Pix": ["Pix QR Code", "Código QR Pix"],
+  "QR Code Solana Pay": ["Solana Pay QR Code", "Código QR Solana Pay"]
 };
