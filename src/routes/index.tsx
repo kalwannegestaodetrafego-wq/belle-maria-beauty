@@ -32,14 +32,14 @@ import { useCallback, useMemo, useState, type ButtonHTMLAttributes, type ReactNo
 
 import { B2BFinance, ClientHub } from "../components/bm/modules";
 import { AuthModal, B2BView, ChairBooking, ChatModal, OnboardingBanner, ReviewModal, TravelTipModal } from "../components/bm/extras";
-import { UserRound, Lightbulb, BookOpen } from "lucide-react";
+import { UserRound, Lightbulb, BookOpen, Linkedin, Twitter } from "lucide-react";
 import { HelpRules, OnlineToggle, WelcomeTraining } from "../components/bm/training";
 import { CategoryShowcase, PortfolioNotice, ServiceMenu } from "../components/bm/discovery";
 import { CheckoutOptions, FlexibleSchedule, bookingIsUrgent, bookingTotal, brazilDays, initialExtras, money, type BookingExtras } from "../components/bm/booking-extras";
 import { LocationPanel, SolanaCheckout, SolanaPointsHub } from "../components/bm/web3-geo";
 import { AppointmentsSummary, EarningsStatement, MyAppointments, ReleaseSuccess, ServicesManager, type Appointment } from "../components/bm/pro-dashboard";
 import { HybridCheckout, PaymentReceipt, type HybridMethod } from "../components/bm/hybrid-checkout";
-import { FaceVerification, IdentityTrustCard, SafetyReminder, SUPPORT_EMAIL, VerifiedBadge, SupportMailButton, SupportWidget } from "../components/bm/trust-support";
+import { FaceVerification, IdentityTrustCard, SafetyReminder, SUPPORT_EMAIL, VerifiedBadge, SupportMailButton, SupportWidget, WhatsAppSupportButton } from "../components/bm/trust-support";
 import camilaImage from "../assets/camila.jpg";
 import studioImage from "../assets/studio-bella.jpg";
 import julianaImage from "../assets/juliana.jpg";
@@ -196,7 +196,14 @@ function Index() {
       </div>
 
       <footer className="mx-auto mt-10 max-w-6xl border-t border-border px-4 py-8 md:px-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><p className="font-display text-xl">{translateUi("BM", language)}</p><p className="mt-1 text-xs text-muted-foreground">{translateUi("A experiência dos melhores salões, no conforto do seu lar.", language)}</p></div><button type="button" onClick={() => setSecurityOpen(true)} className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-bold text-foreground transition-colors hover:text-primary"><ShieldCheck size={18} className="text-success" />{translateUi(" Segurança & Privacidade ", language)}<ChevronRight size={16} /></button></div>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><p className="font-display text-xl">{translateUi("BM", language)}</p><p className="mt-1 text-xs text-muted-foreground">{translateUi("A experiência dos melhores salões, no conforto do seu lar.", language)}</p></div><div className="flex flex-col items-start gap-3"><button type="button" onClick={() => setSecurityOpen(true)} className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-bold text-foreground transition-colors hover:text-primary"><ShieldCheck size={18} className="text-success" />{translateUi(" Segurança & Privacidade ", language)}<ChevronRight size={16} /></button><WhatsAppSupportButton /></div></div>
+        <div className="mt-6 flex flex-col gap-4 border-t border-border/70 pt-5 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-3">
+            <a href="https://www.linkedin.com/company/belle-maria-beauty" target="_blank" rel="noreferrer" aria-label={translateUi("LinkedIn oficial da BM", language)} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:text-primary"><Linkedin size={18} /></a>
+            <a href="https://x.com/bellemariabeauty" target="_blank" rel="noreferrer" aria-label={translateUi("X (Twitter) oficial da BM", language)} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:text-primary"><Twitter size={18} /></a>
+          </div>
+          <p className="text-[11px] leading-5 text-muted-foreground">{translateUi("© 2026 Belle Maria Beauty — O dApp pioneiro em agendamentos de beleza com Solana Pay e Pix.", language)}</p>
+        </div>
       </footer>
 
       <nav className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-card/95 px-7 py-2 backdrop-blur-xl md:hidden">
@@ -265,6 +272,9 @@ const securityTopics = [
   { title: "Proteção BM", content: "A BM verifica identidades e mantém o pagamento protegido durante o atendimento. O valor só é liberado para a profissional após a cliente informar o PIN de segurança e confirmar a conclusão do serviço." },
   { title: "Governança de Dados & LGPD", content: "Dados pessoais, documentos, CPF, fotos e selfies são tratados para validação de identidade, segurança, agendamentos e suporte. Essas informações permanecem protegidas, com acesso controlado, e você pode solicitar acesso, correção ou exclusão conforme a LGPD." },
   { title: "Termos de Serviço & Protocolo de Incidentes", content: "Clientes e profissionais devem fornecer dados verdadeiros, manter conduta respeitosa e usar os canais da BM. Para avaria, dano ou incompatibilidade, abra uma disputa no acompanhamento; o pagamento permanece retido durante a mediação. Contato oficial: startupbmcomercial@gmail.com." },
+  { title: "Garantia BM (Custódia/Escrow)", content: "O valor do pagamento fica retido em caução de proteção (escrow) e só é pago à profissional após a cliente digitar o PIN de segurança no fim do atendimento. Se algo der errado, abra uma disputa e a BM medeia com o valor ainda protegido." },
+  { title: "Política de Cancelamento", content: "Cancelamento gratuito até 2 horas antes do horário marcado. Cancelamentos com menos de 2 horas de antecedência podem reter parte do valor conforme a política da profissional." },
+  { title: "Regra de No-Show", content: "Se a cliente não comparecer ao atendimento, 50% da taxa de reserva é repassada à profissional." },
 ];
 
 function SecurityCenter({ onClose }: { onClose: () => void }) {
