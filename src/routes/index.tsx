@@ -28,7 +28,7 @@ import {
   Wallet,
   X,
 } from "lucide-react";
-import { useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { useCallback, useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 import { B2BFinance, ClientHub } from "../components/bm/modules";
 import { AuthModal, B2BView, ChairBooking, ChatModal, OnboardingBanner, ReviewModal, TravelTipModal } from "../components/bm/extras";
