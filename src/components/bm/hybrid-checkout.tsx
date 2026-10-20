@@ -80,7 +80,7 @@ export function HybridCheckout({ total, method, setMethod, txid, onWalletChange 
   </div>;
 }
 
-export function PaymentReceipt({ txid, method, wallet, total, professional, service, day, slots, address, onContinue }: { txid: string; method: HybridMethod; wallet: string | null; total: number; professional: string; service: string; day: string; slots: string[]; address?: string; onContinue: () => void }) {
+export function PaymentReceipt({ txid, method, wallet, total, professional, service, day, slots, address, onContinue }: { txid: string; method: HybridMethod; wallet: string | null; total: number; professional: string; service: string; day: string; slots: string[]; address?: string | undefined; onContinue: () => void }) {
   const { language, locale } = useLanguage();
   const [paidAt] = useState(() => new Date());
   const dayLabel = day ? new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long", timeZone: "UTC" }).format(new Date(`${day}T12:00:00Z`)) : "—";
