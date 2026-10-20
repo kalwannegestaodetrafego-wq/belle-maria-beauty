@@ -28,7 +28,7 @@ import {
   Wallet,
   X,
 } from "lucide-react";
-import { useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { useCallback, useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 import { B2BFinance, ClientHub } from "../components/bm/modules";
 import { AuthModal, B2BView, ChairBooking, ChatModal, OnboardingBanner, ReviewModal, TravelTipModal } from "../components/bm/extras";
@@ -311,6 +311,7 @@ function PaymentStep(props: BookingProps) {
   const massage = p.service === "Massagem Relaxante";
   const total = bookingTotal(p.price, urgent, extras, massage);
   const [paid, setPaid] = useState(false);
+  const markPaid = useCallback(() => setPaid(true), []);
   const [wallet, setWallet] = useState<string | null>(null);
   const [txid] = useState(() => `BM${Date.now().toString(36).toUpperCase().slice(-8)}`);
   const method: HybridMethod = props.payment === "solana" ? "solana" : "pix";
@@ -318,7 +319,7 @@ function PaymentStep(props: BookingProps) {
   return <div className="p-5"><div className="rounded-lg border border-success/30 bg-success-soft p-4"><div className="flex gap-3"><ShieldCheck className="shrink-0 text-success" size={24} /><div><h3 className="font-bold text-success">{translateUi("Seu dinheiro fica seguro", language)}</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">{translateUi("A BM retém o valor. Ele só é liberado à profissional quando você informar o PIN após o atendimento.", language)}</p></div></div></div>
     <CheckoutOptions extras={extras} setExtras={props.setBookingExtras} isMassage={massage} favorites={props.favorites} selectedProfessional={p.id} />
     <h3 className="mb-3 mt-6 font-display text-xl">{translateUi("Forma de pagamento", language)}</h3>
-    <HybridCheckout total={total} method={method} setMethod={props.setPayment} txid={txid} onWalletChange={setWallet} />
+    <HybridCheckout total={total} method={method} setMethod={props.setPayment} txid={txid} onWalletChange={setWallet} onAutoPaid={markPaid} />
     <div className="mt-6 space-y-1 border-t border-border pt-4 text-xs"><div className="flex justify-between"><span>{translateUi("Serviço", language)}</span><span>{translateUi(money(p.price), language)}</span></div>{translateUi(urgent && <div className="flex justify-between"><span>{translateUi("Adicional de Urgência (&lt;12h)", language)}</span><span>{translateUi("+ R$ 15,00", language)}</span></div>, language)}{translateUi(massage && extras.hasTable && <div className="flex justify-between text-success"><span>{translateUi("Maca no local", language)}</span><span>{translateUi("− R$ 10,00", language)}</span></div>, language)}{translateUi(extras.useCredit && <div className="flex justify-between text-success"><span>{translateUi("Vale Presente / crédito BM", language)}</span><span>{translateUi("− R$ 20,00", language)}</span></div>, language)}</div>
     <div className="mt-5 flex items-end justify-between gap-3"><div><p className="text-xs text-muted-foreground">{translateUi("Total protegido", language)}</p><p className="font-display text-3xl">{translateUi(money(total), language)}</p></div><AppButton onClick={() => setPaid(true)} disabled={(extras.forOther && !extras.recipient.trim()) || (method === "solana" && !wallet)}>{translateUi(method === "solana" && !wallet ? "Conecte a carteira" : "Pagar com segurança", language)}</AppButton></div>
   </div>;

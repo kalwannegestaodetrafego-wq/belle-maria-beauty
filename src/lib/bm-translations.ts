@@ -2006,5 +2006,18 @@ export const translations: Record<string, readonly [string, string]> = {
   "Pagamento simulado para demonstração. Nenhuma cobrança real foi realizada.": ["Simulated payment for demonstration. No real charge was made.", "Pago simulado para demostración. No se realizó ningún cargo real."],
   "Acompanhar atendimento": ["Track appointment", "Seguir la cita"],
   "QR Code Pix": ["Pix QR Code", "Código QR Pix"],
-  "QR Code Solana Pay": ["Solana Pay QR Code", "Código QR Solana Pay"]
+  "QR Code Solana Pay": ["Solana Pay QR Code", "Código QR Solana Pay"],
+  "CEP, bairro ou cidade": ["ZIP, neighborhood or city", "CEP, barrio o ciudad"],
+  "Buscar local": ["Search location", "Buscar lugar"],
+  "Digite um CEP, bairro ou cidade.": ["Enter a ZIP, neighborhood or city.", "Escribe un CEP, barrio o ciudad."],
+  "Local não encontrado.": ["Location not found.", "Lugar no encontrado."],
+  "Não foi possível buscar agora.": ["Couldn't search right now.", "No fue posible buscar ahora."],
+  "Sua localização atual (GPS)": ["Your current location (GPS)", "Tu ubicación actual (GPS)"],
+  "Visão em Lista": ["List View", "Vista en Lista"],
+  "Visão no Mapa": ["Map View", "Vista en Mapa"],
+  "Salão": ["Salon", "Salón"],
+  "a {0} km de você": ["{0} km from you", "a {0} km de ti"],
+  "Use a bússola ou busque um local para ver as distâncias.": ["Use the compass or search a location to see distances.", "Usa la brújula o busca un lugar para ver las distancias."],
+  "Pix dinâmico · Asaas": ["Dynamic Pix · Asaas", "Pix dinámico · Asaas"],
+  "Confirmação automática ativada: aguardando pagamento…": ["Automatic confirmation on: waiting for payment…", "Confirmación automática activa: esperando el pago…"]
 };
