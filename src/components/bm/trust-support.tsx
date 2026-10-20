@@ -76,6 +76,7 @@ export function FaceVerification({ className = "" }: { className?: string }) {
   useEffect(() => {
     if (stage === "center") { const t = setTimeout(() => setStage("validating"), 2200); return () => clearTimeout(t); }
     if (stage === "validating") { const t = setTimeout(() => setStage("done"), 2800); return () => clearTimeout(t); }
+    return undefined;
   }, [stage]);
   const label = { idle: "Toque em iniciar para a captura facial.", center: "Centralize seu rosto no círculo", validating: "Aguarde a validação biométrica...", done: "Conta Verificada com Sucesso" }[stage];
   return <section className={`rounded-lg border border-primary/40 bg-card/85 p-5 shadow-card backdrop-blur ${className}`} aria-label={translateUi("Segurança e Verificação de Identidade", language)}>
