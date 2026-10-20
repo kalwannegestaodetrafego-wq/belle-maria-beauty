@@ -1,4 +1,5 @@
 import { LanguageSwitcher } from "../components/bm/language-switcher";
+import { InstallAppButton } from "../components/bm/install-app";
 import { translateUi, useLanguage } from "../lib/bm-i18n";
 import { createFileRoute } from "@tanstack/react-router";
 import {
@@ -140,6 +141,7 @@ function Index() {
            <button type="button" onClick={() => setSecurityOpen(true)} className="mt-3 flex w-full items-center justify-between gap-3 rounded-lg border border-primary/30 bg-card/70 px-3 py-2 text-left shadow-soft backdrop-blur-xl transition-colors hover:bg-card">
              <span className="text-xs font-bold leading-5">{translateUi("A experiência dos melhores salões, no conforto do seu lar.", language)}</span><ShieldCheck size={18} className="shrink-0 text-success" />
            </button>
+           <InstallAppButton className="mt-2 w-full" />
           <div className="mt-3 flex items-center justify-between gap-3">
             <button className="flex min-w-0 items-center gap-2 text-left text-xs font-semibold"><MapPin size={15} className="shrink-0 text-primary" /><span className="truncate">{translateUi("Florianópolis, SC · Centro", language)}</span><ChevronRight size={14} /></button>
              <div className="flex shrink-0 items-center gap-1 text-[10px] font-bold text-success"><ShieldCheck size={14} />{translateUi(" Garantia BM & Verificação de Identidade", language)}</div>
