@@ -3,7 +3,7 @@ import { useState, type ReactNode } from "react";
 import {
   AlertTriangle, Armchair, Bus, Camera, Check, CheckCircle2, Clock3, FileCheck2, Fuel, Lightbulb, Megaphone, Send, ShieldCheck, Star, Upload, Users, X,
 } from "lucide-react";
-import { IdentityTrustCard } from "./trust-support";
+import { FaceVerification, IdentityTrustCard } from "./trust-support";
 import { supabase } from "@/integrations/supabase/client";
 import { requiredDocs, syncProfile, type AccountType, type DocKind } from "@/lib/bm-account";
 
@@ -102,7 +102,7 @@ export function AuthModal({ onClose, onProfessionalSignup }: { onClose: () => vo
     <button disabled={busy || !missing.every((k) => files[k])} onClick={async () => { setBusy(true); setError(""); try { await finishSync(missing); } catch (err) { setError(err instanceof Error ? err.message : "Falha no envio."); } finally { setBusy(false); } }} className={`${primary} mt-5 w-full`}>{translateUi(busy ? "Enviando…" : "Enviar documentos", language)}</button>
   </Sheet>;
 
-  if (result) return <Sheet title={translateUi("Tudo certo!", language)} eyebrow={translateUi("Conta BM", language)} onClose={onClose}><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-4 font-display text-2xl">{translateUi(result === "confirm" ? "Confirme seu e-mail" : mode === "login" ? "Bem-vinda de volta" : "Cadastro enviado", language)}</p><p className="mt-2 text-sm text-muted-foreground">{translateUi(result === "confirm" ? "Enviamos um link de confirmação. Depois de confirmar, entre na sua conta para enviar a selfie e os documentos." : "Seu perfil e documentos foram salvos. Nossa equipe valida em até 24h.", language)}</p><button onClick={mode === "signup" && tab === "Profissional Beleza" && onProfessionalSignup ? onProfessionalSignup : onClose} className={`${primary} mt-6 w-full`}>{translateUi(mode === "signup" && tab === "Profissional Beleza" ? "Iniciar minicurso de boas-vindas" : "Continuar", language)}</button></div></Sheet>;
+  if (result) return <Sheet title={translateUi("Tudo certo!", language)} eyebrow={translateUi("Conta BM", language)} onClose={onClose}><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-4 font-display text-2xl">{translateUi(result === "confirm" ? "Confirme seu e-mail" : mode === "login" ? "Bem-vinda de volta" : "Cadastro enviado", language)}</p><p className="mt-2 text-sm text-muted-foreground">{translateUi(result === "confirm" ? "Enviamos um link de confirmação. Depois de confirmar, entre na sua conta para enviar a selfie e os documentos." : "Seu perfil e documentos foram salvos. Nossa equipe valida em até 24h.", language)}</p><button onClick={mode === "signup" && tab === "Profissional Beleza" && onProfessionalSignup ? onProfessionalSignup : onClose} className={`${primary} mt-6 w-full`}>{translateUi(mode === "signup" && tab === "Profissional Beleza" ? "Iniciar minicurso de boas-vindas" : "Continuar", language)}</button></div><FaceVerification className="mt-6" /></Sheet>;
 
   return <Sheet title={translateUi(mode === "signup" ? "Criar conta" : "Entrar", language)} eyebrow={translateUi("Acesso BM", language)} onClose={onClose}>
     <IdentityTrustCard className="mb-5" />
