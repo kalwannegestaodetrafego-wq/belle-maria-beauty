@@ -3,6 +3,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { Check, CheckCircle2, Copy, Lock, Receipt, ShieldCheck, Timer, Wallet, Zap } from "lucide-react";
 import { translateUi, useLanguage } from "../../lib/bm-i18n";
 import { money } from "./booking-extras";
+import { SafetyReminder } from "./trust-support";
 import { createPixCharge, getPixStatus } from "../../lib/asaas.functions";
 
 export type HybridMethod = "pix" | "solana";
@@ -115,6 +116,7 @@ export function PaymentReceipt({ txid, method, wallet, total, professional, serv
       <p className="mt-4 border-t border-dashed border-border pt-3 text-[10px] text-muted-foreground">{translateUi("Pagamento simulado para demonstração. Nenhuma cobrança real foi realizada.", language)}</p>
     </div>
     <EscrowSeal />
+    <SafetyReminder className="mt-3" />
     <button type="button" onClick={onContinue} className="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-lg bg-primary text-sm font-semibold text-primary-foreground shadow-luxe">{translateUi("Acompanhar atendimento", language)}</button>
   </div>;
 }
