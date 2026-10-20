@@ -2019,5 +2019,22 @@ export const translations: Record<string, readonly [string, string]> = {
   "a {0} km de você": ["{0} km from you", "a {0} km de ti"],
   "Use a bússola ou busque um local para ver as distâncias.": ["Use the compass or search a location to see distances.", "Usa la brújula o busca un lugar para ver las distancias."],
   "Pix dinâmico · Asaas": ["Dynamic Pix · Asaas", "Pix dinámico · Asaas"],
-  "Confirmação automática ativada: aguardando pagamento…": ["Automatic confirmation on: waiting for payment…", "Confirmación automática activa: esperando el pago…"]
+  "Confirmação automática ativada: aguardando pagamento…": ["Automatic confirmation on: waiting for payment…", "Confirmación automática activa: esperando el pago…"],
+  "Identidade Verificada BM": ["BM Verified Identity", "Identidad Verificada BM"],
+  "Este profissional passou pela verificação biométrica e facial de segurança da plataforma.": ["This professional has passed the platform's biometric and facial security verification.", "Este profesional pasó la verificación biométrica y facial de seguridad de la plataforma."],
+  "Documento de identidade conferido": ["ID document checked", "Documento de identidad verificado"],
+  "Selfie comparada à foto do documento": ["Selfie matched to ID photo", "Selfie comparada con la foto del documento"],
+  "Dados protegidos conforme a LGPD": ["Data protected under LGPD", "Datos protegidos según la LGPD"],
+  "Perfil demonstrativo: selo ilustrativo nesta versão.": ["Demo profile: illustrative badge in this version.", "Perfil demostrativo: sello ilustrativo en esta versión."],
+  "Segurança e Verificação de Identidade": ["Security & Identity Verification", "Seguridad y Verificación de Identidad"],
+  "Selfie Match / Biometria · simulação": ["Selfie Match / Biometrics · simulation", "Selfie Match / Biometría · simulación"],
+  "Toque em iniciar para a captura facial.": ["Tap start for the face capture.", "Toca iniciar para la captura facial."],
+  "Centralize seu rosto no círculo": ["Center your face in the circle", "Centra tu rostro en el círculo"],
+  "Aguarde a validação biométrica...": ["Please wait for biometric validation...", "Espera la validación biométrica..."],
+  "Conta Verificada com Sucesso": ["Account Successfully Verified", "Cuenta Verificada con Éxito"],
+  "Iniciar captura facial": ["Start face capture", "Iniciar captura facial"],
+  "Capturando…": ["Capturing…", "Capturando…"],
+  "Captura simulada: nenhuma imagem é gravada nesta etapa.": ["Simulated capture: no image is stored in this step.", "Captura simulada: no se guarda ninguna imagen en este paso."],
+  "Atendimento seguro:": ["Safe appointment:", "Atención segura:"],
+  "Ambos os lados possuem verificação de identidade ativa na plataforma.": ["Both sides have active identity verification on the platform.", "Ambas partes tienen verificación de identidad activa en la plataforma."]
 };
