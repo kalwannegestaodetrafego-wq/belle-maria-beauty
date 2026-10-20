@@ -1,6 +1,8 @@
 import { translateUi, useLanguage } from "../../lib/bm-i18n";
-import { useState } from "react";
-import { CheckCircle2, Coins, Link2, Lock, MapPin, Navigation, Search, Wallet } from "lucide-react";
+import { lazy, Suspense, useState } from "react";
+import { ClientOnly } from "@tanstack/react-router";
+import { distanceKm, formatKm, places, type LatLng } from "../../lib/bm-places";
+import { CheckCircle2, Coins, Link2, Compass, List, Lock, Map as MapIcon, MapPin, Search, Wallet } from "lucide-react";
 
 const btn = "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-all active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-45";
 const primary = `${btn} bg-primary text-primary-foreground shadow-luxe hover:bg-primary/90`;
@@ -41,46 +43,53 @@ export function SolanaPointsHub() {
   </div>;
 }
 
-/* ---------- Localização: CEP + distância (pronto para Google Maps) ---------- */
-const providers = [{ name: "Camila Silva", lat: -27.5935, lng: -48.5402 }, { name: "Studio Bella · Agronômica", lat: -27.5779, lng: -48.5321 }, { name: "Juliana Costa", lat: -27.6011, lng: -48.5195 }];
-function km(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
-  const r = (d: number) => (d * Math.PI) / 180;
-  const h = Math.sin(r(b.lat - a.lat) / 2) ** 2 + Math.cos(r(a.lat)) * Math.cos(r(b.lat)) * Math.sin(r(b.lng - a.lng) / 2) ** 2;
-  return 6371 * 2 * Math.asin(Math.sqrt(h));
-}
+/* ---------- Localização: GPS, CEP/bairro/cidade, lista e mapa ---------- */
+const PlacesMap = lazy(() => import("./places-map"));
 
 export function LocationPanel() {
   const { language, locale } = useLanguage();
-  const [cep, setCep] = useState("");
+  const [query, setQuery] = useState("");
   const [address, setAddress] = useState<string | null>(null);
-  const [pos, setPos] = useState<{ lat: number; lng: number } | null>(null);
+  const [pos, setPos] = useState<LatLng | null>(null);
   const [msg, setMsg] = useState("");
+  const [view, setView] = useState<"list" | "map">("list");
 
-  const searchCep = async () => {
-    const clean = cep.replace(/\D/g, "");
-    if (clean.length !== 8) { setMsg("Digite um CEP com 8 números."); return; }
+  const search = async () => {
+    const q = query.trim();
+    if (q.length < 3) { setMsg("Digite um CEP, bairro ou cidade."); return; }
     setMsg("Buscando…");
     try {
-      const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
-      const d = await res.json();
-      if (d.erro) { setMsg("CEP não encontrado."); return; }
-      setAddress(`${d.logradouro || "Endereço"} · ${d.bairro || ""} · ${d.localidade}/${d.uf}`);
-      setPos((p) => p ?? { lat: -27.5949, lng: -48.5482 });
+      let text = q;
+      const cep = q.replace(/\D/g, "");
+      if (/^\d{5}-?\d{3}$/.test(q)) {
+        const d = await (await fetch(`https://viacep.com.br/ws/${cep}/json/`)).json();
+        if (d.erro) { setMsg("CEP não encontrado."); return; }
+        text = `${d.logradouro ? d.logradouro + ", " : ""}${d.bairro ? d.bairro + ", " : ""}${d.localidade} - ${d.uf}`;
+      }
+      const r = await (await fetch(`https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=br&q=${encodeURIComponent(text)}`)).json();
+      if (!r[0]) { setMsg("Local não encontrado."); return; }
+      setPos({ lat: Number(r[0].lat), lng: Number(r[0].lon) });
+      setAddress(text);
       setMsg("");
-    } catch { setMsg("Não foi possível buscar o CEP agora."); }
+    } catch { setMsg("Não foi possível buscar agora."); }
   };
   const locate = () => {
     if (!navigator.geolocation) { setMsg("Localização indisponível neste aparelho."); return; }
     setMsg("Localizando…");
-    navigator.geolocation.getCurrentPosition((p) => { setPos({ lat: p.coords.latitude, lng: p.coords.longitude }); setMsg(""); }, () => setMsg("Permissão de localização negada."));
+    navigator.geolocation.getCurrentPosition((p) => { setPos({ lat: p.coords.latitude, lng: p.coords.longitude }); setAddress("Sua localização atual (GPS)"); setMsg(""); }, () => setMsg("Permissão de localização negada."), { enableHighAccuracy: true, timeout: 10000 });
   };
+  const items = places.map((p) => ({ ...p, d: pos ? distanceKm(pos, p) : null })).sort((a, b) => (a.d ?? 0) - (b.d ?? 0));
 
   return <div className={`${card} mt-6`}>
     <h2 className="flex items-center gap-2 font-display text-2xl"><MapPin size={20} className="text-primary" />{translateUi(" Sua localização", language)}</h2>
-    <div className="mt-4 flex gap-2"><input value={cep} inputMode="numeric" placeholder={translateUi("CEP (ex. 88015-000)", language)} onChange={(e) => setCep(e.target.value.replace(/[^\d-]/g, "").slice(0, 9))} className="h-11 min-w-0 flex-1 rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-primary" /><button type="button" onClick={searchCep} className={primary} aria-label={translateUi("Buscar CEP", language)}><Search size={16} /></button><button type="button" onClick={locate} className={outline} aria-label={translateUi("Usar minha localização", language)}><Navigation size={16} /></button></div>
-    {translateUi(msg && <p className="mt-2 text-xs text-muted-foreground">{translateUi(msg, language)}</p>, language)}
-    {translateUi(address && <p className="mt-2 text-xs font-semibold">{translateUi(address, language)}</p>, language)}
-    <div className="mt-3 flex h-28 items-center justify-center rounded-lg border border-dashed border-primary/50 bg-secondary/40 text-center text-xs text-muted-foreground">{translateUi("Mapa do Google será exibido aqui", language)}<br />{translateUi("quando a chave do Google Maps for conectada.", language)}</div>
-    {translateUi(pos && <div className="mt-3 space-y-1.5">{translateUi(providers.map((p) => ({ ...p, d: km(pos, p) })).sort((a, b) => a.d - b.d).map((p) => <div key={p.name} className="flex justify-between rounded-lg bg-background px-3 py-2 text-xs"><span className="font-semibold">{translateUi(p.name, language)}</span><span className="font-bold text-primary">{translateUi(p.d.toFixed(1), language)}{translateUi(" km", language)}</span></div>), language)}<p className="text-[10px] text-muted-foreground">{translateUi("Distância em linha reta, aproximada.", language)}</p></div>, language)}
+    <div className="mt-4 flex gap-2"><input value={query} placeholder={translateUi("CEP, bairro ou cidade", language)} onKeyDown={(e) => e.key === "Enter" && search()} onChange={(e) => setQuery(e.target.value.slice(0, 100))} className="h-11 min-w-0 flex-1 rounded-lg border border-border bg-card px-3 text-sm outline-none focus:border-primary" /><button type="button" onClick={search} className={primary} aria-label={translateUi("Buscar local", language)}><Search size={16} /></button><button type="button" onClick={locate} className={outline} aria-label={translateUi("Usar minha localização", language)}><Compass size={16} /></button></div>
+    {msg && <p className="mt-2 text-xs text-muted-foreground">{translateUi(msg, language)}</p>}
+    {address && <p className="mt-2 text-xs font-semibold">{translateUi(address, language)}</p>}
+    <div role="tablist" className="mt-4 grid grid-cols-2 gap-1 rounded-lg border border-border bg-background p-1">
+      {([["list", "Visão em Lista", List], ["map", "Visão no Mapa", MapIcon]] as const).map(([id, label, Icon]) => <button key={id} role="tab" type="button" aria-selected={view === id} onClick={() => setView(id)} className={`flex min-h-10 items-center justify-center gap-2 rounded-md text-xs font-bold ${view === id ? "bg-foreground text-background" : "text-muted-foreground"}`}><Icon size={14} />{translateUi(label, language)}</button>)}
+    </div>
+    {view === "map" ? <div className="mt-3"><ClientOnly fallback={<div className="h-72 rounded-lg bg-secondary/40" />}><Suspense fallback={<div className="h-72 rounded-lg bg-secondary/40" />}><PlacesMap items={items} user={pos} /></Suspense></ClientOnly></div>
+      : <div className="mt-3 space-y-2">{items.map((p) => <div key={p.id} className="flex items-center justify-between gap-3 rounded-lg bg-background px-3 py-2.5 text-xs"><div><p className="font-semibold">{p.name}</p><p className="text-muted-foreground">{translateUi(p.kind, language)} · {p.area}</p></div><span className="shrink-0 font-bold text-primary">{p.d !== null ? translateUi(`a ${formatKm(p.d, locale)} km de você`, language) : "—"}</span></div>)}{!pos && <p className="text-[10px] text-muted-foreground">{translateUi("Use a bússola ou busque um local para ver as distâncias.", language)}</p>}</div>}
+    {pos && <p className="mt-2 text-[10px] text-muted-foreground">{translateUi("Distância em linha reta, aproximada.", language)}</p>}
   </div>;
 }
