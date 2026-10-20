@@ -2061,5 +2061,15 @@ export const translations: Record<string, readonly [string, string]> = {
   "Avaliação enviada": ["Review sent", "Reseña enviada"],
   "Avaliar Profissional": ["Rate Professional", "Calificar Profesional"],
   "A avaliação é liberada após a conclusão do atendimento.": ["Reviews unlock after the appointment is completed.", "La reseña se habilita tras completar la atención."],
-  "Maquiagem Noiva": ["Bridal Makeup", "Maquillaje de Novia"]
+  "Maquiagem Noiva": ["Bridal Makeup", "Maquillaje de Novia"],
+  "Falar com o Suporte no WhatsApp": ["Chat with BM Support on WhatsApp", "Hablar con Soporte BM por WhatsApp"],
+  "Garantia BM (Custódia/Escrow)": ["BM Guarantee (Custody/Escrow)", "Garantía BM (Custodia/Escrow)"],
+  "O valor do pagamento fica retido em caução de proteção (escrow) e só é pago à profissional após a cliente digitar o PIN de segurança no fim do atendimento. Se algo der errado, abra uma disputa e a BM medeia com o valor ainda protegido.": ["The payment amount is held in a protective deposit (escrow) and is only paid to the professional after the client enters the safety PIN at the end of the service. If something goes wrong, open a dispute and BM mediates while the amount remains protected.", "El importe del pago queda retenido como caución de protección (escrow) y solo se paga a la profesional después de que la clienta digite el PIN de seguridad al final de la atención. Si algo sale mal, abra una disputa y BM media con el importe aún protegido."],
+  "Política de Cancelamento": ["Cancellation Policy", "Política de Cancelamiento"],
+  "Cancelamento gratuito até 2 horas antes do horário marcado. Cancelamentos com menos de 2 horas de antecedência podem reter parte do valor conforme a política da profissional.": ["Free cancellation up to 2 hours before the scheduled time. Cancellations made less than 2 hours in advance may retain part of the amount according to the professional's policy.", "Cancelación gratuita hasta 2 horas antes del horario marcado. Cancelaciones con menos de 2 horas de antelación pueden retener parte del importe según la política de la profesional."],
+  "Regra de No-Show": ["No-Show Policy", "Regla de Inasistencia (No-Show)"],
+  "Se a cliente não comparecer ao atendimento, 50% da taxa de reserva é repassada à profissional.": ["If the client does not show up for the appointment, 50% of the booking fee is paid to the professional.", "Si la clienta no se presenta a la atención, el 50% de la tarifa de reserva se paga a la profesional."],
+  "LinkedIn oficial da BM": ["BM official LinkedIn", "LinkedIn oficial de BM"],
+  "X (Twitter) oficial da BM": ["BM official X (Twitter)", "X (Twitter) oficial de BM"],
+  "© 2026 Belle Maria Beauty — O dApp pioneiro em agendamentos de beleza com Solana Pay e Pix.": ["© 2026 Belle Maria Beauty — The pioneering dApp for beauty appointments with Solana Pay and Pix.", "© 2026 Belle Maria Beauty — El dApp pionero en citas de belleza con Solana Pay y Pix."]
 };
