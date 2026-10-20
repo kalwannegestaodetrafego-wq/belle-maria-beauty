@@ -4,9 +4,9 @@ import { z } from "zod";
 // Asaas Pix integration. Without ASAAS_API_KEY the checkout falls back to the static test Pix.
 // Optional: ASAAS_ENV=production (default sandbox), ASAAS_CUSTOMER_ID (customer charged in demo bookings).
 function config() {
-  const key = process.env.ASAAS_API_KEY;
-  const base = process.env.ASAAS_ENV === "production" ? "https://api.asaas.com/v3" : "https://api-sandbox.asaas.com/v3";
-  return { key, base, customer: process.env.ASAAS_CUSTOMER_ID };
+  const key = process.env['ASAAS_API_KEY'];
+  const base = process.env['ASAAS_ENV'] === "production" ? "https://api.asaas.com/v3" : "https://api-sandbox.asaas.com/v3";
+  return { key, base, customer: process.env['ASAAS_CUSTOMER_ID'] };
 }
 async function asaas(path: string, key: string, base: string, init?: RequestInit) {
   const res = await fetch(`${base}${path}`, { ...init, headers: { "Content-Type": "application/json", access_token: key, "User-Agent": "BM", ...(init?.headers ?? {}) } });
