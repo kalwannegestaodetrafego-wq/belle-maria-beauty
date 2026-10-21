@@ -1,9 +1,10 @@
 import { translateUi, useLanguage } from "../../lib/bm-i18n";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   AlertTriangle, Armchair, Bus, Camera, Check, CheckCircle2, Clock3, FileCheck2, Fuel, Lightbulb, Megaphone, Send, ShieldCheck, Star, Upload, Users, X,
 } from "lucide-react";
-import { FaceVerification, IdentityTrustCard } from "./trust-support";
+import { IdentityTrustCard } from "./trust-support";
+import { IdentitySubmissionConfirmation, IdentityVerification } from "./identity-verification";
 import { supabase } from "@/integrations/supabase/client";
 import { requiredDocs, syncProfile, type AccountType, type DocKind } from "@/lib/bm-account";
 import { connectSocial, createReview } from "@/lib/bm-store";
@@ -60,17 +61,36 @@ export function AuthModal({ onClose, onProfessionalSignup }: { onClose: () => vo
   const [files, setFiles] = useState<Partial<Record<DocKind, File>>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const [result, setResult] = useState<null | "confirm" | "ok" | "docs">(null);
+  const [result, setResult] = useState<null | "confirm" | "ok" | "docs" | "review">(null);
   const [missing, setMissing] = useState<DocKind[]>([]);
   const accountType: AccountType = tab === "Cliente" ? "cliente" : tab === "Profissional Beleza" ? "profissional" : "salao";
   const setFile = (k: DocKind) => (f: File) => setFiles((u) => ({ ...u, [k]: f }));
   const needed = requiredDocs(accountType);
   const requiredUploadsComplete = mode === "login" || needed.every((k) => files[k]);
 
+  useEffect(() => {
+    let active = true;
+    void (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user || !active) return;
+      const { data: profile } = await supabase.from("profiles").select("account_type, selfie_path, identity_doc_path, verification_status").eq("id", user.id).maybeSingle();
+      if (!active) return;
+      const type = profile?.account_type ?? user.user_metadata?.["account_type"] ?? "cliente";
+      setTab(type === "profissional" ? "Profissional Beleza" : type === "salao" ? "Salão Parceiro" : "Cliente");
+      if (type === "profissional" && profile?.verification_status === "PENDENTE_ANALISE") { setResult("review"); return; }
+      const req = requiredDocs(type);
+      const absent = req.filter((kind) => kind === "selfie" ? !profile?.selfie_path : !profile?.identity_doc_path);
+      setMissing(absent); setResult(absent.length ? "docs" : "ok");
+    })();
+    return () => { active = false; };
+  }, []);
+
   const finishSync = async (req: DocKind[]) => {
     const left = await syncProfile(files, req);
     setMissing(left);
-    setResult(left.length ? "docs" : "ok");
+    const { data: { user } } = await supabase.auth.getUser();
+    const { data: profile } = user ? await supabase.from("profiles").select("verification_status").eq("id", user.id).maybeSingle() : { data: null };
+    setResult(left.length ? "docs" : profile?.verification_status === "PENDENTE_ANALISE" ? "review" : "ok");
   };
 
   const social = async (provider: "google" | "lovable") => {
@@ -108,12 +128,13 @@ export function AuthModal({ onClose, onProfessionalSignup }: { onClose: () => vo
 
   if (result === "docs") return <Sheet title={translateUi("Envie seus documentos", language)} eyebrow={translateUi("Verificação BM", language)} onClose={onClose}>
     <p className="text-sm text-muted-foreground">{translateUi("Para concluir a verificação, envie os arquivos abaixo. Eles ficam em área privada, acessível só por você.", language)}</p>
-    <div className="mt-4 space-y-3">{translateUi(missing.map((k) => <FileBox key={k} label={translateUi(docLabel[k], language)} file={files[k]} onFile={setFile(k)} icon={k === "selfie" ? <Camera size={18} /> : <FileCheck2 size={18} />} />), language)}</div>
+    <div className="mt-4 space-y-3">{translateUi(missing.map((k) => <FileBox key={k} label={translateUi(k === "identity" && tab === "Profissional Beleza" ? "Documento de identidade (RG/CNH)" : docLabel[k], language)} file={files[k]} onFile={setFile(k)} icon={k === "selfie" ? <Camera size={18} /> : <FileCheck2 size={18} />} />), language)}</div>
     {translateUi(error && <p className="mt-3 text-xs font-semibold text-destructive">{translateUi(error, language)}</p>, language)}
     <button disabled={busy || !missing.every((k) => files[k])} onClick={async () => { setBusy(true); setError(""); try { await finishSync(missing); } catch (err) { setError(err instanceof Error ? err.message : "Falha no envio."); } finally { setBusy(false); } }} className={`${primary} mt-5 w-full`}>{translateUi(busy ? "Enviando…" : "Enviar documentos", language)}</button>
   </Sheet>;
 
-  if (result) return <Sheet title={translateUi("Tudo certo!", language)} eyebrow={translateUi("Conta BM", language)} onClose={onClose}><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-4 font-display text-2xl">{translateUi(result === "confirm" ? "Confirme seu e-mail" : mode === "login" ? "Bem-vinda de volta" : "Cadastro enviado", language)}</p><p className="mt-2 text-sm text-muted-foreground">{translateUi(result === "confirm" ? "Enviamos um link de confirmação. Depois de confirmar, entre na sua conta para enviar a selfie e os documentos." : "Seu perfil e documentos foram salvos. Nossa equipe valida em até 24h.", language)}</p><button onClick={mode === "signup" && tab === "Profissional Beleza" && onProfessionalSignup ? onProfessionalSignup : onClose} className={`${primary} mt-6 w-full`}>{translateUi(mode === "signup" && tab === "Profissional Beleza" ? "Iniciar minicurso de boas-vindas" : "Continuar", language)}</button></div><FaceVerification className="mt-6" /></Sheet>;
+  if (result === "review") return <Sheet title={translateUi("Verificação BM", language)} onClose={onClose}><IdentitySubmissionConfirmation /><button onClick={onClose} className={`${primary} mt-4 w-full`}>{translateUi("Continuar", language)}</button></Sheet>;
+  if (result) return <Sheet title={translateUi("Tudo certo!", language)} eyebrow={translateUi("Conta BM", language)} onClose={onClose}><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-4 font-display text-2xl">{translateUi(result === "confirm" ? "Confirme seu e-mail" : mode === "login" ? "Bem-vinda de volta" : "Cadastro enviado", language)}</p><p className="mt-2 text-sm text-muted-foreground">{translateUi(result === "confirm" ? "Enviamos um link de confirmação. Depois de confirmar, entre na sua conta para enviar a selfie e os documentos." : "Seu perfil e documentos foram salvos. Nossa equipe valida em até 24h.", language)}</p><button onClick={mode === "signup" && tab === "Profissional Beleza" && onProfessionalSignup ? onProfessionalSignup : onClose} className={`${primary} mt-6 w-full`}>{translateUi(mode === "signup" && tab === "Profissional Beleza" ? "Iniciar minicurso de boas-vindas" : "Continuar", language)}</button></div></Sheet>;
 
   return <Sheet title={translateUi(mode === "signup" ? "Criar conta" : "Entrar", language)} eyebrow={translateUi("Acesso BM", language)} onClose={onClose}>
     <IdentityTrustCard className="mb-5" />
@@ -211,15 +232,7 @@ export function ReviewModal({ name, onClose, bookingId, onSaved }: { name: strin
 
 /* ---------- Professional extras ---------- */
 export function OnboardingBanner() {
-  const { language, locale } = useLanguage();
-  const [docs, setDocs] = useState<Record<string, boolean>>({});
-  const items = ["Documento de identidade (RG/CNH)", "Selfie de segurança"];
-  const count = items.filter((i) => docs[i]).length;
-  return <div className="mt-6 rounded-lg border border-primary/40 bg-card/85 p-4 shadow-soft backdrop-blur">
-    <div className="flex items-center justify-between"><p className="flex items-center gap-2 text-sm font-bold"><ShieldCheck size={17} className="text-success" />{translateUi(" Verificação de perfil", language)}</p><span className="text-xs font-bold text-primary">{translateUi(count, language)}{translateUi("/", language)}{translateUi(items.length, language)}</span></div>
-    <div className="mt-3 h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-success transition-all" style={{ width: `${(count / items.length) * 100}%` }} /></div>
-    <div className="mt-3 space-y-2">{translateUi(items.map((i) => <UploadBox key={i} label={translateUi(i, language)} done={!!docs[i]} onClick={() => setDocs((d) => ({ ...d, [i]: true }))} />), language)}</div>
-  </div>;
+  return <IdentityVerification />;
 }
 
 export function TravelTipModal({ onClose }: { onClose: () => void }) {
