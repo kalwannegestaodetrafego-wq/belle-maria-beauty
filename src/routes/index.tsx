@@ -137,7 +137,7 @@ function Index() {
 
   const filtered = useMemo(() => professionals.filter((p) => (category === "Para você" || category.startsWith(p.category) || category.startsWith("Cabelo") && p.id === "camila" || category === "Casamentos & Noivas" && p.id === "camila" || category === "Eventos" && p.id === "camila" || category === "Combos VIP" || category === "Clube BM" || category === "Vale Presente") && (mode === "Em Domicílio" ? p.atHome : !p.atHome)), [category, mode]);
 
-  const latest = liveBooking ?? myBookings[0] ?? null;
+  const latest = myBookings[0] ?? liveBooking ?? null;
   const openProfile = (p: Professional) => { setSelected(p); setStep(0); };
   const openAgenda = () => {
     const firstProfessional = professionals.at(0);
