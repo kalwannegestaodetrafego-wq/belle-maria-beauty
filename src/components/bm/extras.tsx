@@ -1,4 +1,5 @@
 import { translateUi, useLanguage } from "../../lib/bm-i18n";
+import { QuickSupport } from "./post-service";
 import { useEffect, useState, type ReactNode } from "react";
 import {
   AlertTriangle, Armchair, Bus, Camera, Check, CheckCircle2, Clock3, FileCheck2, Fuel, Lightbulb, Megaphone, Send, ShieldCheck, Star, Upload, Users, X,
@@ -220,13 +221,14 @@ export function ReviewModal({ name, onClose, bookingId, onSaved }: { name: strin
     finally { setBusy(false); }
   };
   const all = ["Pontual", "Higienizado", "Simpática", "Resultado incrível"];
-  if (sent) return <Sheet title={translateUi("Obrigada!", language)} eyebrow={translateUi("Avaliação", language)} onClose={onClose} z="z-[70]"><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-3 text-sm text-muted-foreground">{translateUi("Sua avaliação ajuda a comunidade BM.", language)}</p><button onClick={onClose} className={`${primary} mt-6 w-full`}>{translateUi("Fechar", language)}</button></div></Sheet>;
+  if (sent) return <Sheet title={translateUi("Obrigada!", language)} eyebrow={translateUi("Avaliação", language)} onClose={onClose} z="z-[70]"><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-3 text-sm text-muted-foreground">{translateUi(stars >= 4 ? "Sua avaliação ajuda a comunidade BM." : "Seu comentário foi enviado em privado para a gestão BM.", language)}</p><QuickSupport role="client" bookingId={bookingId} /><button onClick={onClose} className={`${primary} mt-6 w-full`}>{translateUi("Fechar", language)}</button></div></Sheet>;
   return <Sheet title={translateUi(`Avaliar ${name}`, language)} eyebrow={translateUi("Pós-atendimento", language)} onClose={onClose} z="z-[70]">
     <div className="flex justify-center gap-2">{translateUi([1, 2, 3, 4, 5].map((n) => <button key={n} onClick={() => setStars(n)} aria-label={translateUi(`${n} estrelas`, language)}><Star size={34} className={n <= stars ? "fill-primary text-primary" : "text-border"} /></button>), language)}</div>
     <div className="mt-5 flex flex-wrap gap-2">{translateUi(all.map((t) => <button key={t} onClick={() => setTags((c) => c.includes(t) ? c.filter((x) => x !== t) : [...c, t])} className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${tags.includes(t) ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>{translateUi(t, language)}</button>), language)}</div>
     <textarea value={comment} onChange={(e) => setComment(e.target.value)} maxLength={500} placeholder={translateUi("Conte como foi sua experiência", language)} className="mt-4 h-24 w-full rounded-lg border border-border bg-card p-3 text-sm outline-none focus:border-primary" />
     <div className="mt-3"><UploadBox label={translateUi("Foto do resultado", language)} done={photo} onClick={() => setPhoto(true)} icon={<Camera size={18} />} /></div>
     {translateUi(error && <p className="mt-3 text-xs font-semibold text-destructive">{translateUi(error, language)}</p>, language)}
+    <p className="mt-3 text-[10px] text-muted-foreground">{translateUi("4–5 estrelas aparecem no perfil do profissional; 1–3 estrelas viram comentário privado para a gestão BM.", language)}</p>
     <button disabled={!stars || busy} onClick={() => { void send(); }} className={`${primary} mt-5 w-full`}>{translateUi(busy ? "Enviando…" : "Enviar avaliação", language)}</button>
   </Sheet>;
 }

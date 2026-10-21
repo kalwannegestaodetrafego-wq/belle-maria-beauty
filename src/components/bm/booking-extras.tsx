@@ -1,10 +1,11 @@
 import { translateUi, useLanguage } from "../../lib/bm-i18n";
+import { AddressPicker } from "./post-service";
 import { Check, Clock3, Gift, MapPin, Sparkles } from "lucide-react";
 import { Button } from "../ui/button";
 
-export type BookingExtras = { slots: string[]; hasTable: boolean; forOther: boolean; recipient: string; specialist: string; notes: string; useCredit: boolean };
+export type BookingExtras = { slots: string[]; hasTable: boolean; forOther: boolean; recipient: string; specialist: string; notes: string; address: string; useCredit: boolean };
 
-export const initialExtras: BookingExtras = { slots: [], hasTable: false, forOther: false, recipient: "", specialist: "", notes: "", useCredit: false };
+export const initialExtras: BookingExtras = { slots: [], hasTable: false, forOther: false, recipient: "", specialist: "", notes: "", address: "", useCredit: false };
 
 export function brazilDays(locale = "en-US") {
   const date = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Sao_Paulo", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
@@ -57,6 +58,7 @@ export function CheckoutOptions({ extras, setExtras, isMassage, favorites, selec
     <ToggleRow checked={extras.forOther} onChange={() => setExtras({ ...extras, forOther: !extras.forOther })} label={translateUi("Atendimento para outra pessoa (não sou o titular)", language)} />
     {translateUi(extras.forOther && <label className="mt-2 block text-xs font-semibold">{translateUi("Nome da pessoa atendida", language)}<input required value={extras.recipient} onChange={(e) => setExtras({ ...extras, recipient: e.target.value.slice(0, 80) })} className="mt-1.5 h-11 w-full rounded-md border border-border bg-card px-3 text-sm font-normal outline-none focus:border-primary" placeholder={translateUi("Nome completo", language)} /></label>, language)}
     <label className="mt-4 block text-xs font-semibold">{translateUi("Especialista Preferida", language)}<select value={extras.specialist} onChange={(e) => setExtras({ ...extras, specialist: e.target.value })} className="mt-1.5 h-11 w-full rounded-md border border-border bg-card px-3 text-sm font-normal outline-none focus:border-primary"><option value="">{translateUi("Sem preferência", language)}</option>{translateUi(favorites.map((favorite) => <option key={favorite.id} value={favorite.id}>{translateUi(favorite.name, language)}{translateUi(favorite.id === selectedProfessional ? " · selecionada" : "", language)}</option>), language)}</select>{translateUi(favorites.length === 0 && <span className="mt-1 block font-normal text-muted-foreground">{translateUi("Favorite uma profissional no catálogo para escolhê-la aqui.", language)}</span>, language)}{translateUi(extras.specialist && extras.specialist !== selectedProfessional && <span className="mt-1 block font-normal text-muted-foreground">{translateUi("Esta preferência será enviada no pedido; a especialista do serviço atual não muda automaticamente.", language)}</span>, language)}</label>
+    <AddressPicker value={extras.address} onChange={(address) => setExtras({ ...extras, address: address.slice(0, 160) })} />
     <label className="mt-4 block text-xs font-semibold"><span className="flex items-center gap-1"><MapPin size={14} />{translateUi(" Observações do Local & Ponto de Referência", language)}</span><textarea value={extras.notes} onChange={(e) => setExtras({ ...extras, notes: e.target.value.slice(0, 400) })} maxLength={400} className="mt-1.5 min-h-20 w-full rounded-md border border-border bg-card p-3 text-sm font-normal outline-none focus:border-primary" placeholder={translateUi("Portaria, bloco, acesso ou instruções importantes", language)} /></label>
     <div className="mt-4 border-t border-border pt-3"><ToggleRow checked={extras.useCredit} onChange={() => setExtras({ ...extras, useCredit: !extras.useCredit })} label={translateUi("Usar Vale Presente / crédito BM", language)} hint="Crédito demonstrativo de R$ 20,00 aplicado ao total desta reserva." /></div>
     {translateUi(extras.useCredit && <p className="flex items-center gap-2 text-xs font-semibold text-success"><Gift size={15} />{translateUi(" − R$ 20,00 em crédito aplicado", language)}</p>, language)}

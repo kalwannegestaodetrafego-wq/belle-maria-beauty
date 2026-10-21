@@ -3,6 +3,7 @@ import { CalendarCheck2, CheckCircle2, Clock3, Lock, Pencil, Plus, Save, Star, W
 import { translateUi, useLanguage } from "../../lib/bm-i18n";
 import { money } from "./booking-extras";
 import { ReviewModal } from "./extras";
+import { ProPostService } from "./post-service";
 import { createService, fromCents, listReviews, listServices, updateService, useBmSession } from "../../lib/bm-store";
 
 export type Appointment = { id: string; client: string; service: string; when: string; value: number; group: "today" | "upcoming" | "done" };
@@ -89,14 +90,15 @@ export function EarningsStatement({ escrow, available, withdrawn, saved = false,
   </section>;
 }
 
-export function ReleaseSuccess({ amount, onClose }: { amount: number; onClose: () => void }) {
+export function ReleaseSuccess({ amount, onClose, bookingId }: { amount: number; onClose: () => void; bookingId?: string | undefined }) {
   const { language } = useLanguage();
   return <div className="fixed inset-0 z-[80] flex items-center justify-center bg-overlay/60 p-6 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label={translateUi("Atendimento concluído!", language)}>
-    <div className="w-full max-w-sm animate-in zoom-in-90 fade-in rounded-2xl bg-background p-6 text-center shadow-modal duration-300">
+    <div className="max-h-[92vh] w-full max-w-sm overflow-y-auto animate-in zoom-in-90 fade-in rounded-2xl bg-background p-6 text-center shadow-modal duration-300">
       <span className="relative mx-auto flex h-20 w-20 items-center justify-center"><span className="absolute inset-0 animate-ping rounded-full bg-success/40" /><span className="relative flex h-20 w-20 items-center justify-center rounded-full bg-success text-success-foreground"><CheckCircle2 size={40} /></span></span>
       <h2 className="mt-5 font-display text-3xl">{translateUi("Atendimento concluído!", language)}</h2>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">{translateUi("Valor liberado da Garantia BM para o extrato do profissional.", language)}</p>
       <p className="mt-3 font-display text-2xl text-success">+ {money(amount)}</p>
+      <ProPostService bookingId={bookingId} />
       <button type="button" onClick={onClose} className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-primary text-sm font-bold text-primary-foreground">{translateUi("Ver extrato", language)}</button>
     </div>
   </div>;
