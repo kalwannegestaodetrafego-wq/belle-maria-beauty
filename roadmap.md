@@ -1,7 +1,8 @@
 # Roadmap BM
 
-- [ ] Criar /admin exclusivo da gestora com revisão de documentos, decisões e custódia simulada
-- [ ] Validar permissões, documentos privados e decisões persistidas
+- [x] Criar /admin exclusivo da gestora com revisão de documentos, decisões e custódia simulada
+- [x] Validar bloqueio de visitantes/contas comuns e impedir autoaprovação
+- [ ] Validar documentos e decisões pelo painel como gestora — depende do cadastro e confirmação de kalwannegestaodetrafego@gmail.com
 
 - [x] Substituir captura simulada por envio privado de RG/CNH e selfie, salvar PENDENTE_ANALISE e validar confirmação após recarregar
 

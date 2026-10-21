@@ -22,7 +22,10 @@ export const getAdminPanel = createServerFn({ method: "POST" }).middleware([requ
       if (!path || !path.startsWith(`${profile.id}/`)) return null;
       const { data, error } = await supabaseAdmin.storage.from("selfies").createSignedUrl(path, 300);
       if (error) throw new Error("Não foi possível abrir os documentos.");
-      return { url: data.signedUrl, pdf: path.toLowerCase().endsWith(".pdf") };
+      const signed = new URL(data.signedUrl);
+      const browserBase = import.meta.env["VITE_SUPABASE_URL"];
+      if (!browserBase) throw new Error("Não foi possível abrir os documentos.");
+      return { url: `${browserBase.replace(/\/$/, "")}${signed.pathname}${signed.search}`, pdf: path.toLowerCase().endsWith(".pdf") };
     };
     const [identity, selfie] = await Promise.all([sign(profile.identity_doc_path), sign(profile.selfie_path)]);
     return { id: profile.id, name: profile.full_name, createdAt: profile.created_at, identity, selfie };
