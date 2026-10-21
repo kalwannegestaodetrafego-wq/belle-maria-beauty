@@ -255,6 +255,3 @@ export async function markNotificationsRead(): Promise<void> {
   const { error } = await supabase.from("notifications").update({ read: true }).eq("user_id", id).eq("read", false);
   if (error) throw error;
 }
-
-/** Ratings of 4–5 stars are public on the professional profile; 1–3 stay private for BM admin review. */
-export const reviewVisibility = (rating: number) => (rating >= 4 ? "public" : "private");
