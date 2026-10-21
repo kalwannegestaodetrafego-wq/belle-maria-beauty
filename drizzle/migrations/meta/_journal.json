@@ -15,6 +15,13 @@
       "when": 1791163359127,
       "tag": "0001_restrict_portfolio_reads_to_owner",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792547847322,
+      "tag": "0002_create_bm_booking_tables",
+      "breakpoints": true
     }
   ]
 }
