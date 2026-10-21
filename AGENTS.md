@@ -12,6 +12,8 @@
 - Persist accounts, profiles, portfolio items, verification files, bookings, services, reviews and wallet entries in Lovable Cloud with owner-scoped RLS on every public table and private selfies/portfolio buckets per user folder; Pix/Solana settlement, B2B inventory and points stay client-local simulation, so no screen may claim a real transfer.
 - Never label generated or demonstration photographs as verified authorial professional work; verification requires submitted real portfolio evidence.
 - Identity document submission uses the shared identity-verification UI and bm-account upload helper; persist private files before setting the pending-review status so failed uploads cannot show success.
+- Admin access is stored in user_roles and verified for every server request; identity and escrow decisions use role-checked transactional database functions and audited writes, with private signed document URLs issued only after authorization.
+- The confirmed designated manager email is provisioned through the auth confirmation trigger; never grant admin through client metadata or profile fields.
 - Keep the official BM support address centralized in the shared trust-support module so every help and incident surface stays consistent.
 - Localize BM presentation through the shared language context and translation dictionary, never translating stored identifiers or user-entered content; this preserves existing filters, bookings and account behavior across languages.
 - Keep the pitch source in an independent remotion/ package, outside the TanStack app graph; local Node rendering must not enter the Worker bundle.

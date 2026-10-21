@@ -33,7 +33,7 @@ export function SupportWidget() {
     <MessageCircle size={18} className="text-primary" />{translateUi(" Suporte BM ", language)}</a>;
 }
 
-export function VerifiedBadge({ name, className = "" }: { name?: string; className?: string }) {
+export function VerifiedBadge({ name, className = "", demo = true }: { name?: string; className?: string; demo?: boolean }) {
   const { language } = useLanguage();
   const [open, setOpen] = useState(false);
   return <>
@@ -42,9 +42,9 @@ export function VerifiedBadge({ name, className = "" }: { name?: string; classNa
       <span className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-success-soft text-success"><ShieldCheck size={32} /></span>
       <h3 className="mt-4 font-display text-2xl">{translateUi("Identidade Verificada BM", language)}</h3>
       {name && <p className="mt-1 text-sm font-semibold">{name}</p>}
-      <p className="mt-3 text-sm leading-6 text-muted-foreground">{translateUi("Este profissional passou pela verificação biométrica e facial de segurança da plataforma.", language)}</p>
+      <p className="mt-3 text-sm leading-6 text-muted-foreground">{translateUi(demo ? "Este profissional passou pela verificação biométrica e facial de segurança da plataforma." : "Documentos e selfie aprovados pela equipe de segurança BM.", language)}</p>
       <ul className="mt-4 space-y-2 text-left text-xs">{["Documento de identidade conferido", "Selfie comparada à foto do documento", "Dados protegidos conforme a LGPD"].map((t) => <li key={t} className="flex items-center gap-2"><CheckCircle2 size={15} className="shrink-0 text-success" />{translateUi(t, language)}</li>)}</ul>
-      <p className="mt-4 text-[10px] text-muted-foreground">{translateUi("Perfil demonstrativo: selo ilustrativo nesta versão.", language)}</p>
+      {demo && <p className="mt-4 text-[10px] text-muted-foreground">{translateUi("Perfil demonstrativo: selo ilustrativo nesta versão.", language)}</p>}
       <button type="button" onClick={() => setOpen(false)} className={`${actionClass} mt-5 w-full`}>{translateUi("Entendi", language)}</button>
     </div></div>}
   </>;
