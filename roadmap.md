@@ -36,3 +36,8 @@
 - [x] Atualizar o contato oficial de suporte e adicionar ações diretas por e-mail
 - [x] Criar a área Segurança & Privacidade com governança LGPD e protocolo de incidentes
 - [x] Adicionar suporte flutuante, cartão de verificação e slogan institucional
+
+- [x] Salvar cadastros, agendamentos, serviços, avaliações e extrato no banco da nuvem
+- [x] Habilitar entrada por Google e Lovable além de e-mail/senha
+- [x] Validar no celular agendar → PIN 8392 → extrato → avaliação, relendo tudo após recarregar
+- [ ] Cadastrar a conta real da fundadora pelo app e confirmar o e-mail de cadastro — depende dela abrir o link enviado
