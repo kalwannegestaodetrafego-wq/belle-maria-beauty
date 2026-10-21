@@ -12,7 +12,7 @@ export const getAdminPanel = createServerFn({ method: "POST" }).middleware([requ
   const { data: allowed, error: roleError } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "admin" });
   if (roleError || !allowed) throw new Error("Acesso restrito à gestora BM.");
   const [profiles, bookings] = await Promise.all([
-    context.supabase.from("profiles").select("id,full_name,account_type,identity_doc_path,selfie_path,created_at").eq("verification_status", "PENDENTE_ANALISE").eq("account_type", "profissional").order("created_at"),
+    context.supabase.from("profiles").select("id,full_name,account_type,identity_doc_path,identity_back_doc_path,selfie_path,created_at").eq("verification_status", "PENDENTE_ANALISE").eq("account_type", "profissional").order("created_at"),
     context.supabase.from("bookings").select("id,client_name,professional_name,professional_id,service_name,amount_cents,fee_cents,scheduled_for,created_at").eq("payment_status", "escrow").order("created_at", { ascending: false }),
   ]);
   if (profiles.error || bookings.error) throw new Error("Não foi possível carregar o painel.");
@@ -27,8 +27,8 @@ export const getAdminPanel = createServerFn({ method: "POST" }).middleware([requ
       if (!browserBase) throw new Error("Não foi possível abrir os documentos.");
       return { url: `${browserBase.replace(/\/$/, "")}${signed.pathname}${signed.search}`, pdf: path.toLowerCase().endsWith(".pdf") };
     };
-    const [identity, selfie] = await Promise.all([sign(profile.identity_doc_path), sign(profile.selfie_path)]);
-    return { id: profile.id, name: profile.full_name, createdAt: profile.created_at, identity, selfie };
+    const [identity, identityBack, selfie] = await Promise.all([sign(profile.identity_doc_path), sign(profile.identity_back_doc_path), sign(profile.selfie_path)]);
+    return { id: profile.id, name: profile.full_name, createdAt: profile.created_at, identity, identityBack, selfie };
   }));
   return { requests, bookings: bookings.data ?? [] };
 });
