@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PENDING_IDENTITY_STATUS, submitIdentityDocuments, type DocKind } from "@/lib/bm-account";
 import { translateUi, useLanguage } from "@/lib/bm-i18n";
 import { VerifiedBadge } from "./trust-support";
+import { hasVerifiedIdentity } from "@/lib/bm-admin-rules";
 
 export const IDENTITY_CONFIRMATION = "Documentos Enviados com Sucesso! ⏳ Nossa equipe de segurança (BM) está analisando seus documentos. Em até 24h seu selo de Identidade Verificada BM será ativado no seu perfil.";
 
@@ -31,7 +32,7 @@ export function IdentityVerification() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
       const { data } = await supabase.from("profiles").select("verification_status,verification_rejection_reason").eq("id", user.id).maybeSingle();
-      if (active) { setPending(data?.verification_status === PENDING_IDENTITY_STATUS); setVerified(data?.verification_status === "VERIFICADO"); setRejection(data?.verification_status === "REJEITADO" ? data.verification_rejection_reason : null); }
+      if (active) { setPending(data?.verification_status === PENDING_IDENTITY_STATUS); setVerified(hasVerifiedIdentity(data?.verification_status)); setRejection(data?.verification_status === "REJEITADO" ? data.verification_rejection_reason : null); }
     })();
     return () => { active = false; };
   }, []);

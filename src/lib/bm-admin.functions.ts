@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { z } from "zod";
+import { escrowControlInput, identityReviewInput } from "./bm-admin-rules";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export const getAdminAccess = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth]).handler(async ({ context }) => {
@@ -31,7 +31,7 @@ export const getAdminPanel = createServerFn({ method: "POST" }).middleware([requ
 });
 
 export const reviewIdentity = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid(), approve: z.boolean(), reason: z.string().trim().max(500).optional() }).refine((value) => value.approve || Boolean(value.reason), { message: "Informe o motivo da rejeição." }))
+  .inputValidator(identityReviewInput)
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.rpc("bm_review_identity", { _profile_id: data.id, _approve: data.approve, _reason: data.reason ?? "" });
     if (error) throw new Error("Não foi possível salvar a decisão. Atualize o painel e tente novamente.");
@@ -39,7 +39,7 @@ export const reviewIdentity = createServerFn({ method: "POST" }).middleware([req
   });
 
 export const controlEscrow = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid(), release: z.boolean() }))
+  .inputValidator(escrowControlInput)
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.rpc("bm_admin_escrow", { _booking_id: data.id, _release: data.release });
     if (error) throw new Error("Não foi possível alterar a custódia. Confira o profissional vinculado e atualize o painel.");
