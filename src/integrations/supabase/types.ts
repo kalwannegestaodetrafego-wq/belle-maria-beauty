@@ -165,6 +165,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          identity_back_doc_path: string | null
           identity_doc_path: string | null
           phone: string | null
           residence_details: string | null
@@ -185,6 +186,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          identity_back_doc_path?: string | null
           identity_doc_path?: string | null
           phone?: string | null
           residence_details?: string | null
@@ -205,6 +207,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          identity_back_doc_path?: string | null
           identity_doc_path?: string | null
           phone?: string | null
           residence_details?: string | null
