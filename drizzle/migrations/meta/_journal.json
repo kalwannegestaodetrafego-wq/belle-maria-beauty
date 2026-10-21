@@ -36,6 +36,13 @@
       "when": 1792589407586,
       "tag": "0004_kyc_document_back",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1792590409447,
+      "tag": "0005_post_service_support_notifications",
+      "breakpoints": true
     }
   ]
 }
