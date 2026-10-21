@@ -41,3 +41,4 @@
 - [x] Habilitar entrada por Google e Lovable além de e-mail/senha
 - [x] Validar no celular agendar → PIN 8392 → extrato → avaliação, relendo tudo após recarregar
 - [ ] Cadastrar a conta real da fundadora pelo app e confirmar o e-mail de cadastro — depende dela abrir o link enviado
+- [ ] Enviar o código para um repositório GitHub — depende de conectar o GitHub em Plus (+) → GitHub → Connect project
