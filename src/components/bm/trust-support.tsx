@@ -20,7 +20,8 @@ export function IdentityTrustCard({ className = "" }: { className?: string }) {
   </div>;
 }
 
-export const WHATSAPP_URL = `https://wa.me/5548999999999?text=${encodeURIComponent("Olá! Preciso de ajuda com um agendamento no Belle Maria Beauty.")}`;
+export const WHATSAPP_NUMBER = "5548991364387";
+export const WHATSAPP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Olá! Preciso de ajuda com um agendamento no Belle Maria Beauty.")}`;
 
 export function WhatsAppSupportButton({ className = "" }: { className?: string }) {
   const { language } = useLanguage();
