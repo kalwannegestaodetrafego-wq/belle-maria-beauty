@@ -958,6 +958,10 @@ export const translations: Record<string, readonly [string, string]> = {
     "Tap to choose a file (up to 10 MB)",
     "Toca para elegir un archivo (hasta 10 MB)"
   ],
+  "Frente do Documento (RG ou CNH)": ["Document front (RG or CNH)", "Frente del documento (RG o CNH)"],
+  "Verso do Documento (RG ou CNH)": ["Document back (RG or CNH)", "Reverso del documento (RG o CNH)"],
+  "Selfie de Segurança segurando o documento ou em ambiente iluminado": ["Security selfie holding the document or in a well-lit place", "Selfie de seguridad sosteniendo el documento o en un lugar iluminado"],
+  "Envie a frente e o verso do documento e a selfie de segurança.": ["Upload the document front, back and the security selfie.", "Envía el frente y el reverso del documento y la selfie de seguridad."],
   "Selfie de segurança": [
     "Security selfie",
     "Selfie de seguridad"

@@ -49,7 +49,7 @@ function FileBox({ label, file, onFile, icon }: { label: string; file?: File | u
   </label>;
 }
 
-const docLabel: Record<DocKind, string> = { selfie: "Selfie de segurança", identity: "Documento de identidade (RG/CNH) ou alvará" };
+const docLabel: Record<DocKind, string> = { selfie: "Selfie de segurança", identity: "Documento de identidade (RG/CNH) ou alvará", identity_back: "Verso do Documento (RG ou CNH)" };
 
 /* ---------- Auth ---------- */
 export function AuthModal({ onClose, onProfessionalSignup }: { onClose: () => void; onProfessionalSignup?: () => void }) {
@@ -73,13 +73,13 @@ export function AuthModal({ onClose, onProfessionalSignup }: { onClose: () => vo
     void (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user || !active) return;
-      const { data: profile } = await supabase.from("profiles").select("account_type, selfie_path, identity_doc_path, verification_status").eq("id", user.id).maybeSingle();
+      const { data: profile } = await supabase.from("profiles").select("account_type, selfie_path, identity_doc_path, identity_back_doc_path, verification_status").eq("id", user.id).maybeSingle();
       if (!active) return;
       const type = profile?.account_type ?? user.user_metadata?.["account_type"] ?? "cliente";
       setTab(type === "profissional" ? "Profissional Beleza" : type === "salao" ? "Salão Parceiro" : "Cliente");
       if (type === "profissional" && profile?.verification_status === "PENDENTE_ANALISE") { setResult("review"); return; }
       const req = requiredDocs(type);
-      const absent = req.filter((kind) => kind === "selfie" ? !profile?.selfie_path : !profile?.identity_doc_path);
+      const absent = req.filter((kind) => kind === "selfie" ? !profile?.selfie_path : kind === "identity_back" ? !profile?.identity_back_doc_path : !profile?.identity_doc_path);
       setMissing(absent); setResult(absent.length ? "docs" : "ok");
     })();
     return () => { active = false; };
@@ -128,7 +128,7 @@ export function AuthModal({ onClose, onProfessionalSignup }: { onClose: () => vo
 
   if (result === "docs") return <Sheet title={translateUi("Envie seus documentos", language)} eyebrow={translateUi("Verificação BM", language)} onClose={onClose}>
     <p className="text-sm text-muted-foreground">{translateUi("Para concluir a verificação, envie os arquivos abaixo. Eles ficam em área privada, acessível só por você.", language)}</p>
-    <div className="mt-4 space-y-3">{translateUi(missing.map((k) => <FileBox key={k} label={translateUi(k === "identity" && tab === "Profissional Beleza" ? "Documento de identidade (RG/CNH)" : docLabel[k], language)} file={files[k]} onFile={setFile(k)} icon={k === "selfie" ? <Camera size={18} /> : <FileCheck2 size={18} />} />), language)}</div>
+    <div className="mt-4 space-y-3">{translateUi(missing.map((k) => <FileBox key={k} label={translateUi(tab === "Profissional Beleza" ? ({ identity: "Frente do Documento (RG ou CNH)", identity_back: "Verso do Documento (RG ou CNH)", selfie: "Selfie de Segurança segurando o documento ou em ambiente iluminado" } as const)[k] : docLabel[k], language)} file={files[k]} onFile={setFile(k)} icon={k === "selfie" ? <Camera size={18} /> : <FileCheck2 size={18} />} />), language)}</div>
     {translateUi(error && <p className="mt-3 text-xs font-semibold text-destructive">{translateUi(error, language)}</p>, language)}
     <button disabled={busy || !missing.every((k) => files[k])} onClick={async () => { setBusy(true); setError(""); try { await finishSync(missing); } catch (err) { setError(err instanceof Error ? err.message : "Falha no envio."); } finally { setBusy(false); } }} className={`${primary} mt-5 w-full`}>{translateUi(busy ? "Enviando…" : "Enviar documentos", language)}</button>
   </Sheet>;
@@ -154,8 +154,9 @@ export function AuthModal({ onClose, onProfessionalSignup }: { onClose: () => vo
         </div>
         <Field label={translateUi("Nome completo", language)} name="full_name" required maxLength={100} placeholder={translateUi("Ana Martins", language)} />
         {translateUi(professionalType === "cpf" ? <div className="grid grid-cols-2 gap-3"><Field label={translateUi("CPF", language)} name="cpf" required inputMode="numeric" maxLength={14} placeholder={translateUi("000.000.000-00", language)} /><Field label={translateUi("Telefone", language)} name="phone" required inputMode="tel" maxLength={20} placeholder={translateUi("(48) 99999-0000", language)} /></div> : <Field label={translateUi("CNPJ MEI", language)} name="cnpj" required inputMode="numeric" maxLength={18} placeholder={translateUi("00.000.000/0001-00", language)} />, language)}
-        <FileBox label={translateUi("Documento de identidade (RG/CNH)", language)} file={files.identity} onFile={setFile("identity")} icon={<FileCheck2 size={18} />} />
-        <FileBox label={translateUi("Selfie de segurança", language)} file={files.selfie} onFile={setFile("selfie")} icon={<Camera size={18} />} />
+        <FileBox label={translateUi("Frente do Documento (RG ou CNH)", language)} file={files.identity} onFile={setFile("identity")} icon={<FileCheck2 size={18} />} />
+        <FileBox label={translateUi("Verso do Documento (RG ou CNH)", language)} file={files.identity_back} onFile={setFile("identity_back")} icon={<FileCheck2 size={18} />} />
+        <FileBox label={translateUi("Selfie de Segurança segurando o documento ou em ambiente iluminado", language)} file={files.selfie} onFile={setFile("selfie")} icon={<Camera size={18} />} />
       </> : <>
         <Field label={translateUi("Nome completo", language)} name="full_name" required maxLength={100} placeholder={translateUi("Ana Martins", language)} />
         <div className="grid grid-cols-2 gap-3"><Field label={translateUi("CPF", language)} name="cpf" required inputMode="numeric" maxLength={14} placeholder={translateUi("000.000.000-00", language)} /><Field label={translateUi("Telefone", language)} name="phone" required inputMode="tel" maxLength={20} placeholder={translateUi("(48) 99999-0000", language)} /></div>
