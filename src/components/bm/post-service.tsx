@@ -95,7 +95,7 @@ export function NotificationCenter() {
   };
   return <div className="relative">
     <button type="button" onClick={toggle} aria-expanded={open} aria-label={t("Notificações")} className="relative flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card"><Bell size={18} />{unread > 0 && <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground">{unread}</span>}</button>
-    {open && <div className="absolute right-0 top-12 z-40 w-72 rounded-lg border border-border bg-card p-3 shadow-modal">
+    {open && <div className="fixed left-4 right-4 top-16 z-40 rounded-lg border border-border bg-card p-3 shadow-modal sm:absolute sm:left-auto sm:right-0 sm:top-12 sm:w-72">
       <p className="text-xs font-bold">{t("Central de Notificações")}</p>
       {items.length === 0 ? <p className="mt-3 text-xs text-muted-foreground">{t("Nenhuma notificação por enquanto.")}</p> : <ul className="mt-2 max-h-80 space-y-2 overflow-auto">{items.map((n) => <li key={n.id} className="rounded-md bg-background p-2 text-xs"><p className="font-semibold">{t(n.title)}</p>{n.body && <p className="text-muted-foreground">{n.body}</p>}<p className="mt-1 text-[10px] text-muted-foreground">{new Date(n.created_at).toLocaleString(locale)}</p></li>)}</ul>}
     </div>}
