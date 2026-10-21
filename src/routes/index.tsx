@@ -8,7 +8,6 @@ import {
   AlertTriangle,
   ArrowLeft,
   CalendarDays,
-  Bell,
   Check,
   CheckCircle2,
   ChevronDown,
