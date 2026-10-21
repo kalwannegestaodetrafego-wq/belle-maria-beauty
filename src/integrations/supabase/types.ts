@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_actions: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          id: string
+          reason: string | null
+          target_id: string
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          target_id: string
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+          target_id?: string
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           address: string | null
@@ -144,6 +171,9 @@ export type Database = {
           salon_name: string | null
           selfie_path: string | null
           updated_at: string
+          verification_rejection_reason: string | null
+          verification_reviewed_at: string | null
+          verification_reviewed_by: string | null
           verification_status: string
         }
         Insert: {
@@ -161,6 +191,9 @@ export type Database = {
           salon_name?: string | null
           selfie_path?: string | null
           updated_at?: string
+          verification_rejection_reason?: string | null
+          verification_reviewed_at?: string | null
+          verification_reviewed_by?: string | null
           verification_status?: string
         }
         Update: {
@@ -178,6 +211,9 @@ export type Database = {
           salon_name?: string | null
           selfie_path?: string | null
           updated_at?: string
+          verification_rejection_reason?: string | null
+          verification_reviewed_at?: string | null
+          verification_reviewed_by?: string | null
           verification_status?: string
         }
         Relationships: []
@@ -262,6 +298,24 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallet_entries: {
         Row: {
           amount_cents: number
@@ -332,10 +386,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      bm_admin_escrow: {
+        Args: { _booking_id: string; _release: boolean }
+        Returns: undefined
+      }
+      bm_review_identity: {
+        Args: { _approve: boolean; _profile_id: string; _reason?: string }
+        Returns: undefined
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       account_type: "cliente" | "profissional" | "salao"
+      app_role: "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -464,6 +533,7 @@ export const Constants = {
   public: {
     Enums: {
       account_type: ["cliente", "profissional", "salao"],
+      app_role: ["admin"],
     },
   },
 } as const
