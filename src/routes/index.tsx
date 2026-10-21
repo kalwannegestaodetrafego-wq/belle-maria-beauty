@@ -40,7 +40,7 @@ import { CheckoutOptions, FlexibleSchedule, bookingIsUrgent, bookingTotal, brazi
 import { LocationPanel, SolanaCheckout, SolanaPointsHub } from "../components/bm/web3-geo";
 import { AppointmentsSummary, EarningsStatement, MyAppointments, ReleaseSuccess, ServicesManager, type Appointment } from "../components/bm/pro-dashboard";
 import { HybridCheckout, PaymentReceipt, type HybridMethod } from "../components/bm/hybrid-checkout";
-import { FaceVerification, IdentityTrustCard, SafetyReminder, SUPPORT_EMAIL, VerifiedBadge, SupportMailButton, SupportWidget, WhatsAppSupportButton } from "../components/bm/trust-support";
+import { IdentityTrustCard, SafetyReminder, SUPPORT_EMAIL, VerifiedBadge, SupportMailButton, SupportWidget, WhatsAppSupportButton } from "../components/bm/trust-support";
 import { addWalletEntry, bookingAmounts, createBooking, createWithdrawal, fromCents, getMyProfile, listBookings, listWalletEntries, settleEscrow, signOutBm, updateBooking, useBmSession, walletTotals, SERVICE_PIN, type Booking, type WalletEntry } from "../lib/bm-store";
 import { useQueryClient } from "@tanstack/react-query";
 import camilaImage from "../assets/camila.jpg";
@@ -346,7 +346,6 @@ function ProfessionalView({ selectedDay, selectedTime, orderTotal, status, setSt
     <div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">{translateUi("Painel do Profissional", language)}</p><h1 className="mt-1 font-display text-4xl">{translateUi("Olá, Camila", language)}</h1><p className="mt-2 text-sm text-muted-foreground">{translateUi("Acompanhe seus atendimentos e ganhos.", language)}</p></div><div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-card shadow-soft"><Bell size={19} /><span className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full bg-success ring-2 ring-background" /></div></div>
 
     <OnlineToggle />
-    <FaceVerification className="mt-4" />
     <AppointmentsSummary items={appointments} />
     <OnboardingBanner />
     <button onClick={() => setTipOpen(true)} className="mt-3 flex w-full items-center gap-3 rounded-lg bg-secondary p-3 text-left text-xs font-semibold"><Lightbulb size={17} className="shrink-0 text-primary" />{translateUi(" Dica: como calcular deslocamento sem encarecer o serviço ", language)}<ChevronRight size={15} className="ml-auto shrink-0" /></button>
