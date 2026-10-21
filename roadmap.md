@@ -48,3 +48,7 @@
 - [x] Validar no celular agendar → PIN 8392 → extrato → avaliação, relendo tudo após recarregar
 - [ ] Cadastrar a conta real da fundadora pelo app e confirmar o e-mail de cadastro — depende dela abrir o link enviado
 - [ ] Enviar o código para um repositório GitHub — depende de conectar o GitHub em Plus (+) → GitHub → Connect project
+- [x] Pós-atendimento: avaliação pública (4–5★) ou privada (1–3★), avaliação interna do cliente, atalhos de suporte e WhatsApp
+- [x] Painel Admin com 5 abas (KYC, Escrow, Ocorrências, Reclamações, Achados e Perdidos)
+- [x] Mapa gratuito OpenStreetMap para escolher endereço/salão no checkout
+- [x] Central de Notificações (horário confirmado, saldo liberado, resposta do suporte)
