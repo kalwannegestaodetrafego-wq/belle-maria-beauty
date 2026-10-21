@@ -6,6 +6,7 @@ import {
 import { FaceVerification, IdentityTrustCard } from "./trust-support";
 import { supabase } from "@/integrations/supabase/client";
 import { requiredDocs, syncProfile, type AccountType, type DocKind } from "@/lib/bm-account";
+import { connectSocial, createReview } from "@/lib/bm-store";
 
 export function Sheet({ title, eyebrow, onClose, children, z = "z-50" }: { title: string; eyebrow?: string; onClose: () => void; children: ReactNode; z?: string }) {
   const { language, locale } = useLanguage();
@@ -72,6 +73,16 @@ export function AuthModal({ onClose, onProfessionalSignup }: { onClose: () => vo
     setResult(left.length ? "docs" : "ok");
   };
 
+  const social = async (provider: "google" | "lovable") => {
+    setBusy(true); setError("");
+    try {
+      if (await connectSocial(provider)) return;
+      await syncProfile({}, []);
+      setResult("ok");
+    } catch (err) { setError(err instanceof Error ? err.message : "Não foi possível entrar."); }
+    finally { setBusy(false); }
+  };
+
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); if (!requiredUploadsComplete || busy) return;
     const fd = new FormData(e.currentTarget);
@@ -134,6 +145,11 @@ export function AuthModal({ onClose, onProfessionalSignup }: { onClose: () => vo
       {translateUi(error && <p className="text-xs font-semibold text-destructive">{translateUi(error, language)}</p>, language)}
       <button type="submit" disabled={!requiredUploadsComplete || busy} className={`${primary} w-full`}>{translateUi(busy ? "Aguarde…" : mode === "signup" ? "Cadastrar" : "Entrar", language)}</button>
     </form>
+    <div className="my-3 text-center text-xs text-muted-foreground">{translateUi("ou", language)}</div>
+    <div className="space-y-2">
+      <button disabled={busy} onClick={() => { void social("google"); }} className={`${outline} w-full`}>{translateUi("Entrar com Google", language)}</button>
+      <button disabled={busy} onClick={() => { void social("lovable"); }} className={`${outline} w-full`}>{translateUi("Entrar com Lovable", language)}</button>
+    </div>
     <button onClick={() => { setMode(mode === "signup" ? "login" : "signup"); setError(""); }} className="mt-4 w-full text-center text-xs font-semibold text-primary">{translateUi(mode === "signup" ? "Já tenho conta · Entrar" : "Não tem conta? Cadastre-se", language)}</button>
   </Sheet>;
 }
@@ -163,20 +179,33 @@ export function ChatModal({ name, onClose }: { name: string; onClose: () => void
 }
 
 /* ---------- Review ---------- */
-export function ReviewModal({ name, onClose }: { name: string; onClose: () => void }) {
+export function ReviewModal({ name, onClose, bookingId, onSaved }: { name: string; onClose: () => void; bookingId?: string | undefined; onSaved?: () => void }) {
   const { language, locale } = useLanguage();
   const [stars, setStars] = useState(0);
   const [tags, setTags] = useState<string[]>([]);
   const [photo, setPhoto] = useState(false);
   const [sent, setSent] = useState(false);
+  const [comment, setComment] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const send = async () => {
+    if (!stars || busy) return;
+    setBusy(true); setError("");
+    try {
+      if (bookingId) await createReview({ bookingId, professionalName: name, rating: stars, comment, tags });
+      setSent(true); onSaved?.();
+    } catch (err) { const msg = err instanceof Error ? err.message : ""; setError(/duplicate key|23505/i.test(msg) ? "Você já avaliou este atendimento." : msg || "Não foi possível enviar sua avaliação."); }
+    finally { setBusy(false); }
+  };
   const all = ["Pontual", "Higienizado", "Simpática", "Resultado incrível"];
   if (sent) return <Sheet title={translateUi("Obrigada!", language)} eyebrow={translateUi("Avaliação", language)} onClose={onClose} z="z-[70]"><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-3 text-sm text-muted-foreground">{translateUi("Sua avaliação ajuda a comunidade BM.", language)}</p><button onClick={onClose} className={`${primary} mt-6 w-full`}>{translateUi("Fechar", language)}</button></div></Sheet>;
   return <Sheet title={translateUi(`Avaliar ${name}`, language)} eyebrow={translateUi("Pós-atendimento", language)} onClose={onClose} z="z-[70]">
     <div className="flex justify-center gap-2">{translateUi([1, 2, 3, 4, 5].map((n) => <button key={n} onClick={() => setStars(n)} aria-label={translateUi(`${n} estrelas`, language)}><Star size={34} className={n <= stars ? "fill-primary text-primary" : "text-border"} /></button>), language)}</div>
     <div className="mt-5 flex flex-wrap gap-2">{translateUi(all.map((t) => <button key={t} onClick={() => setTags((c) => c.includes(t) ? c.filter((x) => x !== t) : [...c, t])} className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${tags.includes(t) ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>{translateUi(t, language)}</button>), language)}</div>
-    <textarea maxLength={500} placeholder={translateUi("Conte como foi sua experiência", language)} className="mt-4 h-24 w-full rounded-lg border border-border bg-card p-3 text-sm outline-none focus:border-primary" />
+    <textarea value={comment} onChange={(e) => setComment(e.target.value)} maxLength={500} placeholder={translateUi("Conte como foi sua experiência", language)} className="mt-4 h-24 w-full rounded-lg border border-border bg-card p-3 text-sm outline-none focus:border-primary" />
     <div className="mt-3"><UploadBox label={translateUi("Foto do resultado", language)} done={photo} onClick={() => setPhoto(true)} icon={<Camera size={18} />} /></div>
-    <button disabled={!stars} onClick={() => setSent(true)} className={`${primary} mt-5 w-full`}>{translateUi("Enviar avaliação", language)}</button>
+    {translateUi(error && <p className="mt-3 text-xs font-semibold text-destructive">{translateUi(error, language)}</p>, language)}
+    <button disabled={!stars || busy} onClick={() => { void send(); }} className={`${primary} mt-5 w-full`}>{translateUi(busy ? "Enviando…" : "Enviar avaliação", language)}</button>
   </Sheet>;
 }
 

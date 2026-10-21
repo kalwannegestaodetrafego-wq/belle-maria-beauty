@@ -14,6 +14,96 @@ export type Database = {
   }
   public: {
     Tables: {
+      bookings: {
+        Row: {
+          address: string | null
+          amount_cents: number
+          category: string | null
+          checklist_infra: boolean
+          checklist_materials: boolean
+          checklist_pets: boolean
+          checklist_terms: boolean
+          client_id: string
+          client_name: string | null
+          created_at: string
+          fee_cents: number
+          id: string
+          notes: string | null
+          payment_method: string
+          payment_status: string
+          preferred_times: string | null
+          professional_id: string | null
+          professional_name: string
+          receipt_code: string | null
+          residence_details: string | null
+          salon_name: string | null
+          scheduled_for: string | null
+          service_name: string
+          service_pin: string
+          status: string
+          updated_at: string
+          urgency_fee: boolean
+        }
+        Insert: {
+          address?: string | null
+          amount_cents?: number
+          category?: string | null
+          checklist_infra?: boolean
+          checklist_materials?: boolean
+          checklist_pets?: boolean
+          checklist_terms?: boolean
+          client_id: string
+          client_name?: string | null
+          created_at?: string
+          fee_cents?: number
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          payment_status?: string
+          preferred_times?: string | null
+          professional_id?: string | null
+          professional_name: string
+          receipt_code?: string | null
+          residence_details?: string | null
+          salon_name?: string | null
+          scheduled_for?: string | null
+          service_name: string
+          service_pin?: string
+          status?: string
+          updated_at?: string
+          urgency_fee?: boolean
+        }
+        Update: {
+          address?: string | null
+          amount_cents?: number
+          category?: string | null
+          checklist_infra?: boolean
+          checklist_materials?: boolean
+          checklist_pets?: boolean
+          checklist_terms?: boolean
+          client_id?: string
+          client_name?: string | null
+          created_at?: string
+          fee_cents?: number
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          payment_status?: string
+          preferred_times?: string | null
+          professional_id?: string | null
+          professional_name?: string
+          receipt_code?: string | null
+          residence_details?: string | null
+          salon_name?: string | null
+          scheduled_for?: string | null
+          service_name?: string
+          service_pin?: string
+          status?: string
+          updated_at?: string
+          urgency_fee?: boolean
+        }
+        Relationships: []
+      }
       portfolio_items: {
         Row: {
           caption: string | null
@@ -89,6 +179,151 @@ export type Database = {
           selfie_path?: string | null
           updated_at?: string
           verification_status?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          author_id: string
+          booking_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          photo_path: string | null
+          professional_id: string | null
+          professional_name: string | null
+          rating: number
+          tags: string | null
+        }
+        Insert: {
+          author_id: string
+          booking_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          photo_path?: string | null
+          professional_id?: string | null
+          professional_name?: string | null
+          rating: number
+          tags?: string | null
+        }
+        Update: {
+          author_id?: string
+          booking_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          photo_path?: string | null
+          professional_id?: string | null
+          professional_name?: string | null
+          rating?: number
+          tags?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_fk"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          active: boolean
+          created_at: string
+          duration_min: number
+          id: string
+          name: string
+          owner_id: string
+          price_cents: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          duration_min?: number
+          id?: string
+          name: string
+          owner_id: string
+          price_cents?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          duration_min?: number
+          id?: string
+          name?: string
+          owner_id?: string
+          price_cents?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      wallet_entries: {
+        Row: {
+          amount_cents: number
+          booking_id: string | null
+          created_at: string
+          id: string
+          kind: string
+          label: string
+          owner_id: string
+        }
+        Insert: {
+          amount_cents: number
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          label: string
+          owner_id: string
+        }
+        Update: {
+          amount_cents?: number
+          booking_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          label?: string
+          owner_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_entries_booking_fk"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      withdrawals: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          id: string
+          owner_id: string
+          pix_key: string | null
+          status: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          id?: string
+          owner_id: string
+          pix_key?: string | null
+          status?: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          id?: string
+          owner_id?: string
+          pix_key?: string | null
+          status?: string
         }
         Relationships: []
       }
