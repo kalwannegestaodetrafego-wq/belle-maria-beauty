@@ -3,7 +3,7 @@ import { CalendarCheck2, CheckCircle2, Clock3, Lock, Pencil, Plus, Save, Star, W
 import { translateUi, useLanguage } from "../../lib/bm-i18n";
 import { money } from "./booking-extras";
 import { ReviewModal } from "./extras";
-import { createService, fromCents, listServices, updateService, useBmSession } from "../../lib/bm-store";
+import { createService, fromCents, listReviews, listServices, updateService, useBmSession } from "../../lib/bm-store";
 
 export type Appointment = { id: string; client: string; service: string; when: string; value: number; group: "today" | "upcoming" | "done" };
 
@@ -104,8 +104,15 @@ export function ReleaseSuccess({ amount, onClose }: { amount: number; onClose: (
 
 export function MyAppointments({ professional, service, when, value, completed, statusLabel, bookingId, signedIn = false }: { professional: string; service: string; when: string; value: number; completed: boolean; statusLabel: string; bookingId?: string | undefined; signedIn?: boolean }) {
   const { language } = useLanguage();
+  const { user } = useBmSession();
   const [open, setOpen] = useState(false);
   const [rated, setRated] = useState(false);
+  useEffect(() => {
+    if (!user || !bookingId) return;
+    let active = true;
+    void listReviews("mine").then((rows) => { if (active && rows.some((row) => row.booking_id === bookingId)) setRated(true); }).catch(() => {});
+    return () => { active = false; };
+  }, [user, bookingId]);
   return <section className={card} aria-label={translateUi("Meus Agendamentos", language)}>
     <h2 className="flex items-center gap-2 font-display text-2xl"><CalendarCheck2 size={20} className="text-primary" />{translateUi("Meus Agendamentos", language)}</h2>
     <div className="mt-3 rounded-lg bg-background p-3 text-xs">
