@@ -1,6 +1,6 @@
 # Roadmap BM
 
-- [ ] Substituir captura simulada por envio privado de RG/CNH e selfie, salvar PENDENTE_ANALISE e validar confirmação
+- [x] Substituir captura simulada por envio privado de RG/CNH e selfie, salvar PENDENTE_ANALISE e validar confirmação após recarregar
 
 - [x] Criar projeto independente de pitch em remotion/ com cinco cenas, 90 segundos e renderização local
 - [x] Validar duração, transições, composição e imagens das cinco cenas
