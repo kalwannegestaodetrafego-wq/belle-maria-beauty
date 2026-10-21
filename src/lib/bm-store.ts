@@ -221,3 +221,40 @@ export async function connectSocial(provider: "google" | "lovable"): Promise<boo
   if (result.error) throw result.error;
   return Boolean(result.redirected);
 }
+
+/* ------------------------------------------------- post-service & support */
+
+export type SupportCategory = Database["public"]["Tables"]["support_tickets"]["Row"]["category"];
+export type Notification = Database["public"]["Tables"]["notifications"]["Row"];
+
+export async function createSupportTicket(input: { role: "client" | "professional"; category: "payment_missing" | "disrespect" | "forgot_item" | "incomplete_service" | "lost_item"; bookingId?: string | null | undefined; message?: string }): Promise<void> {
+  const id = await uid();
+  const { error } = await supabase.from("support_tickets").insert({ author_id: id, author_role: input.role, category: input.category, booking_id: input.bookingId ?? null, message: input.message?.trim().slice(0, 500) || null });
+  if (error) throw error;
+}
+
+/** Professional confirms payment receipt and privately rates the client of a completed booking. */
+export async function rateClient(input: { bookingId: string; rating: number; comment?: string; paymentReceived: boolean }): Promise<void> {
+  const id = await uid();
+  const { data: booking, error: readError } = await supabase.from("bookings").select("client_id").eq("id", input.bookingId).eq("professional_id", id).maybeSingle();
+  if (readError) throw readError;
+  if (!booking) throw new Error("Atendimento não encontrado para este profissional.");
+  const { error } = await supabase.from("client_ratings").insert({ booking_id: input.bookingId, professional_id: id, client_id: booking.client_id, rating: Math.round(input.rating), comment: input.comment?.trim().slice(0, 500) || null, payment_received: input.paymentReceived });
+  if (error) throw error;
+}
+
+export async function listNotifications(): Promise<Notification[]> {
+  const id = await uid();
+  const { data, error } = await supabase.from("notifications").select("*").eq("user_id", id).order("created_at", { ascending: false }).limit(30);
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function markNotificationsRead(): Promise<void> {
+  const id = await uid();
+  const { error } = await supabase.from("notifications").update({ read: true }).eq("user_id", id).eq("read", false);
+  if (error) throw error;
+}
+
+/** Ratings of 4–5 stars are public on the professional profile; 1–3 stay private for BM admin review. */
+export const reviewVisibility = (rating: number) => (rating >= 4 ? "public" : "private");
