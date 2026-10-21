@@ -42,6 +42,7 @@ import { AppointmentsSummary, EarningsStatement, MyAppointments, ReleaseSuccess,
 import { HybridCheckout, PaymentReceipt, type HybridMethod } from "../components/bm/hybrid-checkout";
 import { FaceVerification, IdentityTrustCard, SafetyReminder, SUPPORT_EMAIL, VerifiedBadge, SupportMailButton, SupportWidget, WhatsAppSupportButton } from "../components/bm/trust-support";
 import { addWalletEntry, bookingAmounts, createBooking, createWithdrawal, fromCents, getMyProfile, listBookings, listWalletEntries, settleEscrow, signOutBm, updateBooking, useBmSession, walletTotals, SERVICE_PIN, type Booking, type WalletEntry } from "../lib/bm-store";
+import { useQueryClient } from "@tanstack/react-query";
 import camilaImage from "../assets/camila.jpg";
 import studioImage from "../assets/studio-bella.jpg";
 import julianaImage from "../assets/juliana.jpg";
@@ -126,6 +127,12 @@ function Index() {
   const [saveError, setSaveError] = useState("");
   const [profileName, setProfileName] = useState<string | null>(null);
   const { user, loading: sessionLoading } = useBmSession();
+  const queryClient = useQueryClient();
+  const leaveAccount = useCallback(async () => {
+    queryClient.cancelQueries();
+    queryClient.clear();
+    await signOutBm();
+  }, [queryClient]);
 
   useEffect(() => {
     if (!user) { setMyBookings([]); setLiveBooking(null); setProfileName(null); return; }
@@ -208,7 +215,7 @@ function Index() {
         <div className="mx-auto max-w-6xl px-4 pb-3 pt-3 md:px-8">
           <div className="flex items-center justify-between">
              <div className="brand-mark" aria-label={translateUi("BM", language)}>{translateUi("BM", language)}</div>
-             <div className="flex items-center gap-1 sm:gap-2"><LanguageSwitcher />{translateUi(user ? <div className="relative"><AppButton variant="icon" onClick={() => setAccountOpen((open) => !open)} aria-expanded={accountOpen} className="h-11 w-11 rounded-full p-0 font-display text-sm" aria-label={translateUi("Sua conta", language)}>{(profileName || user.email || "BM").trim().slice(0, 2).toUpperCase()}</AppButton>{translateUi(accountOpen && <div className="absolute right-0 top-12 z-40 w-60 rounded-lg border border-border bg-card p-3 text-left shadow-modal"><p className="truncate text-xs font-bold">{user.email}</p><p className="mt-1 text-[10px] text-muted-foreground">{translateUi("Conta guardada na nuvem da BM", language)}</p><button type="button" onClick={() => { setAccountOpen(false); setAuthOpen(true); }} className="mt-2 w-full text-left text-xs font-semibold text-primary">{translateUi("Completar verificação", language)}</button><button type="button" onClick={() => { setAccountOpen(false); void signOutBm(); }} className="mt-1 w-full text-left text-xs font-semibold text-destructive">{translateUi("Sair", language)}</button></div>, language)}</div> : <AppButton variant="icon" onClick={() => setAuthOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label={translateUi("Entrar ou cadastrar", language)}><UserRound size={19} /></AppButton>, language)}<AppButton variant="icon" onClick={() => setHelpOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label={translateUi("Ajuda e regras", language)}><BookOpen size={19} /></AppButton><AppButton variant="icon" onClick={() => setSecurityOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label={translateUi("Abrir Central de Segurança", language)}><Menu size={19} /></AppButton></div>
+             <div className="flex items-center gap-1 sm:gap-2"><LanguageSwitcher />{translateUi(user ? <div className="relative"><AppButton variant="icon" onClick={() => setAccountOpen((open) => !open)} aria-expanded={accountOpen} className="h-11 w-11 rounded-full p-0 font-display text-sm" aria-label={translateUi("Sua conta", language)}>{(profileName || user.email || "BM").trim().slice(0, 2).toUpperCase()}</AppButton>{translateUi(accountOpen && <div className="absolute right-0 top-12 z-40 w-60 rounded-lg border border-border bg-card p-3 text-left shadow-modal"><p className="truncate text-xs font-bold">{user.email}</p><p className="mt-1 text-[10px] text-muted-foreground">{translateUi("Conta guardada na nuvem da BM", language)}</p><button type="button" onClick={() => { setAccountOpen(false); setAuthOpen(true); }} className="mt-2 w-full text-left text-xs font-semibold text-primary">{translateUi("Completar verificação", language)}</button><button type="button" onClick={() => { setAccountOpen(false); void leaveAccount(); }} className="mt-1 w-full text-left text-xs font-semibold text-destructive">{translateUi("Sair", language)}</button></div>, language)}</div> : <AppButton variant="icon" onClick={() => setAuthOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label={translateUi("Entrar ou cadastrar", language)}><UserRound size={19} /></AppButton>, language)}<AppButton variant="icon" onClick={() => setHelpOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label={translateUi("Ajuda e regras", language)}><BookOpen size={19} /></AppButton><AppButton variant="icon" onClick={() => setSecurityOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label={translateUi("Abrir Central de Segurança", language)}><Menu size={19} /></AppButton></div>
           </div>
            <button type="button" onClick={() => setSecurityOpen(true)} className="mt-3 flex w-full items-center justify-between gap-3 rounded-lg border border-primary/30 bg-card/70 px-3 py-2 text-left shadow-soft backdrop-blur-xl transition-colors hover:bg-card">
              <span className="text-xs font-bold leading-5">{translateUi("A experiência dos melhores salões, no conforto do seu lar.", language)}</span><ShieldCheck size={18} className="shrink-0 text-success" />
