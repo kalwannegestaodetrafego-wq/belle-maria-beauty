@@ -1,6 +1,6 @@
 import { translateUi, useLanguage } from "../../lib/bm-i18n";
-import { BadgeCheck, Camera, CheckCircle2, Heart, Mail, MessageCircle, ScanFace, ShieldCheck, Users, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { BadgeCheck, CheckCircle2, Heart, Mail, MessageCircle, ShieldCheck, Users, X } from "lucide-react";
+import { useState } from "react";
 
 export const SUPPORT_EMAIL = "startupbmcomercial@gmail.com";
 
@@ -48,31 +48,6 @@ export function VerifiedBadge({ name, className = "" }: { name?: string; classNa
       <button type="button" onClick={() => setOpen(false)} className={`${actionClass} mt-5 w-full`}>{translateUi("Entendi", language)}</button>
     </div></div>}
   </>;
-}
-
-type FaceStage = "idle" | "center" | "validating" | "done";
-export function FaceVerification({ className = "" }: { className?: string }) {
-  const { language } = useLanguage();
-  const [stage, setStage] = useState<FaceStage>("idle");
-  useEffect(() => {
-    if (stage === "center") { const t = setTimeout(() => setStage("validating"), 2200); return () => clearTimeout(t); }
-    if (stage === "validating") { const t = setTimeout(() => setStage("done"), 2800); return () => clearTimeout(t); }
-    return undefined;
-  }, [stage]);
-  const label = { idle: "Toque em iniciar para a captura facial.", center: "Centralize seu rosto no círculo", validating: "Aguarde a validação biométrica...", done: "Conta Verificada com Sucesso" }[stage];
-  return <section className={`rounded-lg border border-primary/40 bg-card/85 p-5 shadow-card backdrop-blur ${className}`} aria-label={translateUi("Segurança e Verificação de Identidade", language)}>
-    <h2 className="flex items-center gap-2 font-display text-2xl"><ShieldCheck size={20} className="text-success" />{translateUi("Segurança e Verificação de Identidade", language)}</h2>
-    <p className="mt-1 text-xs text-muted-foreground">{translateUi("Selfie Match / Biometria · simulação", language)}</p>
-    <div className={`relative mx-auto mt-5 flex h-48 w-48 items-center justify-center overflow-hidden rounded-full border-4 ${stage === "done" ? "border-success" : "border-primary"} bg-foreground/90`}>
-      {stage === "done" ? <CheckCircle2 size={72} className="text-success" /> : <ScanFace size={84} className={`text-background/70 ${stage !== "idle" ? "animate-pulse" : ""}`} />}
-      {stage === "validating" && <span className="absolute inset-x-6 top-1/2 h-0.5 animate-bounce bg-primary shadow-luxe" />}
-      {(stage === "center" || stage === "validating") && <span className="absolute inset-3 rounded-full border-2 border-dashed border-primary/70 animate-spin [animation-duration:6s]" />}
-    </div>
-    <p role="status" className={`mt-4 text-center text-sm font-bold ${stage === "done" ? "text-success" : ""}`}>{translateUi(label, language)}</p>
-    {stage === "done" ? <div className="mt-4 flex justify-center"><span className="inline-flex items-center gap-1.5 rounded-full bg-success px-3 py-1.5 text-[11px] font-bold text-success-foreground"><BadgeCheck size={14} />{translateUi("Conta Verificada com Sucesso", language)}</span></div>
-      : <button type="button" disabled={stage !== "idle"} onClick={() => setStage("center")} className={`${actionClass} mt-4 w-full disabled:opacity-50`}><Camera size={17} />{translateUi(stage === "idle" ? "Iniciar captura facial" : "Capturando…", language)}</button>}
-    <p className="mt-3 text-center text-[10px] text-muted-foreground">{translateUi("Captura simulada: nenhuma imagem é gravada nesta etapa.", language)}</p>
-  </section>;
 }
 
 export function SafetyReminder({ className = "" }: { className?: string }) {
