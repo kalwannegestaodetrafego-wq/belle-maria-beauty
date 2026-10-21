@@ -194,7 +194,7 @@ export function ReviewModal({ name, onClose, bookingId, onSaved }: { name: strin
     try {
       if (bookingId) await createReview({ bookingId, professionalName: name, rating: stars, comment, tags });
       setSent(true); onSaved?.();
-    } catch (err) { setError(err instanceof Error ? err.message : "Não foi possível enviar sua avaliação."); }
+    } catch (err) { const msg = err instanceof Error ? err.message : ""; setError(/duplicate key|23505/i.test(msg) ? "Você já avaliou este atendimento." : msg || "Não foi possível enviar sua avaliação."); }
     finally { setBusy(false); }
   };
   const all = ["Pontual", "Higienizado", "Simpática", "Resultado incrível"];
