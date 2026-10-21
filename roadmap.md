@@ -1,5 +1,8 @@
 # Roadmap BM
 
+- [ ] Criar /admin exclusivo da gestora com revisão de documentos, decisões e custódia simulada
+- [ ] Validar permissões, documentos privados e decisões persistidas
+
 - [x] Substituir captura simulada por envio privado de RG/CNH e selfie, salvar PENDENTE_ANALISE e validar confirmação após recarregar
 
 - [x] Criar projeto independente de pitch em remotion/ com cinco cenas, 90 segundos e renderização local
