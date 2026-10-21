@@ -1,4 +1,5 @@
 import { LanguageSwitcher } from "../components/bm/language-switcher";
+import { NotificationCenter } from "../components/bm/post-service";
 import { AdminLink } from "../components/bm/admin-link";
 import { InstallAppButton } from "../components/bm/install-app";
 import { translateUi, useLanguage } from "../lib/bm-i18n";
@@ -7,7 +8,6 @@ import {
   AlertTriangle,
   ArrowLeft,
   CalendarDays,
-  Bell,
   Check,
   CheckCircle2,
   ChevronDown,
@@ -170,7 +170,7 @@ function Index() {
         service_name: selected.service,
         category: selected.category,
         client_name: profileName,
-        address: bookingExtras.notes || null,
+        address: bookingExtras.address || bookingExtras.notes || null,
         notes: bookingExtras.notes || null,
         scheduled_for: scheduled && !Number.isNaN(scheduled.getTime()) ? scheduled.toISOString() : null,
         preferred_times: bookingExtras.slots.join(", "),
@@ -216,7 +216,7 @@ function Index() {
         <div className="mx-auto max-w-6xl px-4 pb-3 pt-3 md:px-8">
           <div className="flex items-center justify-between">
              <div className="brand-mark" aria-label={translateUi("BM", language)}>{translateUi("BM", language)}</div>
-             <div className="flex items-center gap-1 sm:gap-2"><LanguageSwitcher />{translateUi(user ? <div className="relative"><AppButton variant="icon" onClick={() => setAccountOpen((open) => !open)} aria-expanded={accountOpen} className="h-11 w-11 rounded-full p-0 font-display text-sm" aria-label={translateUi("Sua conta", language)}>{(profileName || user.email || "BM").trim().slice(0, 2).toUpperCase()}</AppButton>{translateUi(accountOpen && <div className="absolute right-0 top-12 z-40 w-60 rounded-lg border border-border bg-card p-3 text-left shadow-modal"><p className="truncate text-xs font-bold">{user.email}</p><p className="mt-1 text-[10px] text-muted-foreground">{translateUi("Conta guardada na nuvem da BM", language)}</p><button type="button" onClick={() => { setAccountOpen(false); setAuthOpen(true); }} className="mt-2 w-full text-left text-xs font-semibold text-primary">{translateUi("Completar verificação", language)}</button><AdminLink /><button type="button" onClick={() => { setAccountOpen(false); void leaveAccount(); }} className="mt-1 w-full text-left text-xs font-semibold text-destructive">{translateUi("Sair", language)}</button></div>, language)}</div> : <AppButton variant="icon" onClick={() => setAuthOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label={translateUi("Entrar ou cadastrar", language)}><UserRound size={19} /></AppButton>, language)}<AppButton variant="icon" onClick={() => setHelpOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label={translateUi("Ajuda e regras", language)}><BookOpen size={19} /></AppButton><AppButton variant="icon" onClick={() => setSecurityOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label={translateUi("Abrir Central de Segurança", language)}><Menu size={19} /></AppButton></div>
+             <div className="flex items-center gap-1 sm:gap-2"><LanguageSwitcher /><NotificationCenter />{translateUi(user ? <div className="relative"><AppButton variant="icon" onClick={() => setAccountOpen((open) => !open)} aria-expanded={accountOpen} className="h-11 w-11 rounded-full p-0 font-display text-sm" aria-label={translateUi("Sua conta", language)}>{(profileName || user.email || "BM").trim().slice(0, 2).toUpperCase()}</AppButton>{translateUi(accountOpen && <div className="absolute right-0 top-12 z-40 w-60 rounded-lg border border-border bg-card p-3 text-left shadow-modal"><p className="truncate text-xs font-bold">{user.email}</p><p className="mt-1 text-[10px] text-muted-foreground">{translateUi("Conta guardada na nuvem da BM", language)}</p><button type="button" onClick={() => { setAccountOpen(false); setAuthOpen(true); }} className="mt-2 w-full text-left text-xs font-semibold text-primary">{translateUi("Completar verificação", language)}</button><AdminLink /><button type="button" onClick={() => { setAccountOpen(false); void leaveAccount(); }} className="mt-1 w-full text-left text-xs font-semibold text-destructive">{translateUi("Sair", language)}</button></div>, language)}</div> : <AppButton variant="icon" onClick={() => setAuthOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label={translateUi("Entrar ou cadastrar", language)}><UserRound size={19} /></AppButton>, language)}<AppButton variant="icon" onClick={() => setHelpOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label={translateUi("Ajuda e regras", language)}><BookOpen size={19} /></AppButton><AppButton variant="icon" onClick={() => setSecurityOpen(true)} className="h-11 w-11 rounded-full p-0" aria-label={translateUi("Abrir Central de Segurança", language)}><Menu size={19} /></AppButton></div>
           </div>
            <button type="button" onClick={() => setSecurityOpen(true)} className="mt-3 flex w-full items-center justify-between gap-3 rounded-lg border border-primary/30 bg-card/70 px-3 py-2 text-left shadow-soft backdrop-blur-xl transition-colors hover:bg-card">
              <span className="text-xs font-bold leading-5">{translateUi("A experiência dos melhores salões, no conforto do seu lar.", language)}</span><ShieldCheck size={18} className="shrink-0 text-success" />
@@ -344,7 +344,7 @@ function ProfessionalView({ selectedDay, selectedTime, orderTotal, status, setSt
   };
 
   return <section className="py-7 md:py-10">
-    <div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">{translateUi("Painel do Profissional", language)}</p><h1 className="mt-1 font-display text-4xl">{translateUi("Olá, Camila", language)}</h1><p className="mt-2 text-sm text-muted-foreground">{translateUi("Acompanhe seus atendimentos e ganhos.", language)}</p></div><div className="relative flex h-11 w-11 items-center justify-center rounded-full bg-card shadow-soft"><Bell size={19} /><span className="absolute right-0 top-0 h-2.5 w-2.5 rounded-full bg-success ring-2 ring-background" /></div></div>
+    <div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">{translateUi("Painel do Profissional", language)}</p><h1 className="mt-1 font-display text-4xl">{translateUi("Olá, Camila", language)}</h1><p className="mt-2 text-sm text-muted-foreground">{translateUi("Acompanhe seus atendimentos e ganhos.", language)}</p></div><NotificationCenter /></div>
 
     <OnlineToggle />
     <AppointmentsSummary items={appointments} />
@@ -363,7 +363,7 @@ function ProfessionalView({ selectedDay, selectedTime, orderTotal, status, setSt
     <ServicesManager />
 
     <ChairBooking />
-    {released && <ReleaseSuccess amount={hasLedger ? totals.earnings : net} onClose={() => setReleased(false)} />}
+    {released && <ReleaseSuccess amount={hasLedger ? totals.earnings : net} onClose={() => setReleased(false)} bookingId={bookingId} />}
     {translateUi(tipOpen && <TravelTipModal onClose={() => setTipOpen(false)} />, language)}
     {translateUi(pinOpen && <div className="fixed inset-0 z-50 flex items-end justify-center bg-overlay/55 p-0 backdrop-blur-sm md:items-center md:p-6" role="dialog" aria-modal="true" aria-label={translateUi("Validar PIN", language)}><div className="w-full max-w-md rounded-t-2xl bg-background p-5 shadow-modal md:rounded-xl"><div className="flex items-center justify-between"><div><p className="text-[10px] font-bold uppercase tracking-[.16em] text-primary">{translateUi("Liberação segura", language)}</p><h2 className="mt-1 font-display text-2xl">{translateUi("Validar PIN da cliente", language)}</h2></div><AppButton variant="ghost" onClick={() => setPinOpen(false)} className="h-10 min-h-10 w-10 p-0" aria-label={translateUi("Fechar", language)}><X size={19} /></AppButton></div><p className="mt-3 text-sm leading-6 text-muted-foreground">{translateUi("Digite o código de 4 dígitos exibido no celular da cliente para concluir e liberar R$ ", language)}{translateUi(net.toFixed(2).replace(".", ","), language)}{translateUi(".", language)}</p><input value={pin} onChange={(event) => { const value = event.target.value.replace(/\D/g, "").slice(0, 4); setPin(value); setPinError(""); }} inputMode="numeric" autoComplete="one-time-code" maxLength={4} aria-label={translateUi("PIN de 4 dígitos", language)} className="pin-input mt-6 w-full rounded-lg border border-border bg-card px-4 py-4 text-center font-display text-3xl" placeholder={translateUi("••••", language)} />{translateUi(pinError && <p className="mt-2 text-xs font-semibold text-destructive">{translateUi(pinError, language)}</p>, language)}<AppButton onClick={validatePin} disabled={pin.length !== 4} className="mt-5 w-full">{translateUi("Concluir serviço e liberar pagamento", language)}</AppButton></div></div>, language)}
   </section>;
@@ -448,7 +448,7 @@ function PaymentStep(props: BookingProps) {
   const markPaid = useCallback(() => { void confirmPayment(); }, [confirmPayment]);
   const txid = props.receiptCode;
   const method: HybridMethod = props.payment === "solana" ? "solana" : "pix";
-  if (paid) return <PaymentReceipt txid={txid} method={method} wallet={wallet} total={total} professional={p.name} service={p.service} day={props.selectedDay} slots={extras.slots} address={extras.notes || undefined} onContinue={props.onNext} />;
+  if (paid) return <PaymentReceipt txid={txid} method={method} wallet={wallet} total={total} professional={p.name} service={p.service} day={props.selectedDay} slots={extras.slots} address={extras.address || extras.notes || undefined} onContinue={props.onNext} />;
   return <div className="p-5"><div className="rounded-lg border border-success/30 bg-success-soft p-4"><div className="flex gap-3"><ShieldCheck className="shrink-0 text-success" size={24} /><div><h3 className="font-bold text-success">{translateUi("Seu dinheiro fica seguro", language)}</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">{translateUi("A BM retém o valor. Ele só é liberado à profissional quando você informar o PIN após o atendimento.", language)}</p></div></div></div>
     <CheckoutOptions extras={extras} setExtras={props.setBookingExtras} isMassage={massage} favorites={props.favorites} selectedProfessional={p.id} />
     <h3 className="mb-3 mt-6 font-display text-xl">{translateUi("Forma de pagamento", language)}</h3>

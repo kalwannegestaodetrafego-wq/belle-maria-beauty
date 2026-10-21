@@ -131,6 +131,77 @@ export type Database = {
         }
         Relationships: []
       }
+      client_ratings: {
+        Row: {
+          booking_id: string
+          client_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          payment_received: boolean
+          professional_id: string
+          rating: number
+        }
+        Insert: {
+          booking_id: string
+          client_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          payment_received?: boolean
+          professional_id: string
+          rating: number
+        }
+        Update: {
+          booking_id?: string
+          client_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          payment_received?: boolean
+          professional_id?: string
+          rating?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_ratings_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: true
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          read: boolean
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind: string
+          read?: boolean
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          read?: boolean
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       portfolio_items: {
         Row: {
           caption: string | null
@@ -233,6 +304,7 @@ export type Database = {
           professional_name: string | null
           rating: number
           tags: string | null
+          visibility: string
         }
         Insert: {
           author_id: string
@@ -245,6 +317,7 @@ export type Database = {
           professional_name?: string | null
           rating: number
           tags?: string | null
+          visibility?: string
         }
         Update: {
           author_id?: string
@@ -257,6 +330,7 @@ export type Database = {
           professional_name?: string | null
           rating?: number
           tags?: string | null
+          visibility?: string
         }
         Relationships: [
           {
@@ -300,6 +374,53 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          admin_reply: string | null
+          author_id: string
+          author_role: string
+          booking_id: string | null
+          category: string
+          created_at: string
+          id: string
+          message: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_reply?: string | null
+          author_id: string
+          author_role: string
+          booking_id?: string | null
+          category: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_reply?: string | null
+          author_id?: string
+          author_role?: string
+          booking_id?: string | null
+          category?: string
+          created_at?: string
+          id?: string
+          message?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -391,6 +512,10 @@ export type Database = {
     Functions: {
       bm_admin_escrow: {
         Args: { _booking_id: string; _release: boolean }
+        Returns: undefined
+      }
+      bm_resolve_ticket: {
+        Args: { _reply: string; _ticket_id: string }
         Returns: undefined
       }
       bm_review_identity: {
