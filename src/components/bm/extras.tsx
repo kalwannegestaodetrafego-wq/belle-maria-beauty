@@ -53,12 +53,12 @@ function FileBox({ label, file, onFile, icon }: { label: string; file?: File | u
 const docLabel: Record<DocKind, string> = { selfie: "Selfie de segurança", identity: "Documento de identidade (RG/CNH) ou alvará", identity_back: "Verso do Documento (RG ou CNH)" };
 
 /* ---------- Auth ---------- */
-export function AuthModal({ onClose, onProfessionalSignup }: { onClose: () => void; onProfessionalSignup?: () => void }) {
+export function AuthModal({ onClose, onProfessionalSignup, gateMessage, initialTab, initialMode }: { onClose: () => void; onProfessionalSignup?: () => void; gateMessage?: string; initialTab?: "Cliente" | "Profissional Beleza" | "Salão Parceiro"; initialMode?: "signup" | "login" }) {
   const { language, locale } = useLanguage();
   const tabs = ["Cliente", "Profissional Beleza", "Salão Parceiro"] as const;
-  const [tab, setTab] = useState<(typeof tabs)[number]>("Cliente");
+  const [tab, setTab] = useState<(typeof tabs)[number]>(initialTab ?? "Cliente");
   const [professionalType, setProfessionalType] = useState<"cpf" | "cnpj">("cpf");
-  const [mode, setMode] = useState<"signup" | "login">("signup");
+  const [mode, setMode] = useState<"signup" | "login">(initialMode ?? "signup");
   const [files, setFiles] = useState<Partial<Record<DocKind, File>>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -138,7 +138,9 @@ export function AuthModal({ onClose, onProfessionalSignup }: { onClose: () => vo
   if (result) return <Sheet title={translateUi("Tudo certo!", language)} eyebrow={translateUi("Conta BM", language)} onClose={onClose}><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-4 font-display text-2xl">{translateUi(result === "confirm" ? "Confirme seu e-mail" : mode === "login" ? "Bem-vinda de volta" : "Cadastro enviado", language)}</p><p className="mt-2 text-sm text-muted-foreground">{translateUi(result === "confirm" ? "Enviamos um link de confirmação. Depois de confirmar, entre na sua conta para enviar a selfie e os documentos." : "Seu perfil e documentos foram salvos. Nossa equipe valida em até 24h.", language)}</p><button onClick={mode === "signup" && tab === "Profissional Beleza" && onProfessionalSignup ? onProfessionalSignup : onClose} className={`${primary} mt-6 w-full`}>{translateUi(mode === "signup" && tab === "Profissional Beleza" ? "Iniciar minicurso de boas-vindas" : "Continuar", language)}</button></div></Sheet>;
 
   return <Sheet title={translateUi(mode === "signup" ? "Criar conta" : "Entrar", language)} eyebrow={translateUi("Acesso BM", language)} onClose={onClose}>
+    {translateUi(gateMessage && <p className="mb-4 rounded-lg border border-primary/40 bg-secondary p-3 text-xs font-semibold leading-5">{translateUi(gateMessage, language)}</p>, language)}
     <IdentityTrustCard className="mb-5" />
+    <button type="button" onClick={() => { setMode("signup"); setTab("Profissional Beleza"); }} className="mb-4 w-full rounded-lg border border-border bg-card p-3 text-left text-xs leading-5"><span className="font-bold">{translateUi("Quer oferecer seus serviços?", language)}</span> <span className="text-primary underline">{translateUi("Cadastre seu perfil profissional ou salão parceiro", language)}</span></button>
     {translateUi(mode === "signup" && <div className="grid grid-cols-3 rounded-lg bg-card p-1 ring-1 ring-border">{translateUi(tabs.map((t) => <button type="button" key={t} onClick={() => setTab(t)} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight ${tab === t ? "bg-foreground text-background" : "text-muted-foreground"}`}>{translateUi(t, language)}</button>), language)}</div>, language)}
     <form onSubmit={submit} className="mt-5 space-y-3">
       <Field label={translateUi("E-mail", language)} name="email" type="email" required maxLength={255} placeholder={translateUi("voce@email.com", language)} />
