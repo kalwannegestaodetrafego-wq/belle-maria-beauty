@@ -1,3 +1,4 @@
+import { demoSignIn } from "@/lib/bm-demo.functions";
 import { translateUi, useLanguage } from "../../lib/bm-i18n";
 import { QuickSupport } from "./post-service";
 import { useEffect, useState, type ReactNode } from "react";
@@ -104,6 +105,16 @@ export function AuthModal({ onClose, onProfessionalSignup, gateMessage, initialT
     finally { setBusy(false); }
   };
 
+  const demo = async (kind: "cliente" | "profissional") => {
+    setBusy(true); setError("");
+    try {
+      const tokens = await demoSignIn({ data: { kind } });
+      const { error } = await supabase.auth.setSession(tokens);
+      if (error) throw error;
+      window.location.assign("/");
+    } catch (err) { setError(err instanceof Error ? err.message : "Não foi possível entrar."); setBusy(false); }
+  };
+
   const submit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault(); if (!requiredUploadsComplete || busy) return;
     const fd = new FormData(e.currentTarget);
@@ -139,6 +150,14 @@ export function AuthModal({ onClose, onProfessionalSignup, gateMessage, initialT
 
   return <Sheet title={translateUi(mode === "signup" ? "Criar conta" : "Entrar", language)} eyebrow={translateUi("Acesso BM", language)} onClose={onClose}>
     {translateUi(gateMessage && <p className="mb-4 rounded-lg border border-primary/40 bg-secondary p-3 text-xs font-semibold leading-5">{translateUi(gateMessage, language)}</p>, language)}
+    <div className="mb-5 rounded-xl border-2 border-primary bg-secondary p-4 shadow-luxe">
+      <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Hackathon</p>
+      <p className="font-display text-lg">{translateUi("Acesso Rápido - Avaliação Hackathon", language)}</p>
+      <div className="mt-3 grid gap-2">
+        <button type="button" disabled={busy} onClick={() => { void demo("cliente"); }} className={`${primary} w-full`}>{translateUi("Entrar como Cliente Demo", language)}</button>
+        <button type="button" disabled={busy} onClick={() => { void demo("profissional"); }} className={`${outline} w-full`}>{translateUi("Entrar como Profissional Demo", language)}</button>
+      </div>
+    </div>
     <IdentityTrustCard className="mb-5" />
     <button type="button" onClick={() => { setMode("signup"); setTab("Profissional Beleza"); }} className="mb-4 w-full rounded-lg border border-border bg-card p-3 text-left text-xs leading-5"><span className="font-bold">{translateUi("Quer oferecer seus serviços?", language)}</span> <span className="text-primary underline">{translateUi("Cadastre seu perfil profissional ou salão parceiro", language)}</span></button>
     {translateUi(mode === "signup" && <div className="grid grid-cols-3 rounded-lg bg-card p-1 ring-1 ring-border">{translateUi(tabs.map((t) => <button type="button" key={t} onClick={() => setTab(t)} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight ${tab === t ? "bg-foreground text-background" : "text-muted-foreground"}`}>{translateUi(t, language)}</button>), language)}</div>, language)}
