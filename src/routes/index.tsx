@@ -3,7 +3,9 @@ import { NotificationCenter } from "../components/bm/post-service";
 import { AdminLink } from "../components/bm/admin-link";
 import { InstallAppButton } from "../components/bm/install-app";
 import { translateUi, useLanguage } from "../lib/bm-i18n";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
+import { landingFor, type BmView } from "../lib/bm-access";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -30,7 +32,7 @@ import {
   Wallet,
   X,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type ButtonHTMLAttributes, type ReactNode } from "react";
 
 import { B2BFinance, ClientHub } from "../components/bm/modules";
 import { AuthModal, B2BView, ChairBooking, ChatModal, OnboardingBanner, ReviewModal, TravelTipModal } from "../components/bm/extras";
@@ -101,8 +103,14 @@ function AppButton({ variant = "primary", className = "", children, ...props }: 
 
 function Index() {
   const { language, locale } = useLanguage();
-  const [view, setView] = useState<"Cliente" | "Profissional Beleza" | "Empresa & Salão B2B">("Cliente");
-  const [authOpen, setAuthOpen] = useState(false);
+  const [view, setView] = useState<BmView>("Cliente");
+  const [authOpen, setAuthOpenRaw] = useState(false);
+  const [authGate, setAuthGate] = useState<string | undefined>();
+  const [authTab, setAuthTab] = useState<"Cliente" | "Profissional Beleza" | "Salão Parceiro" | undefined>();
+  const [ownView, setOwnView] = useState<BmView | null>(null);
+  const navigateTo = useNavigate();
+  const setAuthOpen = (open: boolean) => { setAuthOpenRaw(open); if (!open) { setAuthGate(undefined); setAuthTab(undefined); } };
+  const askLogin = (message: string, tab?: "Cliente" | "Profissional Beleza" | "Salão Parceiro") => { setAuthGate(message); setAuthTab(tab); setAuthOpenRaw(true); };
   const [chatOpen, setChatOpen] = useState(false);
   const [category, setCategory] = useState("Para você");
   const [mode, setMode] = useState<"Em Domicílio" | "No Salão">("Em Domicílio");
@@ -128,6 +136,9 @@ function Index() {
   const [saveError, setSaveError] = useState("");
   const [profileName, setProfileName] = useState<string | null>(null);
   const { user, loading: sessionLoading } = useBmSession();
+  const prevUser = useRef<string | null>(null);
+  const sessionFirstLoad = useRef(true);
+  useEffect(() => { if (!sessionLoading && !user) sessionFirstLoad.current = false; }, [sessionLoading, user]);
   const queryClient = useQueryClient();
   const leaveAccount = useCallback(async () => {
     queryClient.cancelQueries();
@@ -136,8 +147,17 @@ function Index() {
   }, [queryClient]);
 
   useEffect(() => {
-    if (!user) { setMyBookings([]); setLiveBooking(null); setProfileName(null); return; }
+    if (!user) { setMyBookings([]); setLiveBooking(null); setProfileName(null); setOwnView(null); setView("Cliente"); prevUser.current = null; return; }
     let active = true;
+    const justSignedIn = prevUser.current === null && !sessionFirstLoad.current;
+    sessionFirstLoad.current = false;
+    prevUser.current = user.id;
+    void Promise.all([getMyProfile().catch(() => null), supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then((r) => r.data === true, () => false)]).then(([profile, isAdmin]) => {
+      if (!active) return;
+      const landing = landingFor(profile?.account_type, isAdmin);
+      setOwnView(landing.view); setView(landing.view);
+      if (landing.admin && justSignedIn) void navigateTo({ to: "/admin" });
+    });
     void listBookings("client").then((rows) => { if (active) { setMyBookings(rows); setLiveBooking((current) => rows.find((row) => row.id === current?.id) ?? rows.find((row) => row.status !== "completed") ?? rows[0] ?? null); } }).catch(() => {});
     void getMyProfile().then((profile) => { if (active) setProfileName(profile?.full_name ?? null); }).catch(() => {});
     return () => { active = false; };
@@ -146,8 +166,9 @@ function Index() {
   const filtered = useMemo(() => professionals.filter((p) => (category === "Para você" || category.startsWith(p.category) || category.startsWith("Cabelo") && p.id === "camila" || category === "Casamentos & Noivas" && p.id === "camila" || category === "Eventos" && p.id === "camila" || category === "Combos VIP" || category === "Clube BM" || category === "Vale Presente") && (mode === "Em Domicílio" ? p.atHome : !p.atHome)), [category, mode]);
 
   const latest = myBookings[0] ?? liveBooking ?? null;
-  const openProfile = (p: Professional) => { setSelected(p); setStep(0); };
+  const openProfile = (p: Professional) => { if (!user) { askLogin("Entre ou cadastre-se para ver o perfil completo e agendar."); return; } setSelected(p); setStep(0); };
   const openAgenda = () => {
+    if (!user) { askLogin("Entre ou cadastre-se para acessar sua agenda."); return; }
     const firstProfessional = professionals.at(0);
     if (!firstProfessional) return;
     setSelected(firstProfessional);
@@ -230,11 +251,11 @@ function Index() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 md:px-8">
-        <div className="mt-5 grid grid-cols-3 rounded-lg bg-card/65 p-1 shadow-soft ring-1 ring-border/60">
-          {translateUi((["Cliente", "Profissional Beleza", "Empresa & Salão B2B"] as const).map((item) => <button key={item} onClick={() => setView(item)} aria-pressed={view === item} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight transition-all ${view === item ? "bg-primary text-primary-foreground shadow-soft ring-1 ring-foreground" : "text-muted-foreground"}`}>{translateUi(item, language)}</button>), language)}
+        <div className={`mt-5 grid ${ownView ? "grid-cols-1" : "grid-cols-3"} rounded-lg bg-card/65 p-1 shadow-soft ring-1 ring-border/60`}>
+          {translateUi((["Cliente", "Profissional Beleza", "Empresa & Salão B2B"] as const).filter((item) => !ownView || item === ownView).map((item) => <button key={item} onClick={() => { if (!user && item !== "Cliente") { askLogin("Entre com sua conta de parceiro para acessar o Dashboard.", item === "Profissional Beleza" ? "Profissional Beleza" : "Salão Parceiro"); return; } setView(item); }} aria-pressed={view === item} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight transition-all ${view === item ? "bg-primary text-primary-foreground shadow-soft ring-1 ring-foreground" : "text-muted-foreground"}`}>{translateUi(item, language)}</button>), language)}
         </div>
 
-         {translateUi(view === "Empresa & Salão B2B" ? <><B2BView /><B2BFinance /></> : view === "Profissional Beleza" ? <ProfessionalView selectedDay={selectedDay} selectedTime={selectedTime} orderTotal={orderTotal} status={orderStatus} setStatus={changeStatus} bookingId={liveBooking?.id} onComplete={completeBooking} clientName={profileName ?? liveBooking?.client_name ?? "Ana Martins"} /> : <>
+         {translateUi(view === "Empresa & Salão B2B" && user ? <><B2BView /><B2BFinance /></> : view === "Profissional Beleza" && user ? <ProfessionalView selectedDay={selectedDay} selectedTime={selectedTime} orderTotal={orderTotal} status={orderStatus} setStatus={changeStatus} bookingId={liveBooking?.id} onComplete={completeBooking} clientName={profileName ?? liveBooking?.client_name ?? "Ana Martins"} /> : <>
           <section className="py-7 md:py-10">
             <p className="mb-2 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[.16em] text-primary"><Sparkles size={14} />{translateUi(" Curadoria em Florianópolis", language)}</p>
             <h1 className="max-w-2xl font-display text-4xl leading-[1.05] md:text-6xl">{translateUi("A experiência dos melhores salões, ", language)}<span className="text-primary">{translateUi("no conforto do seu lar.", language)}</span></h1>
@@ -278,7 +299,7 @@ function Index() {
       </div>
 
       <footer className="mx-auto mt-10 max-w-6xl border-t border-border px-4 py-8 md:px-8">
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><p className="font-display text-xl">{translateUi("BM", language)}</p><p className="mt-1 text-xs text-muted-foreground">{translateUi("A experiência dos melhores salões, no conforto do seu lar.", language)}</p></div><div className="flex flex-col items-start gap-3"><button type="button" onClick={() => setSecurityOpen(true)} className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-bold text-foreground transition-colors hover:text-primary"><ShieldCheck size={18} className="text-success" />{translateUi(" Segurança & Privacidade ", language)}<ChevronRight size={16} /></button><WhatsAppSupportButton /></div></div>
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div><p className="font-display text-xl">{translateUi("BM", language)}</p><p className="mt-1 text-xs text-muted-foreground">{translateUi("A experiência dos melhores salões, no conforto do seu lar.", language)}</p></div><div className="flex flex-col items-start gap-3"><button type="button" onClick={() => setSecurityOpen(true)} className="inline-flex min-h-11 items-center gap-2 self-start text-sm font-bold text-foreground transition-colors hover:text-primary"><ShieldCheck size={18} className="text-success" />{translateUi(" Segurança & Privacidade ", language)}<ChevronRight size={16} /></button><WhatsAppSupportButton /><button type="button" onClick={() => askLogin("Crie sua conta de parceiro BM.", "Profissional Beleza")} className="text-left text-xs leading-5"><span className="font-bold">{translateUi("Quer oferecer seus serviços?", language)}</span> <span className="text-primary underline">{translateUi("Cadastre seu perfil profissional ou salão parceiro", language)}</span></button></div></div>
         <div className="mt-6 flex flex-col gap-4 border-t border-border/70 pt-5 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-3">
             <a href="https://www.linkedin.com/company/belle-maria-beauty" target="_blank" rel="noreferrer" aria-label={translateUi("LinkedIn oficial da BM", language)} className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card text-foreground transition-colors hover:text-primary"><Linkedin size={18} /></a>
@@ -293,7 +314,7 @@ function Index() {
       </nav>
 
        {translateUi(selected && <BookingModal professional={selected} step={step} selectedDay={selectedDay} setSelectedDay={setSelectedDay} bookingExtras={bookingExtras} setBookingExtras={setBookingExtras} favorites={professionals.filter((p) => favorite.includes(p.id)).map(({ id, name }) => ({ id, name }))} rules={rules} setRules={setRules} payment={payment} setPayment={setPayment} copied={copied} setCopied={setCopied} orderStatus={orderStatus} onNext={next} onBack={back} onClose={close} receiptCode={receiptCode} onPaid={payBooking} saving={saving} saveError={saveError} signedIn={!!user} onSignIn={() => { close(); setAuthOpen(true); }} bookingId={liveBooking?.id} />, language)}
-      {translateUi(authOpen && <AuthModal onClose={() => setAuthOpen(false)} onProfessionalSignup={() => { setAuthOpen(false); setView("Profissional Beleza"); setTrainingOpen(true); }} />, language)}
+      {translateUi(authOpen && <AuthModal key={`${authTab ?? ""}${authGate ?? ""}`} gateMessage={authGate} initialTab={authTab} onClose={() => setAuthOpen(false)} onProfessionalSignup={() => { setAuthOpen(false); setView("Profissional Beleza"); setTrainingOpen(true); }} />, language)}
       {translateUi(chatOpen && <ChatModal name="Camila Silva" onClose={() => setChatOpen(false)} />, language)}
       {translateUi(securityOpen && <SecurityCenter onClose={() => setSecurityOpen(false)} />, language)}
       {translateUi(helpOpen && <HelpRules onClose={() => setHelpOpen(false)} />, language)}
