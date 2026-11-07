@@ -53,7 +53,7 @@ function FileBox({ label, file, onFile, icon }: { label: string; file?: File | u
 const docLabel: Record<DocKind, string> = { selfie: "Selfie de segurança", identity: "Documento de identidade (RG/CNH) ou alvará", identity_back: "Verso do Documento (RG ou CNH)" };
 
 /* ---------- Auth ---------- */
-export function AuthModal({ onClose, onProfessionalSignup, gateMessage, initialTab, initialMode }: { onClose: () => void; onProfessionalSignup?: () => void; gateMessage?: string; initialTab?: "Cliente" | "Profissional Beleza" | "Salão Parceiro"; initialMode?: "signup" | "login" }) {
+export function AuthModal({ onClose, onProfessionalSignup, gateMessage, initialTab, initialMode }: { onClose: () => void; onProfessionalSignup?: () => void; gateMessage?: string | undefined; initialTab?: "Cliente" | "Profissional Beleza" | "Salão Parceiro" | undefined; initialMode?: "signup" | "login" | undefined }) {
   const { language, locale } = useLanguage();
   const tabs = ["Cliente", "Profissional Beleza", "Salão Parceiro"] as const;
   const [tab, setTab] = useState<(typeof tabs)[number]>(initialTab ?? "Cliente");
