@@ -251,7 +251,7 @@ function Index() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 md:px-8">
-        <div className={`mt-5 grid ${ownView ? "grid-cols-1" : "grid-cols-3"} rounded-lg bg-card/65 p-1 shadow-soft ring-1 ring-border/60">
+        <div className={`mt-5 grid ${ownView ? "grid-cols-1" : "grid-cols-3"} rounded-lg bg-card/65 p-1 shadow-soft ring-1 ring-border/60`}>
           {translateUi((["Cliente", "Profissional Beleza", "Empresa & Salão B2B"] as const).filter((item) => !ownView || item === ownView).map((item) => <button key={item} onClick={() => { if (!user && item !== "Cliente") { askLogin("Entre com sua conta de parceiro para acessar o Dashboard.", item === "Profissional Beleza" ? "Profissional Beleza" : "Salão Parceiro"); return; } setView(item); }} aria-pressed={view === item} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight transition-all ${view === item ? "bg-primary text-primary-foreground shadow-soft ring-1 ring-foreground" : "text-muted-foreground"}`}>{translateUi(item, language)}</button>), language)}
         </div>
 
