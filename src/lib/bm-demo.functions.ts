@@ -21,8 +21,8 @@ export const demoSignIn = createServerFn({ method: "POST" })
       const { error } = await supabaseAdmin.auth.admin.createUser({ email: demo.email, password, email_confirm: true, user_metadata: demo.meta });
       if (error) throw new Error(error.message);
     }
-    const key = process.env.SUPABASE_PUBLISHABLE_KEY!;
-    const client = createClient(process.env.SUPABASE_URL!, key, {
+    const key = process.env["SUPABASE_PUBLISHABLE_KEY"]!;
+    const client = createClient(process.env["SUPABASE_URL"]!, key, {
       auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
       global: { fetch: (i, init) => { const h = new Headers(init?.headers); if (h.get("Authorization") === `Bearer ${key}`) h.delete("Authorization"); h.set("apikey", key); return fetch(i, { ...init, headers: h }); } },
     });
