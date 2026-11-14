@@ -19,3 +19,5 @@
 - Keep the pitch source in an independent remotion/ package, outside the TanStack app graph; local Node rendering must not enter the Worker bundle.
 - Pitch scenes must distinguish simulated payments, token rewards and demo profiles from deployed capabilities; animation does not establish identity verification or on-chain settlement.
 - Keep supplied pitch audio originals separate from the continuous composition soundtrack; audio lives outside scene transitions so crossfades cannot restart narration.
+- Separate signup document requirements from checkout verification; client accounts stay lightweight while bookings require saved identity data.
+- Keep password recovery on a public route and enable password updates only for a validated recovery session, not an ordinary signed-in session.
