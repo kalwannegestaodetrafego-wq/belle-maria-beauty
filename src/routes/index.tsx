@@ -159,7 +159,8 @@ function Index() {
     void Promise.all([getMyProfile().catch(() => null), supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then((r) => r.data === true, () => false)]).then(([profile, isAdmin]) => {
       if (!active) return;
       const landing = landingFor(profile?.account_type, isAdmin);
-      setOwnView(isEvaluationAccount(user.id) ? null : landing.view); setView(landing.view);
+      setOwnView(isEvaluationAccount(user.id) ? null : landing.view);
+      if (!isEvaluationAccount(user.id)) setView(landing.view);
       if (landing.admin && justSignedIn) void navigateTo({ to: "/admin" });
     });
     void listBookings("client").then((rows) => { if (active) { setMyBookings(rows); setLiveBooking((current) => rows.find((row) => row.id === current?.id) ?? rows.find((row) => row.status !== "completed") ?? rows[0] ?? null); } }).catch(() => {});
