@@ -1,4 +1,5 @@
 import bmLogo from "@/assets/bm-logo.png.asset.json";
+import { ClientBookingProfile } from "@/components/bm/client-booking-profile";
 import { LanguageSwitcher } from "../components/bm/language-switcher";
 import { NotificationCenter } from "../components/bm/post-service";
 import { AdminLink } from "../components/bm/admin-link";
@@ -210,6 +211,7 @@ function Index() {
       try { await addWalletEntry({ kind: "escrow", amount: total, label: `${selected.service} · ${selected.name}`, bookingId: row.id }); } catch { /* the protected balance keeps the simulated figure */ }
     } catch (err) {
       setSaveError(err instanceof Error ? err.message : "Não foi possível registrar seu agendamento.");
+      throw err;
     } finally { setSaving(false); }
   }, [selected, user, saving, orderTotal, bookingExtras, selectedDay, payment, receiptCode, rules, profileName]);
 
@@ -462,14 +464,20 @@ function PaymentStep(props: BookingProps) {
   const total = bookingTotal(p.price, urgent, extras, massage);
   const [paid, setPaid] = useState(false);
   const [wallet, setWallet] = useState<string | null>(null);
+  const [profileReady, setProfileReady] = useState(false);
+  const onProfileReady = useCallback(() => setProfileReady(true), []);
+  const [paymentError, setPaymentError] = useState("");
   const confirmPayment = useCallback(async () => {
     if (!props.signedIn) { props.onSignIn(); return; }
-    await props.onPaid();
-    setPaid(true);
-  }, [props.signedIn, props.onSignIn, props.onPaid]);
+    if (!profileReady) return;
+    setPaymentError("");
+    try { await props.onPaid(); setPaid(true); }
+    catch (err) { setPaymentError(err instanceof Error ? err.message : "Não foi possível registrar seu agendamento."); }
+  }, [props.signedIn, props.onSignIn, props.onPaid, profileReady]);
   const markPaid = useCallback(() => { void confirmPayment(); }, [confirmPayment]);
   const txid = props.receiptCode;
   const method: HybridMethod = props.payment === "solana" ? "solana" : "pix";
+  if (props.signedIn && !profileReady) return <ClientBookingProfile onReady={onProfileReady} />;
   if (paid) return <PaymentReceipt txid={txid} method={method} wallet={wallet} total={total} professional={p.name} service={p.service} day={props.selectedDay} slots={extras.slots} address={extras.address || extras.notes || undefined} onContinue={props.onNext} />;
   return <div className="p-5"><div className="rounded-lg border border-success/30 bg-success-soft p-4"><div className="flex gap-3"><ShieldCheck className="shrink-0 text-success" size={24} /><div><h3 className="font-bold text-success">{translateUi("Seu dinheiro fica seguro", language)}</h3><p className="mt-1 text-xs leading-5 text-muted-foreground">{translateUi("A BM retém o valor. Ele só é liberado à profissional quando você informar o PIN após o atendimento.", language)}</p></div></div></div>
     <CheckoutOptions extras={extras} setExtras={props.setBookingExtras} isMassage={massage} favorites={props.favorites} selectedProfessional={p.id} />
@@ -477,7 +485,7 @@ function PaymentStep(props: BookingProps) {
     <HybridCheckout total={total} method={method} setMethod={props.setPayment} txid={txid} onWalletChange={setWallet} onAutoPaid={markPaid} />
     <div className="mt-6 space-y-1 border-t border-border pt-4 text-xs"><div className="flex justify-between"><span>{translateUi("Serviço", language)}</span><span>{translateUi(money(p.price), language)}</span></div>{translateUi(urgent && <div className="flex justify-between"><span>{translateUi("Adicional de Urgência (&lt;12h)", language)}</span><span>{translateUi("+ R$ 15,00", language)}</span></div>, language)}{translateUi(massage && extras.hasTable && <div className="flex justify-between text-success"><span>{translateUi("Maca no local", language)}</span><span>{translateUi("− R$ 10,00", language)}</span></div>, language)}{translateUi(extras.useCredit && <div className="flex justify-between text-success"><span>{translateUi("Vale Presente / crédito BM", language)}</span><span>{translateUi("− R$ 20,00", language)}</span></div>, language)}</div>
     {translateUi(!props.signedIn && <p className="mt-4 text-center text-[11px] leading-5 text-muted-foreground">{translateUi("Entre na sua conta BM para guardar este agendamento.", language)}</p>, language)}
-    {translateUi(props.saveError && <p className="mt-3 text-xs font-semibold text-destructive">{translateUi(props.saveError, language)}</p>, language)}
+    {translateUi((props.saveError || paymentError) && <p role="alert" className="mt-3 text-xs font-semibold text-destructive">{translateUi(props.saveError || paymentError, language)}</p>, language)}
     <div className="mt-5 flex items-end justify-between gap-3"><div><p className="text-xs text-muted-foreground">{translateUi("Total protegido", language)}</p><p className="font-display text-3xl">{translateUi(money(total), language)}</p></div><AppButton onClick={() => { void confirmPayment(); }} disabled={props.saving || (extras.forOther && !extras.recipient.trim()) || (method === "solana" && !wallet)}>{translateUi(!props.signedIn ? "Entrar para reservar" : props.saving ? "Registrando…" : method === "solana" && !wallet ? "Conecte a carteira" : "Pagar com segurança", language)}</AppButton></div>
   </div>;
 }

@@ -1,4 +1,6 @@
 import { demoSignIn } from "@/lib/bm-demo.functions";
+import { Button } from "@/components/ui/button";
+import { signupDocs } from "@/lib/bm-auth-rules";
 import { translateUi, useLanguage } from "../../lib/bm-i18n";
 import { QuickSupport } from "./post-service";
 import { useEffect, useState, type ReactNode } from "react";
@@ -63,11 +65,13 @@ export function AuthModal({ onClose, onProfessionalSignup, gateMessage, initialT
   const [files, setFiles] = useState<Partial<Record<DocKind, File>>>({});
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [forgot, setForgot] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   const [result, setResult] = useState<null | "confirm" | "ok" | "docs" | "review">(null);
   const [missing, setMissing] = useState<DocKind[]>([]);
   const accountType: AccountType = tab === "Cliente" ? "cliente" : tab === "Profissional Beleza" ? "profissional" : "salao";
   const setFile = (k: DocKind) => (f: File) => setFiles((u) => ({ ...u, [k]: f }));
-  const needed = requiredDocs(accountType);
+  const needed = signupDocs(accountType);
   const requiredUploadsComplete = mode === "login" || needed.every((k) => files[k]);
 
   useEffect(() => {
@@ -80,7 +84,7 @@ export function AuthModal({ onClose, onProfessionalSignup, gateMessage, initialT
       const type = profile?.account_type ?? user.user_metadata?.["account_type"] ?? "cliente";
       setTab(type === "profissional" ? "Profissional Beleza" : type === "salao" ? "Salão Parceiro" : "Cliente");
       if (type === "profissional" && profile?.verification_status === "PENDENTE_ANALISE") { setResult("review"); return; }
-      const req = requiredDocs(type);
+      const req = signupDocs(type);
       const absent = req.filter((kind) => kind === "selfie" ? !profile?.selfie_path : kind === "identity_back" ? !profile?.identity_back_doc_path : !profile?.identity_doc_path);
       setMissing(absent); setResult(absent.length ? "docs" : "ok");
     })();
@@ -95,10 +99,10 @@ export function AuthModal({ onClose, onProfessionalSignup, gateMessage, initialT
     setResult(left.length ? "docs" : profile?.verification_status === "PENDENTE_ANALISE" ? "review" : "ok");
   };
 
-  const social = async (provider: "google" | "lovable") => {
+  const social = async () => {
     setBusy(true); setError("");
     try {
-      if (await connectSocial(provider)) return;
+      if (await connectSocial("google")) return;
       await syncProfile({}, []);
       setResult("ok");
     } catch (err) { setError(err instanceof Error ? err.message : "Não foi possível entrar."); }
@@ -125,7 +129,7 @@ export function AuthModal({ onClose, onProfessionalSignup, gateMessage, initialT
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         const t = (data.user?.user_metadata?.["account_type"] as AccountType) || "cliente";
-        await finishSync(requiredDocs(t));
+        await finishSync(signupDocs(t));
       } else {
         const meta: Record<string, string> = { account_type: accountType };
         ["full_name", "cpf", "cnpj", "phone", "address", "residence_details", "salon_name"].forEach((k) => { const v = fd.get(k); if (v) meta[k] = String(v); });
@@ -146,11 +150,11 @@ export function AuthModal({ onClose, onProfessionalSignup, gateMessage, initialT
   </Sheet>;
 
   if (result === "review") return <Sheet title={translateUi("Verificação BM", language)} onClose={onClose}><IdentitySubmissionConfirmation /><button onClick={onClose} className={`${primary} mt-4 w-full`}>{translateUi("Continuar", language)}</button></Sheet>;
-  if (result) return <Sheet title={translateUi("Tudo certo!", language)} eyebrow={translateUi("Conta BM", language)} onClose={onClose}><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-4 font-display text-2xl">{translateUi(result === "confirm" ? "Confirme seu e-mail" : mode === "login" ? "Bem-vinda de volta" : "Cadastro enviado", language)}</p><p className="mt-2 text-sm text-muted-foreground">{translateUi(result === "confirm" ? "Enviamos um link de confirmação. Depois de confirmar, entre na sua conta para enviar a selfie e os documentos." : "Seu perfil e documentos foram salvos. Nossa equipe valida em até 24h.", language)}</p><button onClick={mode === "signup" && tab === "Profissional Beleza" && onProfessionalSignup ? onProfessionalSignup : onClose} className={`${primary} mt-6 w-full`}>{translateUi(mode === "signup" && tab === "Profissional Beleza" ? "Iniciar minicurso de boas-vindas" : "Continuar", language)}</button></div></Sheet>;
+  if (result) return <Sheet title={translateUi("Tudo certo!", language)} eyebrow={translateUi("Conta BM", language)} onClose={onClose}><div className="text-center"><CheckCircle2 className="mx-auto text-success" size={48} /><p className="mt-4 font-display text-2xl">{translateUi(result === "confirm" ? "Confirme seu e-mail" : mode === "login" ? "Bem-vinda de volta" : "Cadastro enviado", language)}</p><p className="mt-2 text-sm text-muted-foreground">{translateUi(tab === "Cliente" ? result === "confirm" ? "Enviamos um link de confirmação. Confirme seu e-mail para acessar sua conta BM." : "Sua conta está pronta. Complete seus dados ao finalizar um agendamento." : result === "confirm" ? "Enviamos um link de confirmação. Depois de confirmar, entre na sua conta para enviar a selfie e os documentos." : "Seu perfil e documentos foram salvos. Nossa equipe valida em até 24h.", language)}</p><button onClick={mode === "signup" && tab === "Profissional Beleza" && onProfessionalSignup ? onProfessionalSignup : onClose} className={`${primary} mt-6 w-full`}>{translateUi(mode === "signup" && tab === "Profissional Beleza" ? "Iniciar minicurso de boas-vindas" : "Continuar", language)}</button></div></Sheet>;
 
   return <Sheet title={translateUi(mode === "signup" ? "Criar conta" : "Entrar", language)} eyebrow={translateUi("Acesso BM", language)} onClose={onClose}>
     {translateUi(gateMessage && <p className="mb-4 rounded-lg border border-primary/40 bg-secondary p-3 text-xs font-semibold leading-5">{translateUi(gateMessage, language)}</p>, language)}
-    <div className="mb-5 rounded-xl border-2 border-primary bg-secondary p-4 shadow-luxe">
+    <div className="mb-5 rounded-lg border-2 border-primary bg-hackathon p-4 shadow-luxe">
       <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Hackathon</p>
       <p className="font-display text-lg">{translateUi("Acesso Rápido - Avaliação Hackathon", language)}</p>
       <div className="mt-3 grid gap-2">
@@ -161,9 +165,28 @@ export function AuthModal({ onClose, onProfessionalSignup, gateMessage, initialT
     <IdentityTrustCard className="mb-5" />
     <button type="button" onClick={() => { setMode("signup"); setTab("Profissional Beleza"); }} className="mb-4 w-full rounded-lg border border-border bg-card p-3 text-left text-xs leading-5"><span className="font-bold">{translateUi("Quer oferecer seus serviços?", language)}</span> <span className="text-primary underline">{translateUi("Cadastre seu perfil profissional ou salão parceiro", language)}</span></button>
     {translateUi(mode === "signup" && <div className="grid grid-cols-3 rounded-lg bg-card p-1 ring-1 ring-border">{translateUi(tabs.map((t) => <button type="button" key={t} onClick={() => setTab(t)} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight ${tab === t ? "bg-foreground text-background" : "text-muted-foreground"}`}>{translateUi(t, language)}</button>), language)}</div>, language)}
-    <form onSubmit={submit} className="mt-5 space-y-3">
+    {forgot ? <form className="mt-5 space-y-3" onSubmit={async (e) => {
+      e.preventDefault(); if (busy) return;
+      const email = String(new FormData(e.currentTarget).get("email") ?? "").trim();
+      setBusy(true); setError("");
+      try {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password` });
+        if (error) throw error;
+        setResetSent(true);
+      } catch (err) { setError(err instanceof Error ? err.message : "Não foi possível concluir. Tente novamente."); }
+      finally { setBusy(false); }
+    }}>
+      <h3 className="font-display text-xl">{translateUi("Recuperar senha", language)}</h3>
+      {resetSent ? <p role="status" className="text-sm text-success">{translateUi("Se houver uma conta com esse e-mail, você receberá um link para redefinir sua senha.", language)}</p> : <>
+        <Field label={translateUi("E-mail", language)} name="email" type="email" required maxLength={255} />
+        <Button type="submit" disabled={busy} className="min-h-11 w-full">{translateUi(busy ? "Aguarde…" : "Enviar link de recuperação", language)}</Button>
+      </>}
+      {error && <p role="alert" className="text-sm text-destructive">{translateUi(error, language)}</p>}
+      <Button type="button" variant="link" onClick={() => { setForgot(false); setResetSent(false); setError(""); }}>{translateUi("Voltar ao acesso", language)}</Button>
+    </form> : <form onSubmit={submit} className="mt-5 space-y-3">
       <Field label={translateUi("E-mail", language)} name="email" type="email" required maxLength={255} placeholder={translateUi("voce@email.com", language)} />
       <Field label={translateUi("Senha", language)} name="password" type="password" required minLength={6} maxLength={72} placeholder={translateUi("••••••••", language)} />
+      <Button type="button" variant="link" className="h-auto px-0 py-1 text-xs" onClick={() => { setForgot(true); setError(""); }}>{translateUi("Esqueci minha senha", language)}</Button>
       {translateUi(mode === "login" ? null : tab === "Salão Parceiro" ? <>
         <Field label={translateUi("Nome do salão", language)} name="salon_name" required maxLength={100} placeholder={translateUi("Studio Bella", language)} />
         <Field label={translateUi("CNPJ", language)} name="cnpj" required inputMode="numeric" maxLength={18} placeholder={translateUi("00.000.000/0001-00", language)} />
@@ -181,18 +204,16 @@ export function AuthModal({ onClose, onProfessionalSignup, gateMessage, initialT
         <FileBox label={translateUi("Selfie de Segurança segurando o documento ou em ambiente iluminado", language)} file={files.selfie} onFile={setFile("selfie")} icon={<Camera size={18} />} />
       </> : <>
         <Field label={translateUi("Nome completo", language)} name="full_name" required maxLength={100} placeholder={translateUi("Ana Martins", language)} />
-        <div className="grid grid-cols-2 gap-3"><Field label={translateUi("CPF", language)} name="cpf" required inputMode="numeric" maxLength={14} placeholder={translateUi("000.000.000-00", language)} /><Field label={translateUi("Telefone", language)} name="phone" required inputMode="tel" maxLength={20} placeholder={translateUi("(48) 99999-0000", language)} /></div>
-        <Field label={translateUi("Endereço completo", language)} name="address" required maxLength={160} placeholder={translateUi("Rua, número · Bairro", language)} />
-        <Field label={translateUi("Detalhes da residência", language)} name="residence_details" required maxLength={100} placeholder={translateUi("Condomínio, bloco, apartamento", language)} />
-        <FileBox label={translateUi("Selfie de segurança obrigatória", language)} file={files.selfie} onFile={setFile("selfie")} icon={<Camera size={18} />} />
       </>, language)}
       {translateUi(error && <p className="text-xs font-semibold text-destructive">{translateUi(error, language)}</p>, language)}
       <button type="submit" disabled={!requiredUploadsComplete || busy} className={`${primary} w-full`}>{translateUi(busy ? "Aguarde…" : mode === "signup" ? "Cadastrar" : "Entrar", language)}</button>
-    </form>
+    </form>}
     <div className="my-3 text-center text-xs text-muted-foreground">{translateUi("ou", language)}</div>
     <div className="space-y-2">
-      <button disabled={busy} onClick={() => { void social("google"); }} className={`${outline} w-full`}>{translateUi("Entrar com Google", language)}</button>
-      <button disabled={busy} onClick={() => { void social("lovable"); }} className={`${outline} w-full`}>{translateUi("Entrar com Lovable", language)}</button>
+      <Button disabled={busy} onClick={() => { void social(); }} className="google-sign-in min-h-11 w-full gap-2.5 px-3 font-medium">
+        <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="size-[18px]"><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.19-2.27H12v4.51h6.47c-.29 1.48-1.14 2.73-2.4 3.58v3h3.86c2.26-2.09 3.56-5.17 3.56-8.82z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.86-3c-1.08.72-2.45 1.16-4.07 1.16-3.13 0-5.78-2.11-6.73-4.96H1.29v3.09C3.26 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.29c-.25-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.98-3.09z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.98 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+        {translateUi("Continuar com Google", language)}
+      </Button>
     </div>
     <button onClick={() => { setMode(mode === "signup" ? "login" : "signup"); setError(""); }} className="mt-4 w-full text-center text-xs font-semibold text-primary">{translateUi(mode === "signup" ? "Já tenho conta · Entrar" : "Não tem conta? Cadastre-se", language)}</button>
   </Sheet>;

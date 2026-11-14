@@ -31,6 +31,7 @@
   --color-success-soft: var(--success-soft);
   --color-overlay: var(--overlay);
   --color-destructive: var(--destructive);
+  --color-hackathon: var(--hackathon);
 }
 
 :root {
@@ -55,6 +56,10 @@
   --success-soft: oklch(0.93 0.035 142);
   --overlay: oklch(0.16 0.01 20);
   --destructive: oklch(0.55 0.21 27);
+  --hackathon: #fff3c4;
+  --google-background: #ffffff;
+  --google-border: #747775;
+  --google-text: #1f1f1f;
   --shadow-soft: 0 5px 20px color-mix(in oklab, var(--foreground) 7%, transparent);
   --shadow-card: 0 14px 45px color-mix(in oklab, var(--foreground) 8%, transparent);
   --shadow-luxe: 0 8px 22px color-mix(in oklab, var(--primary) 32%, transparent);
@@ -75,6 +80,9 @@
   button { cursor: pointer; }
   button:focus-visible { outline: 2px solid var(--color-ring); outline-offset: 2px; }
 }
+
+.google-sign-in { background: var(--google-background); color: var(--google-text); border: 1px solid var(--google-border); }
+.google-sign-in:hover { background: var(--google-background); }
 
 @utility font-display { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; }
 @utility brand-mark {

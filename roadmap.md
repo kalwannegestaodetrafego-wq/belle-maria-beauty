@@ -1,5 +1,10 @@
 # Roadmap BM
 
+- [x] Simplificar cadastro do cliente, manter KYC de parceiros e remover opção Lovable do modal
+- [x] Implementar recuperação por e-mail e exigir CPF/endereço/selfie antes de finalizar reserva
+- [x] Validar formulários no computador/celular e bloquear redefinição sem link de recuperação
+- [ ] Validar recebimento do e-mail e redefinição completa — conta disponível para teste usa domínio sem servidor de e-mail
+
 - [x] Criar /admin exclusivo da gestora com revisão de documentos, decisões e custódia simulada
 - [x] Validar bloqueio de visitantes/contas comuns e impedir autoaprovação
 - [ ] Validar documentos e decisões pelo painel como gestora — depende do cadastro e confirmação de kalwannegestaodetrafego@gmail.com
