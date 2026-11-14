@@ -1,5 +1,8 @@
 # Roadmap BM
 
+- [x] Unificar entrada Hackathon em uma conta e alternar três visões somente para avaliadores
+- [x] Validar acesso automático e três visões no navegador, bloqueio admin, cadastro leve/KYC e regras de isolamento/recuperação nos testes
+
 - [x] Simplificar cadastro do cliente, manter KYC de parceiros e remover opção Lovable do modal
 - [x] Implementar recuperação por e-mail e exigir CPF/endereço/selfie antes de finalizar reserva
 - [x] Validar formulários no computador/celular e bloquear redefinição sem link de recuperação

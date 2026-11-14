@@ -1,5 +1,6 @@
 import { demoSignIn } from "@/lib/bm-demo.functions";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "@tanstack/react-router";
 import { signupDocs } from "@/lib/bm-auth-rules";
 import { translateUi, useLanguage } from "../../lib/bm-i18n";
 import { QuickSupport } from "./post-service";
@@ -58,6 +59,7 @@ const docLabel: Record<DocKind, string> = { selfie: "Selfie de segurança", iden
 /* ---------- Auth ---------- */
 export function AuthModal({ onClose, onProfessionalSignup, gateMessage, initialTab, initialMode }: { onClose: () => void; onProfessionalSignup?: () => void; gateMessage?: string | undefined; initialTab?: "Cliente" | "Profissional Beleza" | "Salão Parceiro" | undefined; initialMode?: "signup" | "login" | undefined }) {
   const { language, locale } = useLanguage();
+  const navigate = useNavigate();
   const tabs = ["Cliente", "Profissional Beleza", "Salão Parceiro"] as const;
   const [tab, setTab] = useState<(typeof tabs)[number]>(initialTab ?? "Cliente");
   const [professionalType, setProfessionalType] = useState<"cpf" | "cnpj">("cpf");
@@ -109,13 +111,14 @@ export function AuthModal({ onClose, onProfessionalSignup, gateMessage, initialT
     finally { setBusy(false); }
   };
 
-  const demo = async (kind: "cliente" | "profissional") => {
+  const demo = async () => {
     setBusy(true); setError("");
     try {
-      const tokens = await demoSignIn({ data: { kind } });
+      const tokens = await demoSignIn();
       const { error } = await supabase.auth.setSession(tokens);
       if (error) throw error;
-      window.location.assign("/");
+      onClose();
+      await navigate({ to: "/" });
     } catch (err) { setError(err instanceof Error ? err.message : "Não foi possível entrar."); setBusy(false); }
   };
 
@@ -158,8 +161,7 @@ export function AuthModal({ onClose, onProfessionalSignup, gateMessage, initialT
       <p className="text-[10px] font-bold uppercase tracking-widest text-primary">Hackathon</p>
       <p className="font-display text-lg">{translateUi("Acesso Rápido - Avaliação Hackathon", language)}</p>
       <div className="mt-3 grid gap-2">
-        <button type="button" disabled={busy} onClick={() => { void demo("cliente"); }} className={`${primary} w-full`}>{translateUi("Entrar como Cliente Demo", language)}</button>
-        <button type="button" disabled={busy} onClick={() => { void demo("profissional"); }} className={`${outline} w-full`}>{translateUi("Entrar como Profissional Demo", language)}</button>
+        <Button type="button" disabled={busy} onClick={() => { void demo(); }} className="min-h-11 w-full">{translateUi(busy ? "Aguarde…" : "Entrar no Modo Avaliação", language)}</Button>
       </div>
     </div>
     <IdentityTrustCard className="mb-5" />

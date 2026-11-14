@@ -1,4 +1,5 @@
 import bmLogo from "@/assets/bm-logo.png.asset.json";
+import { isEvaluationAccount } from "@/lib/bm-demo-rules";
 import { ClientBookingProfile } from "@/components/bm/client-booking-profile";
 import { LanguageSwitcher } from "../components/bm/language-switcher";
 import { NotificationCenter } from "../components/bm/post-service";
@@ -138,6 +139,7 @@ function Index() {
   const [saveError, setSaveError] = useState("");
   const [profileName, setProfileName] = useState<string | null>(null);
   const { user, loading: sessionLoading } = useBmSession();
+  const evaluationMode = isEvaluationAccount(user?.id);
   const prevUser = useRef<string | null>(null);
   const sessionFirstLoad = useRef(true);
   useEffect(() => { if (!sessionLoading && !user) sessionFirstLoad.current = false; }, [sessionLoading, user]);
@@ -157,7 +159,8 @@ function Index() {
     void Promise.all([getMyProfile().catch(() => null), supabase.rpc("has_role", { _user_id: user.id, _role: "admin" }).then((r) => r.data === true, () => false)]).then(([profile, isAdmin]) => {
       if (!active) return;
       const landing = landingFor(profile?.account_type, isAdmin);
-      setOwnView(landing.view); setView(landing.view);
+      setOwnView(isEvaluationAccount(user.id) ? null : landing.view);
+      if (!isEvaluationAccount(user.id)) setView(landing.view);
       if (landing.admin && justSignedIn) void navigateTo({ to: "/admin" });
     });
     void listBookings("client").then((rows) => { if (active) { setMyBookings(rows); setLiveBooking((current) => rows.find((row) => row.id === current?.id) ?? rows.find((row) => row.status !== "completed") ?? rows[0] ?? null); } }).catch(() => {});
@@ -237,6 +240,14 @@ function Index() {
   return (
     <main className="min-h-screen bg-background pb-24 text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/70 bg-background/88 backdrop-blur-xl">
+        {evaluationMode && <nav aria-label={translateUi("Modo Avaliação", language)} className="border-b border-border bg-hackathon">
+          <div className="mx-auto max-w-6xl px-4 py-2 md:px-8">
+            <p className="mb-1 text-[10px] font-semibold text-muted-foreground">{translateUi("Modo Avaliação", language)}</p>
+            <div className="grid grid-cols-3 gap-1">
+              {([ ["Cliente", "Cliente"], ["Profissional Beleza", "Profissional de Beleza"], ["Empresa & Salão B2B", "Salão/Empresa B2B"] ] as const).map(([value, label]) => <AppButton key={value} variant={view === value ? "primary" : "ghost"} aria-pressed={view === value} className="min-w-0 px-1 text-[10px] leading-tight sm:text-xs" onClick={() => { close(); setView(value); }}>{translateUi(label, language)}</AppButton>)}
+            </div>
+          </div>
+        </nav>}
         <div className="mx-auto max-w-6xl px-4 pb-3 pt-3 md:px-8">
           <div className="flex items-center justify-between">
              <img src={bmLogo.url} alt="BM" className="h-9 w-auto sm:h-10" />
@@ -254,9 +265,9 @@ function Index() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 md:px-8">
-        <div className={`mt-5 grid ${ownView ? "grid-cols-1" : "grid-cols-3"} rounded-lg bg-card/65 p-1 shadow-soft ring-1 ring-border/60`}>
+        {!evaluationMode && <div className={`mt-5 grid ${ownView ? "grid-cols-1" : "grid-cols-3"} rounded-lg bg-card/65 p-1 shadow-soft ring-1 ring-border/60`}>
           {translateUi((["Cliente", "Profissional Beleza", "Empresa & Salão B2B"] as const).filter((item) => !ownView || item === ownView).map((item) => <button key={item} onClick={() => { if (!user && item !== "Cliente") { askLogin("Entre com sua conta de parceiro para acessar o Dashboard.", item === "Profissional Beleza" ? "Profissional Beleza" : "Salão Parceiro"); return; } setView(item); }} aria-pressed={view === item} className={`min-h-11 rounded-md px-1 text-[10px] font-bold leading-tight transition-all ${view === item ? "bg-primary text-primary-foreground shadow-soft ring-1 ring-foreground" : "text-muted-foreground"}`}>{translateUi(item, language)}</button>), language)}
-        </div>
+        </div>}
 
          {translateUi(view === "Empresa & Salão B2B" && user ? <><B2BView /><B2BFinance /></> : view === "Profissional Beleza" && user ? <ProfessionalView selectedDay={selectedDay} selectedTime={selectedTime} orderTotal={orderTotal} status={orderStatus} setStatus={changeStatus} bookingId={liveBooking?.id} onComplete={completeBooking} clientName={profileName ?? liveBooking?.client_name ?? "Ana Martins"} /> : <>
           <section className="py-7 md:py-10">
