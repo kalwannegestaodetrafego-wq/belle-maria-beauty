@@ -1,7 +1,7 @@
 import { translateUi, useLanguage } from "../../lib/bm-i18n";
 import { lazy, Suspense, useState } from "react";
 import { ClientOnly } from "@tanstack/react-router";
-import { distanceKm, formatKm, places, type LatLng } from "../../lib/bm-places";
+import { FLORIPA, distanceKm, formatKm, places, type LatLng } from "../../lib/bm-places";
 import { CheckCircle2, Coins, Link2, Compass, List, Lock, Map as MapIcon, MapPin, Search, Wallet } from "lucide-react";
 
 const btn = "inline-flex min-h-11 items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold transition-all active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-45";
@@ -73,10 +73,15 @@ export function LocationPanel() {
       setMsg("");
     } catch { setMsg("Não foi possível buscar agora."); }
   };
+  const useFallback = (reason: string) => { setPos(FLORIPA); setAddress("Florianópolis, SC (localização padrão)"); setMsg(reason); };
   const locate = () => {
-    if (!navigator.geolocation) { setMsg("Localização indisponível neste aparelho."); return; }
+    if (typeof navigator === "undefined" || !navigator.geolocation || !window.isSecureContext) { useFallback("Localização indisponível neste aparelho. Mostrando distâncias a partir de Florianópolis, SC."); return; }
     setMsg("Localizando…");
-    navigator.geolocation.getCurrentPosition((p) => { setPos({ lat: p.coords.latitude, lng: p.coords.longitude }); setAddress("Sua localização atual (GPS)"); setMsg(""); }, () => setMsg("Permissão de localização negada."), { enableHighAccuracy: true, timeout: 10000 });
+    navigator.geolocation.getCurrentPosition(
+      (p) => { setPos({ lat: p.coords.latitude, lng: p.coords.longitude }); setAddress("Sua localização atual (GPS)"); setMsg(""); },
+      (err) => useFallback(err.code === 1 ? "Permissão de localização negada. Mostrando distâncias a partir de Florianópolis, SC." : "Não foi possível obter sua localização. Mostrando distâncias a partir de Florianópolis, SC."),
+      { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
+    );
   };
   const items = places.map((p) => ({ ...p, d: pos ? distanceKm(pos, p) : null })).sort((a, b) => (a.d ?? 0) - (b.d ?? 0));
 
