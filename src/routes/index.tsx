@@ -43,7 +43,7 @@ import { UserRound, Lightbulb, BookOpen, Linkedin, Twitter } from "lucide-react"
 import { HelpRules, OnlineToggle, WelcomeTraining } from "../components/bm/training";
 import { CategoryShowcase, PortfolioNotice, ServiceMenu } from "../components/bm/discovery";
 import { CheckoutOptions, FlexibleSchedule, bookingIsUrgent, bookingTotal, brazilDays, initialExtras, money, type BookingExtras } from "../components/bm/booking-extras";
-import { BeautyAssistant } from "../components/bm/beauty-assistant";
+import { BeautyConsultant } from "../components/bm/beauty-assistant";
 import { LocationPanel, SolanaCheckout, SolanaPointsHub } from "../components/bm/web3-geo";
 import { AppointmentsSummary, EarningsStatement, MyAppointments, ReleaseSuccess, ServicesManager, type Appointment } from "../components/bm/pro-dashboard";
 import { HybridCheckout, PaymentReceipt, type HybridMethod } from "../components/bm/hybrid-checkout";
@@ -310,7 +310,6 @@ function Index() {
           <ClientHub />
           <SolanaPointsHub />
           <LocationPanel />
-          <BeautyAssistant signedIn={!!user} onNeedLogin={() => askLogin("Entre para usar o Assistente de Beleza BM.")} />
         </>, language)}
       </div>
 
@@ -330,6 +329,7 @@ function Index() {
       </nav>
 
        {translateUi(selected && <BookingModal professional={selected} step={step} selectedDay={selectedDay} setSelectedDay={setSelectedDay} bookingExtras={bookingExtras} setBookingExtras={setBookingExtras} favorites={professionals.filter((p) => favorite.includes(p.id)).map(({ id, name }) => ({ id, name }))} rules={rules} setRules={setRules} payment={payment} setPayment={setPayment} copied={copied} setCopied={setCopied} orderStatus={orderStatus} onNext={next} onBack={back} onClose={close} receiptCode={receiptCode} onPaid={payBooking} saving={saving} saveError={saveError} signedIn={!!user} onSignIn={() => { close(); setAuthOpen(true); }} bookingId={liveBooking?.id} />, language)}
+      <BeautyConsultant catalog={professionals.map(({ id, name, role, service, price, distance, atHome, tags }) => ({ id, name, role, service, price, area: distance, atHome, tags }))} signedIn={!!user} onNeedLogin={() => askLogin("Entre para conversar com a Consultora IA BM.")} onBook={(id) => { const p = professionals.find((x) => x.id === id); if (p) openProfile(p); }} />
       {translateUi(authOpen && <AuthModal key={`${authTab ?? ""}${authGate ?? ""}`} gateMessage={authGate} initialTab={authTab} onClose={() => setAuthOpen(false)} onProfessionalSignup={() => { setAuthOpen(false); setView("Profissional Beleza"); setTrainingOpen(true); }} />, language)}
       {translateUi(chatOpen && <ChatModal name="Camila Silva" onClose={() => setChatOpen(false)} />, language)}
       {translateUi(securityOpen && <SecurityCenter onClose={() => setSecurityOpen(false)} />, language)}
