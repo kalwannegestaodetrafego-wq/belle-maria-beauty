@@ -1986,6 +1986,10 @@ export const translations: Record<string, readonly [string, string]> = {
     "Location unavailable on this device.",
     "Ubicación no disponible en este dispositivo."
   ],
+  "Localização indisponível neste aparelho. Mostrando distâncias a partir de Florianópolis, SC.": ["Location unavailable on this device. Showing distances from Florianópolis, SC.", "Ubicación no disponible en este dispositivo. Mostrando distancias desde Florianópolis, SC."],
+  "Permissão de localização negada. Mostrando distâncias a partir de Florianópolis, SC.": ["Location permission denied. Showing distances from Florianópolis, SC.", "Permiso de ubicación denegado. Mostrando distancias desde Florianópolis, SC."],
+  "Não foi possível obter sua localização. Mostrando distâncias a partir de Florianópolis, SC.": ["Couldn't get your location. Showing distances from Florianópolis, SC.", "No se pudo obtener tu ubicación. Mostrando distancias desde Florianópolis, SC."],
+  "Florianópolis, SC (localização padrão)": ["Florianópolis, SC (default location)", "Florianópolis, SC (ubicación predeterminada)"],
   "Localizando…": [
     "Locating…",
     "Localizando…"
