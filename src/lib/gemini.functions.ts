@@ -14,7 +14,7 @@ export const askBeautyConsultant = createServerFn({ method: "POST" })
     if (!key) return { ok: false as const, error: "missing_key" };
     const list = data.catalog.map((p) => `- id=${p.id} | ${p.name} (${p.role}) | serviço: ${p.service} a partir de R$ ${p.price} | ${p.area} | ${p.atHome ? "atende em domicílio" : "atende no salão"} | ${p.tags.join(", ")}`).join("\n");
     const system = `Você é a Consultora IA BM, consultora de beleza e agendamento da Belle Maria Beauty em Florianópolis. Tom acolhedor, sofisticado e objetivo, em português do Brasil. A cliente descreve evento, horário ou estilo. Recomende o serviço ideal e até 3 profissionais APENAS desta lista (use os ids exatos):\n${list}\nNão invente profissionais, preços, horários disponíveis nem selos de verificação; diga que a disponibilidade é confirmada no agendamento. Sem conselhos médicos. Resposta em no máximo 6 linhas curtas.`;
-    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", {
+    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent", {
       method: "POST",
       headers: { "content-type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({
@@ -27,9 +27,9 @@ export const askBeautyConsultant = createServerFn({ method: "POST" })
       console.error("gemini error", res.status, (await res.text()).slice(0, 300));
       return { ok: false as const, error: res.status === 429 ? "rate_limited" : "unavailable" };
     }
-    const json = (await res.json()) as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+    const json = (await res.json()) as { candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] } }[] };
     try {
-      const out = JSON.parse(json.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "") as { message?: string; professionalIds?: string[] };
+      const out = JSON.parse(json.candidates?.[0]?.content?.parts?.filter((p) => !p.thought).map((p) => p.text ?? "").join("") ?? "") as { message?: string; professionalIds?: string[] };
       const ids = new Set(data.catalog.map((p) => p.id));
       if (!out.message?.trim()) return { ok: false as const, error: "empty" };
       return { ok: true as const, message: out.message.trim(), professionalIds: (out.professionalIds ?? []).filter((id) => ids.has(id)).slice(0, 3) };
