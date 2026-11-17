@@ -60,3 +60,4 @@
 - [x] Painel Admin com 5 abas (KYC, Escrow, Ocorrências, Reclamações, Achados e Perdidos)
 - [x] Mapa gratuito OpenStreetMap para escolher endereço/salão no checkout
 - [x] Central de Notificações (horário confirmado, saldo liberado, resposta do suporte)
+- [ ] Consultora IA BM: botão flutuante, recomenda serviço/profissionais com atalho para agendar (GEMINI_API_KEY só no servidor)
