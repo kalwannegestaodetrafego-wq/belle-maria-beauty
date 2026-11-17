@@ -43,6 +43,7 @@ import { UserRound, Lightbulb, BookOpen, Linkedin, Twitter } from "lucide-react"
 import { HelpRules, OnlineToggle, WelcomeTraining } from "../components/bm/training";
 import { CategoryShowcase, PortfolioNotice, ServiceMenu } from "../components/bm/discovery";
 import { CheckoutOptions, FlexibleSchedule, bookingIsUrgent, bookingTotal, brazilDays, initialExtras, money, type BookingExtras } from "../components/bm/booking-extras";
+import { BeautyAssistant } from "../components/bm/beauty-assistant";
 import { LocationPanel, SolanaCheckout, SolanaPointsHub } from "../components/bm/web3-geo";
 import { AppointmentsSummary, EarningsStatement, MyAppointments, ReleaseSuccess, ServicesManager, type Appointment } from "../components/bm/pro-dashboard";
 import { HybridCheckout, PaymentReceipt, type HybridMethod } from "../components/bm/hybrid-checkout";
@@ -309,6 +310,7 @@ function Index() {
           <ClientHub />
           <SolanaPointsHub />
           <LocationPanel />
+          <BeautyAssistant signedIn={!!user} onNeedLogin={() => askLogin("Entre para usar o Assistente de Beleza BM.")} />
         </>, language)}
       </div>
 
