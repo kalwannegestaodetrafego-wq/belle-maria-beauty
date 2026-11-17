@@ -36,7 +36,7 @@ export function SolanaPointsHub() {
   const { language } = useLanguage();
   const t = (x: string) => translateUi(x, language);
   const [wallet, setWallet] = useState<WalletName | null>(null);
-  const [points, setPoints] = useState(480);
+  const [points, setPoints] = useState(780);
   const [done, setDone] = useState<string>("");
   const [advanced, setAdvanced] = useState(false);
   const rewards = [
