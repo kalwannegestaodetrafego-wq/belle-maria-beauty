@@ -27,9 +27,9 @@ export const askBeautyConsultant = createServerFn({ method: "POST" })
       console.error("gemini error", res.status, (await res.text()).slice(0, 300));
       return { ok: false as const, error: res.status === 429 ? "rate_limited" : "unavailable" };
     }
-    const json = (await res.json()) as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+    const json = (await res.json()) as { candidates?: { content?: { parts?: { text?: string; thought?: boolean }[] } }[] };
     try {
-      const out = JSON.parse(json.candidates?.[0]?.content?.parts?.map((p) => p.text ?? "").join("") ?? "") as { message?: string; professionalIds?: string[] };
+      const out = JSON.parse(json.candidates?.[0]?.content?.parts?.filter((p) => !p.thought).map((p) => p.text ?? "").join("") ?? "") as { message?: string; professionalIds?: string[] };
       const ids = new Set(data.catalog.map((p) => p.id));
       if (!out.message?.trim()) return { ok: false as const, error: "empty" };
       return { ok: true as const, message: out.message.trim(), professionalIds: (out.professionalIds ?? []).filter((id) => ids.has(id)).slice(0, 3) };
