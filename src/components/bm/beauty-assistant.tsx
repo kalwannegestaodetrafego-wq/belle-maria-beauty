@@ -5,7 +5,7 @@ import { askBeautyConsultant } from "../../lib/gemini.functions";
 
 export type ConsultantPro = { id: string; name: string; role: string; service: string; price: number; area: string; atHome: boolean; tags: string[] };
 
-const errors: Record<string, string> = {
+const errors = {
   missing_key: "A Consultora IA BM ainda está sendo configurada.",
   rate_limited: "Muitos pedidos agora. Tente em instantes.",
   unavailable: "A Consultora está indisponível agora. Tente novamente.",
@@ -25,7 +25,7 @@ export function BeautyConsultant({ catalog, signedIn, onNeedLogin, onBook }: { c
     setBusy(true); setMsg(""); setAnswer(null);
     try {
       const r = await ask({ data: { request: q, catalog } });
-      if (r.ok) setAnswer({ message: r.message, ids: r.professionalIds }); else setMsg(errors[r.error] ?? errors.unavailable);
+      if (r.ok) setAnswer({ message: r.message, ids: r.professionalIds }); else setMsg(errors[r.error as keyof typeof errors] ?? errors.unavailable);
     } catch { setMsg(errors.unavailable); } finally { setBusy(false); }
   };
   return <>

@@ -14,7 +14,7 @@ export const askBeautyConsultant = createServerFn({ method: "POST" })
     if (!key) return { ok: false as const, error: "missing_key" };
     const list = data.catalog.map((p) => `- id=${p.id} | ${p.name} (${p.role}) | serviço: ${p.service} a partir de R$ ${p.price} | ${p.area} | ${p.atHome ? "atende em domicílio" : "atende no salão"} | ${p.tags.join(", ")}`).join("\n");
     const system = `Você é a Consultora IA BM, consultora de beleza e agendamento da Belle Maria Beauty em Florianópolis. Tom acolhedor, sofisticado e objetivo, em português do Brasil. A cliente descreve evento, horário ou estilo. Recomende o serviço ideal e até 3 profissionais APENAS desta lista (use os ids exatos):\n${list}\nNão invente profissionais, preços, horários disponíveis nem selos de verificação; diga que a disponibilidade é confirmada no agendamento. Sem conselhos médicos. Resposta em no máximo 6 linhas curtas.`;
-    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent", {
+    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent", {
       method: "POST",
       headers: { "content-type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({
