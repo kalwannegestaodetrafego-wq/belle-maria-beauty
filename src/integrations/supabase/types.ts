@@ -209,6 +209,9 @@ export type Database = {
           id: string
           image_path: string
           owner_id: string
+          service_id: string | null
+          tags: string[]
+          title: string | null
         }
         Insert: {
           caption?: string | null
@@ -216,6 +219,9 @@ export type Database = {
           id?: string
           image_path: string
           owner_id: string
+          service_id?: string | null
+          tags?: string[]
+          title?: string | null
         }
         Update: {
           caption?: string | null
@@ -223,6 +229,9 @@ export type Database = {
           id?: string
           image_path?: string
           owner_id?: string
+          service_id?: string | null
+          tags?: string[]
+          title?: string | null
         }
         Relationships: []
       }
@@ -230,6 +239,7 @@ export type Database = {
         Row: {
           account_type: Database["public"]["Enums"]["account_type"]
           address: string | null
+          avatar_path: string | null
           bio: string | null
           cnpj: string | null
           cpf: string | null
@@ -238,10 +248,13 @@ export type Database = {
           id: string
           identity_back_doc_path: string | null
           identity_doc_path: string | null
+          neighborhoods: string[]
           phone: string | null
+          public_slug: string | null
           residence_details: string | null
           salon_name: string | null
           selfie_path: string | null
+          specialty: string | null
           updated_at: string
           verification_rejection_reason: string | null
           verification_reviewed_at: string | null
@@ -251,6 +264,7 @@ export type Database = {
         Insert: {
           account_type?: Database["public"]["Enums"]["account_type"]
           address?: string | null
+          avatar_path?: string | null
           bio?: string | null
           cnpj?: string | null
           cpf?: string | null
@@ -259,10 +273,13 @@ export type Database = {
           id: string
           identity_back_doc_path?: string | null
           identity_doc_path?: string | null
+          neighborhoods?: string[]
           phone?: string | null
+          public_slug?: string | null
           residence_details?: string | null
           salon_name?: string | null
           selfie_path?: string | null
+          specialty?: string | null
           updated_at?: string
           verification_rejection_reason?: string | null
           verification_reviewed_at?: string | null
@@ -272,6 +289,7 @@ export type Database = {
         Update: {
           account_type?: Database["public"]["Enums"]["account_type"]
           address?: string | null
+          avatar_path?: string | null
           bio?: string | null
           cnpj?: string | null
           cpf?: string | null
@@ -280,10 +298,13 @@ export type Database = {
           id?: string
           identity_back_doc_path?: string | null
           identity_doc_path?: string | null
+          neighborhoods?: string[]
           phone?: string | null
+          public_slug?: string | null
           residence_details?: string | null
           salon_name?: string | null
           selfie_path?: string | null
+          specialty?: string | null
           updated_at?: string
           verification_rejection_reason?: string | null
           verification_reviewed_at?: string | null
@@ -514,6 +535,12 @@ export type Database = {
         Args: { _booking_id: string; _release: boolean }
         Returns: undefined
       }
+      bm_is_public_portfolio_object: {
+        Args: { _name: string }
+        Returns: boolean
+      }
+      bm_portfolio_catalog: { Args: never; Returns: Json }
+      bm_public_portfolio: { Args: { _slug: string }; Returns: Json }
       bm_resolve_ticket: {
         Args: { _reply: string; _ticket_id: string }
         Returns: undefined

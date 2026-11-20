@@ -44,6 +44,9 @@ import { HelpRules, OnlineToggle, WelcomeTraining } from "../components/bm/train
 import { CategoryShowcase, PortfolioNotice, ServiceMenu } from "../components/bm/discovery";
 import { CheckoutOptions, FlexibleSchedule, bookingIsUrgent, bookingTotal, brazilDays, initialExtras, money, type BookingExtras } from "../components/bm/booking-extras";
 import { BeautyConsultant } from "../components/bm/beauty-assistant";
+import { PortfolioManager } from "../components/bm/portfolio-manager";
+import { getPublicPortfolio } from "../lib/bm-portfolio.functions";
+import { serviceForItem } from "../lib/bm-portfolio";
 import { LocationPanel, SolanaCheckout, SolanaPointsHub } from "../components/bm/web3-geo";
 import { AppointmentsSummary, EarningsStatement, MyAppointments, ReleaseSuccess, ServicesManager, type Appointment } from "../components/bm/pro-dashboard";
 import { HybridCheckout, PaymentReceipt, type HybridMethod } from "../components/bm/hybrid-checkout";
@@ -58,6 +61,7 @@ import nailsEditorial from "../assets/category-nails.jpg";
 import clubEditorial from "../assets/category-club.jpg";
 
 export const Route = createFileRoute("/")({
+  validateSearch: (search: Record<string, unknown>): { book?: string; look?: string } => ({ ...(typeof search["book"] === "string" ? { book: search["book"] } : {}), ...(typeof search["look"] === "string" ? { look: search["look"] } : {}) }),
   head: () => ({
     meta: [
       { title: "BM — Beauty wherever you are" },
@@ -86,6 +90,7 @@ type Professional = {
   atHome: boolean;
   tags: string[];
   extras?: { name: string; price: number }[];
+  ownerId?: string;
 };
 
 type OrderStatus = "new" | "accepted" | "enroute" | "arrived" | "completed";
@@ -169,6 +174,24 @@ function Index() {
     return () => { active = false; };
   }, [user]);
 
+  const search = Route.useSearch();
+  useEffect(() => {
+    if (!search.book) return;
+    let active = true;
+    void getPublicPortfolio({ data: { slug: search.book } }).then(async (pp) => {
+      if (!active || !pp) return;
+      const item = pp.items.find((i) => i.id === search.look);
+      const svc = serviceForItem(pp, item ?? { serviceId: null });
+      if (!svc) return;
+      const path = item?.imagePath ?? pp.avatar;
+      const signed = path ? (await supabase.storage.from("portfolio").createSignedUrl(path, 3600)).data?.signedUrl : undefined;
+      setSelected({ id: `pf-${pp.slug}`, ownerId: pp.id, name: pp.name, role: pp.accountType === "salao" ? "Salão Parceiro" : (pp.specialty ?? "Profissional de Beleza"), rating: pp.rating ? pp.rating.toLocaleString("pt-BR") : "Novo", reviews: pp.reviewCount, distance: pp.neighborhoods.slice(0, 2).join(", ") || "Florianópolis", category: "Maquiagem", service: item?.title ? `${svc.name} · ${item.title}` : svc.name, price: svc.priceCents / 100, image: signed ?? camilaImage, bio: pp.bio ?? "", atHome: pp.accountType !== "salao", tags: item?.tags ?? [] });
+      setStep(1);
+      void navigateTo({ to: "/", search: {}, replace: true });
+    }).catch(() => {});
+    return () => { active = false; };
+  }, [search.book, search.look]);
+
   const filtered = useMemo(() => professionals.filter((p) => (category === "Para você" || category.startsWith(p.category) || category.startsWith("Cabelo") && p.id === "camila" || category === "Casamentos & Noivas" && p.id === "camila" || category === "Eventos" && p.id === "camila" || category === "Combos VIP" || category === "Clube BM" || category === "Vale Presente") && (mode === "Em Domicílio" ? p.atHome : !p.atHome)), [category, mode]);
 
   const latest = myBookings[0] ?? liveBooking ?? null;
@@ -193,6 +216,7 @@ function Index() {
     try {
       const row = await createBooking({
         professional_name: selected.name,
+        professional_id: selected.ownerId ?? null,
         salon_name: selected.role === "Salão Parceiro" ? selected.name : null,
         service_name: selected.service,
         category: selected.category,
@@ -398,6 +422,7 @@ function ProfessionalView({ selectedDay, selectedTime, orderTotal, status, setSt
     {translateUi(status !== "completed" && status !== "arrived" && <p className="mt-2 text-center text-[11px] text-muted-foreground">{translateUi("Disponível após confirmar \"Cheguei ao Local\".", language)}</p>, language)}
     <EarningsStatement escrow={hasLedger ? totals.escrow : (status === "completed" ? 0 : net)} available={hasLedger ? totals.available : (status === "completed" ? net : 0)} withdrawn={withdrawn} saved={hasLedger} onWithdraw={() => { void withdraw(); }} />
     <ServicesManager />
+    <PortfolioManager />
 
     <ChairBooking />
     {released && <ReleaseSuccess amount={hasLedger ? totals.earnings : net} onClose={() => setReleased(false)} bookingId={bookingId} />}

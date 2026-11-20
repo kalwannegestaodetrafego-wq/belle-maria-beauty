@@ -22,3 +22,4 @@
 - Separate signup document requirements from checkout verification; client accounts stay lightweight while bookings require saved identity data.
 - Keep password recovery on a public route and enable password updates only for a validated recovery session, not an ordinary signed-in session.
 - Evaluation view switching is scoped to the fixed pre-existing demo user ID, not editable profile metadata; its public login never provisions users or grants roles and refuses privileged demo accounts.
+- Public portfolio pages read only through the security-definer bm_public_portfolio RPC and a storage policy limited to files listed in published portfolios; profiles keep no anon table policy so CPF/documents stay private.
