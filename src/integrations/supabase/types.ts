@@ -235,6 +235,33 @@ export type Database = {
         }
         Relationships: []
       }
+      portfolio_videos: {
+        Row: {
+          created_at: string
+          id: string
+          owner_id: string
+          reel_code: string
+          service_id: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          owner_id: string
+          reel_code: string
+          service_id?: string | null
+          title?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          owner_id?: string
+          reel_code?: string
+          service_id?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           account_type: Database["public"]["Enums"]["account_type"]

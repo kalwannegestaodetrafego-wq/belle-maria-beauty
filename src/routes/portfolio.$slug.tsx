@@ -3,7 +3,7 @@ import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-ro
 import { Award, CalendarHeart, Clock3, MapPin, ShieldCheck, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getPublicPortfolio } from "../lib/bm-portfolio.functions";
-import { serviceForItem } from "../lib/bm-portfolio";
+import { reelEmbedUrl, serviceForItem } from "../lib/bm-portfolio";
 
 export const Route = createFileRoute("/portfolio/$slug")({
   loader: async ({ params }) => {
@@ -68,6 +68,14 @@ function PortfolioPage() {
           <button type="button" onClick={() => book(i.id)} disabled={!s} className="mt-2 w-full rounded-md border border-primary px-2 py-1.5 text-[11px] font-bold hover:bg-primary hover:text-primary-foreground disabled:opacity-40">Agendar este visual</button></figcaption>
       </figure>; })}</div>}
     </section>
+
+    {(p.videos?.length ?? 0) > 0 && <section className="mt-8 px-5"><h2 className="font-display text-xl">Vídeos</h2>
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">{p.videos!.map((v) => { const s = serviceForItem(p, v); return <figure key={v.id} className="overflow-hidden rounded-lg bg-card shadow-soft">
+        <iframe src={reelEmbedUrl(v.reelCode)} title={v.title || `Vídeo de ${p.name}`} loading="lazy" allow="encrypted-media" className="h-[560px] w-full border-0" />
+        <figcaption className="p-2.5">{v.title && <p className="text-xs font-bold">{v.title}</p>}{s && <p className="mt-1 text-[11px] text-muted-foreground">{s.name} · {money(s.priceCents)}</p>}
+          <button type="button" onClick={() => book()} disabled={!s} className="mt-2 w-full rounded-md border border-primary px-2 py-1.5 text-[11px] font-bold hover:bg-primary hover:text-primary-foreground disabled:opacity-40">Agendar este visual</button></figcaption>
+      </figure>; })}</div>
+    </section>}
 
     {p.services.length > 0 && <section className="mt-8 px-5"><h2 className="font-display text-xl">Serviços e preços</h2><div className="mt-3 space-y-2">{p.services.map((s) => <div key={s.id} className="flex items-center justify-between rounded-lg bg-card px-3 py-2.5 text-sm shadow-soft"><span><b>{s.name}</b><span className="ml-2 inline-flex items-center gap-1 text-xs text-muted-foreground"><Clock3 size={12} />{s.durationMin} min</span></span><span className="font-bold">{money(s.priceCents)}</span></div>)}</div></section>}
 

@@ -18,3 +18,10 @@ test("uses the linked service price", () => {
   const services = [{ id: "a", name: "A", priceCents: 10000, durationMin: 60 }, { id: "b", name: "B", priceCents: 25000, durationMin: 90 }];
   assert.equal(serviceForItem({ services }, { serviceId: "b" })?.priceCents, 25000);
 });
+import { MAX_PORTFOLIO_PHOTOS, MAX_PORTFOLIO_VIDEOS, parseReelCode } from "./bm-portfolio";
+test("portfolio allows 12 photos and 10 videos", () => { assert.equal(MAX_PORTFOLIO_PHOTOS, 12); assert.equal(MAX_PORTFOLIO_VIDEOS, 10); });
+test("reads Instagram Reel links and rejects others", () => {
+  assert.equal(parseReelCode("https://www.instagram.com/reel/C8xYz12AbCd/?igsh=abc"), "C8xYz12AbCd");
+  assert.equal(parseReelCode("instagram.com/reels/C8xYz12AbCd"), "C8xYz12AbCd");
+  assert.equal(parseReelCode("https://youtube.com/watch?v=abc"), null);
+});

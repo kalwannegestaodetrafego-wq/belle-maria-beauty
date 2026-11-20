@@ -3,7 +3,7 @@ export type PublicItem = { id: string; imagePath: string; title: string | null; 
 export type PublicPortfolio = {
   id: string; slug: string; name: string; specialty: string | null; bio: string | null; salon: string | null; accountType: string;
   avatar: string | null; neighborhoods: string[]; verified: boolean; founder: boolean; rating: number | null; reviewCount: number;
-  reviews: { rating: number; comment: string | null; createdAt: string }[]; services: PublicService[]; items: PublicItem[];
+  reviews: { rating: number; comment: string | null; createdAt: string }[]; services: PublicService[]; items: PublicItem[]; videos?: PublicVideo[];
 };
 
 export const FLORIPA_NEIGHBORHOODS = ["Centro", "Agronômica", "Trindade", "Córrego Grande", "Itacorubi", "Santa Mônica", "Lagoa da Conceição", "Campeche", "Jurerê", "Canasvieiras", "Ingleses", "Coqueiros", "Estreito", "Saco Grande", "João Paulo", "Rio Tavares"];
@@ -29,3 +29,14 @@ export const whatsappShareUrl = (link: string) =>
 export function serviceForItem(p: Pick<PublicPortfolio, "services">, item: Pick<PublicItem, "serviceId">): PublicService | null {
   return p.services.find((s) => s.id === item.serviceId) ?? p.services[0] ?? null;
 }
+
+export const MAX_PORTFOLIO_PHOTOS = 12;
+export const MAX_PORTFOLIO_VIDEOS = 10;
+export type PublicVideo = { id: string; reelCode: string; title: string; serviceId: string | null };
+
+/** Extracts the Instagram Reel/post code from a pasted link; null when not an Instagram reel link. */
+export function parseReelCode(raw: string): string | null {
+  const m = raw.trim().match(/^(?:https?:\/\/)?(?:www\.|m\.)?instagram\.com\/(?:[A-Za-z0-9_.]+\/)?(?:reels?|p|tv)\/([A-Za-z0-9_-]{5,40})/i);
+  return m?.[1] ?? null;
+}
+export const reelEmbedUrl = (code: string) => `https://www.instagram.com/reel/${encodeURIComponent(code)}/embed`;
